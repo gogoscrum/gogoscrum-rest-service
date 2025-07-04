@@ -1,4 +1,4 @@
-package com.shimi.gogoscrum.webSocket;
+package com.shimi.gogoscrum.socket;
 
 import com.shimi.gsf.core.event.EntityChangeEvent;
 

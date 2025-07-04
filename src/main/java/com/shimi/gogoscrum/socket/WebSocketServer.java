@@ -1,4 +1,4 @@
-package com.shimi.gogoscrum.webSocket;
+package com.shimi.gogoscrum.socket;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
