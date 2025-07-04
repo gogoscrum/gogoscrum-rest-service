@@ -26,6 +26,53 @@ gogoscrum是广受欢迎的轻量级敏捷项目管理工具。遵循Scrum敏捷
 - 项目资料：记录项目中的重要信息，以便团队成员随时查阅。
 - 统计图表：迭代燃尽图、速率图和累积流图，一眼便知项目进展是否符合预期。
 
+## 页面截图
+
+经典风格看板
+
+<img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/white-board-classic.png" width="680">
+
+彩色贴纸风格看板
+
+<img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/white-board-sticky-notes.png" width="680">
+
+黑暗模式看板
+
+<img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/dark-board.png" width="680">
+
+任务列表
+
+<img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/issue-list.png" width="680">
+
+文件列表
+
+<img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/file-list.png" width="680">
+
+燃尽图
+
+<img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/burn-down-chart.png" width="680">
+
+任务详情
+
+<img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/issue-edit.png" width="480">
+
+## 技术栈
+
+gogoscrum后端服务基于以下技术栈构建：
+
+- Java 21
+- Spring Boot 3.4
+- Spring Security
+- JPA + Hibernate
+- Flyway 11.7
+- MySQL 8.0
+
+gogoscrum前端应用基于以下技术栈构建：
+- Vue 3.5
+- Element Plus
+- Echarts
+- Tinymce Editor
+
 ## 快速开始
 
 ### 通过docker运行gogoscrum
@@ -34,6 +81,33 @@ gogoscrum是广受欢迎的轻量级敏捷项目管理工具。遵循Scrum敏捷
 - 解压缩到gogoscrum-docker目录
 - 进入目录，运行命令 `docker compose up --build`
 - 访问 [http://localhost] 开始体验gogoscrum
+
+### 通过源代码运行gogoscrum
+
+#### 启动后端服务
+
+- 克隆 `gsf-core-service` 仓库并安装 `shimi-gsf-core.jar` 至本地Maven仓库（具体步骤参考 `gsf-core-service` 项目内README文档）
+- 克隆 `gogoscrum-rest-service` 仓库至本地目录，并导入至IDE开发工具
+- 复制 `dist.application-dev.properties` 文件为 `application-dev.properties`
+- 修改 `application-dev.properties` 中的数据库连接及其它配置信息
+  - 预先手动创建好数据库，服务启动时会自动创建所有的表
+  - 检查本地Redis服务是否已安装并已启动
+  - 创建lfs目录用于保存上传的文件，并修改 `file.local.dir.base` 配置指向该目录
+- 运行 `GogoscrumApplication.java` 启动服务，查看服务端日志，确认服务启动正常
+- 访问 [http://localhost:8080/health] 验证服务已正常运行
+
+#### 启动前端应用
+
+- 克隆 `gogoscrum-web-client` 仓库至本地目录，并导入至IDE开发工具
+- 在项目根目录下新建文件 `.env.local` 并添加以下内容：
+```
+NODE_ENV=development
+VITE_FILE_PATH = '指向到后端Java服务中所配置的lfs路径'
+```
+- 运行命令 `npm i` 安装依赖
+- 运行命令 `npm run dev` 启动前端项目
+- 访问 [http://localhost:8081] 开始使用gogoscrum
+- 首次访问请先注册新用户，注册后即可登录使用
 
 ## Bug提交
 
