@@ -74,6 +74,12 @@ gogoscrum frontend built with:
 - Echarts
 - Tinymce Editor
 
+## Demo site
+
+- [http://demo.gogoscrum.com/]
+- login user: `demo`
+- password: `demo1234`
+
 ## Quick start
 
 ### Run gogoscrum with Docker

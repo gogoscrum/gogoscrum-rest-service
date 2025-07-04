@@ -73,6 +73,12 @@ gogoscrum前端应用基于以下技术栈构建：
 - Echarts
 - Tinymce Editor
 
+## 体验站
+
+- [http://demo.gogoscrum.com/]
+- 用户名：`demo`
+- 密码：`demo1234`
+
 ## 快速开始
 
 ### 通过docker运行gogoscrum
