@@ -1,0 +1,45 @@
+# gogoscrum开源轻量级敏捷项目管理工具
+
+[English](README.md) | [简体中文](README.zh-CN.md)
+
+gogoscrum是广受欢迎的轻量级敏捷项目管理工具。遵循Scrum敏捷实践，为敏捷软件开发团队量身打造。从代办事项列表到迭代任务看板、故事点估算、Bug跟踪、项目文件管理和燃尽图报表，轻松管理敏捷软件开发流程的所有环节。
+
+## 🛡️ 授权协议
+
+本项目基于 **Apache License 2.0** 进行授权，并附加以下限制条款。
+
+您可以自由地：
+
+- 出于**非商业目的**使用、修改和分发本软件（需保留logo和版权声明）；
+- 学习源代码并为项目做出贡献。
+
+但您**不得将本软件用于商业目的**，包括但不限于作为产品或服务进行销售、收费使用或提供给第三方。
+
+如需将本软件用于商业用途（例如 SaaS 服务、企业内部系统或付费解决方案），请联系我们获取**商业授权**。
+
+## 主要功能
+
+- 迭代看板：以看板为团队协作核心，领取任务、拖动更新状态、开展每日站会，团队成员随时保持信息同步。
+- 任务和Bug管理：任务故事点估算、添加标签、快捷上传截图或附件、关联到其它任务、添加评论、任务变更历史记录一目了然。
+- 代办列表：按照优先级和故事点数自动排序，轻松梳理项目需求和任务。
+- 文件管理：创建文件夹并上传多种格式的文件，统一管理项目中的各类文档资料。
+- 项目资料：记录项目中的重要信息，以便团队成员随时查阅。
+- 统计图表：迭代燃尽图、速率图和累积流图，一眼便知项目进展是否符合预期。
+
+## 快速开始
+
+### 通过docker运行gogoscrum
+
+- 下载压缩包：[https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/downloads/gogoscrum-docker.zip]
+- 解压缩到gogoscrum-docker目录
+- 进入目录，运行命令 `docker compose up --build`
+- 访问 [http://localhost] 开始体验gogoscrum
+
+## Bug提交
+
+加入“gogoscrum社区版”项目，提交bug：[https://www.gogoscrum.com/invitations/n6DDaxwqMndM]
+
+## 交流社区
+
+微信扫码加入gogoscrum开发者交流群：\
+<img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/wechat-qr-dev-group.png" width="100">
