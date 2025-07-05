@@ -1,4 +1,4 @@
-# gogoscrum轻量级开源敏捷项目管理工具
+# gogoscrum开源轻量级敏捷项目管理工具
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
