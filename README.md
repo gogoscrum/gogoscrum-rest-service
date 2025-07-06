@@ -4,20 +4,7 @@
 
 gogoscrum is a lightweight agile project management tool designed for efficient team collaboration. Manage tasks effortlessly on an intuitive sprint board, drag and drop tasks to update their status. Track and report bugs, monitor progress with a sprint burndown chart, and share files and documents seamlessly — everything an agile team needs in one place.
 
-## License
-
-This project is licensed under the **Apache License 2.0** with the following restriction.
-
-You are free to:
-
-- Use, modify, and distribute the software for **non-commercial** purposes (need to keep the logo and copyright info);
-- Study the source code and contribute to the project.
-
-However, you **may not sell** or use this software in **commercial** services or products without prior written consent from us.
-
-If you want to use this software in a commercial context (e.g., as part of a SaaS offering, enterprise system, or paid solution), please contact us to obtain a **commercial license**.
-
-## Major features
+## Features
 
 - **Sprint Board**: Align project teams with a visual task board, allowing members to assign tasks and update statuses via drag-and-drop.
 - **Issue Tracking**: Efficiently manage user stories, tasks, and bugs using tags, attachments, links, and comments.
@@ -56,9 +43,9 @@ Issue details
 
 <img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/issue-edit.png" width="480">
 
-## 技术栈
+## Technologies
 
-gogoscrum backend service built with:
+**gogoscrum backend service built with**:
 
 - Java 21
 - Spring Boot 3.4
@@ -66,7 +53,7 @@ gogoscrum backend service built with:
 - JPA + Hibernate
 - MySQL 8.0
 
-gogoscrum frontend built with:
+**gogoscrum frontend built with**:
 
 - Vue 3.5
 - Element Plus
@@ -107,7 +94,7 @@ gogoscrum frontend built with:
 - Create a `.env.local` file in the root of the project and add the following content:
 ```
 NODE_ENV=development
-VITE_FILE_PATH = 'Path corresponding to the lfs directory configured in the backend Java service'
+VITE_FILE_PATH = 'Path to the lfs directory configured in the backend Java service'
 ```
 - Run `npm i` to install dependencies
 - Run `npm run dev` to start the frontend project
@@ -118,6 +105,19 @@ VITE_FILE_PATH = 'Path corresponding to the lfs directory configured in the back
 
 Join “gogoscrum community version” project to submit bugs: [https://www.gogoscrum.com/invitations/n6DDaxwqMndM]
 
-## Developers community
+## Community
 
 Join gogoscrum developer group on Discord: [https://discord.gg/FBdf43BZ]
+
+## License
+
+This project is licensed under the **Apache License 2.0** with the following restriction.
+
+You are free to:
+
+- Use, modify, and distribute the software for **non-commercial** purposes (need to keep the logo and copyright info);
+- Study the source code and contribute to the project.
+
+However, you **may not sell** or use this software in **commercial** services or products without prior written consent from us.
+
+If you want to use this software in a commercial context (e.g., as part of a SaaS offering, enterprise system, or paid solution), please contact us to obtain a **commercial license**.
