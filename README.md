@@ -1,6 +1,20 @@
-# gogoscrum - Lightweight agile project management tool
-
 [English](README.md) | [简体中文](README.zh-CN.md)
+
+<p align="center">
+<a href="https://www.gogoscrum.com">
+  <img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/gogoscrum-full-logo.png" width="360">
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://www.apache.org/licenses/LICENSE-2.0"><img src="https://img.shields.io/badge/License-Apache 2.0-orange" alt="License"></a>
+  <img src="https://img.shields.io/badge/Java-21-brightgreen.svg" alt="Java Version" />
+  <a href="https://www.gogoscrum.com"><img src="https://img.shields.io/badge/Website-www.gogoscrum.com-blue" alt="gogoscrum Website"></a>
+</p>
+
+<br/>
+
+# gogoscrum - Lightweight agile project management tool
 
 gogoscrum is a lightweight agile project management tool designed for efficient team collaboration. Manage tasks effortlessly on an intuitive sprint board, drag and drop tasks to update their status. Track and report bugs, monitor progress with a sprint burndown chart, and share files and documents seamlessly — everything an agile team needs in one place.
 

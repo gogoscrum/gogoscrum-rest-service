@@ -1,6 +1,20 @@
-# gogoscrum开源轻量级敏捷项目管理工具
-
 [English](README.md) | [简体中文](README.zh-CN.md)
+
+<p align="center">
+<a href="https://www.gogoscrum.com">
+  <img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/gogoscrum-full-logo.png" width="360">
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://www.apache.org/licenses/LICENSE-2.0"><img src="https://img.shields.io/badge/License-Apache 2.0-orange" alt="License"></a>
+  <img src="https://img.shields.io/badge/Java-21-brightgreen.svg" alt="Java Version" />
+  <a href="https://www.gogoscrum.com"><img src="https://img.shields.io/badge/Website-www.gogoscrum.com-blue" alt="gogoscrum Website"></a>
+</p>
+
+<br/>
+
+# gogoscrum开源轻量级敏捷项目管理工具
 
 gogoscrum是轻量级敏捷项目管理工具，遵循Scrum敏捷实践，为敏捷软件开发团队量身打造。可以轻松管理从代办事项列表、迭代任务看板、故事点估算、Bug跟踪、项目文件管理和燃尽图报表的所有环节。
 
