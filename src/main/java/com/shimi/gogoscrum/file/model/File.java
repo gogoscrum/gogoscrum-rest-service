@@ -147,7 +147,13 @@ public class File extends BaseEntity {
     }
 
     public String getUrl() {
-        return Objects.requireNonNullElse(urlPrefix, "/") + fullPath;
+        if (fullPath == null || fullPath.isEmpty()) {
+            return null;
+        } else if (fullPath.startsWith("http://") || fullPath.startsWith("https://")) {
+            return fullPath;
+        } else {
+            return Objects.requireNonNullElse(urlPrefix, "/") + fullPath;
+        }
     }
 
     public Issue getIssue() {
