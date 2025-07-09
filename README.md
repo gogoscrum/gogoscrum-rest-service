@@ -2,14 +2,14 @@
 
 <p align="center">
 <a href="https://www.gogoscrum.com">
-  <img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/gogoscrum-full-logo.png" width="360" style="backgroud-color: unset;">
+  <img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/gogoscrum-full-logo.png" width="360" style="background-color: unset;">
   </a>
 </p>
 
 <p align="center">
-  <a href="https://www.apache.org/licenses/LICENSE-2.0"><img src="https://img.shields.io/badge/License-Apache 2.0-orange" alt="License" style="backgroud-color: unset;" /></a>
-  <img src="https://img.shields.io/badge/Java-21-brightgreen.svg" alt="Java Version" style="backgroud-color: unset;" />
-  <a href="https://www.gogoscrum.com"><img src="https://img.shields.io/badge/Website-www.gogoscrum.com-blue" alt="gogoscrum Website" style="backgroud-color: unset;" /></a>
+  <a href="https://www.apache.org/licenses/LICENSE-2.0"><img src="https://img.shields.io/badge/License-Apache 2.0-orange" alt="License" style="background-color: unset;" /></a>
+  <img src="https://img.shields.io/badge/Java-21-brightgreen.svg" alt="Java Version" style="background-color: unset;" />
+  <a href="https://www.gogoscrum.com"><img src="https://img.shields.io/badge/Website-www.gogoscrum.com-blue" alt="gogoscrum Website" style="background-color: unset;" /></a>
 </p>
 
 <br/>
