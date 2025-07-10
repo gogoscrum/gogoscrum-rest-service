@@ -123,6 +123,11 @@ public class IssueServiceImpl extends BaseServiceImpl<Issue, IssueFilter> implem
                 }
             });
         }
+
+        // Reload the owner from DB in case the front-end only passed in the ID of the owner
+        if (newIssue.getOwner() != null && newIssue.getOwner().getId() != null) {
+            newIssue.setOwner(userService.get(newIssue.getOwner().getId()));
+        }
     }
 
     protected String[] getUpdateIgnoredProps() {
