@@ -16,6 +16,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @Service
 public class ComponentServiceImpl extends BaseServiceImpl<Component, ComponentFilter> implements ComponentService {
@@ -36,7 +37,7 @@ public class ComponentServiceImpl extends BaseServiceImpl<Component, ComponentFi
             Component cat = get(id);
             cat.setSeq(i.getAndIncrement());
             return cat;
-        }).toList();
+        }).collect(Collectors.toList());
 
         if (!CollectionUtils.isEmpty(categories)) {
             repository.saveAll(categories);

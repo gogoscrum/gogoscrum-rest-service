@@ -24,6 +24,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Service
@@ -55,7 +56,7 @@ public class IssueGroupServiceImpl extends BaseServiceImpl<IssueGroup, IssueGrou
                     IssueGroup issueGroup = this.get(issueGroupIds.get(i));
                     issueGroup.setSeq((short) i);
                     return issueGroup;
-                }).toList();
+                }).collect(Collectors.toList());
 
         User currentUser = getCurrentUser();
         ProjectMemberUtils.checkDeveloper(projectService.get(newIssueGroups.getFirst().getProject().getId()),

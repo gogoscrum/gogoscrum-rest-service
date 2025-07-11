@@ -15,4 +15,5 @@ public interface SprintService extends GeneralService<Sprint, SprintFilter> {
     SprintIssueCount getSprintIssueCount(Long sprintId);
     SprintIssueCount saveSprintIssueCount(SprintIssueCount sprintIssueCount);
     CumulativeFlowDiagramDto getSprintCumulativeFlowDiagram(Long sprintId);
+    void refreshSprintIssueCount(Long sprintId);
 }

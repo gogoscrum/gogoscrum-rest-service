@@ -460,6 +460,11 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, ProjectFilter> 
         }
     }
 
+    /**
+     * Handles file creation, updating and deletion events to update the project file count and total size.
+     * This method is transactional and runs in a separate transaction to ensure thread safety and data integrity.
+     * @param event The entity change event containing the file information.
+     */
     @EventListener
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void onFileChanged(EntityChangeEvent event) {

@@ -13,6 +13,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Service
@@ -59,7 +60,7 @@ public class IssueFilterServiceImpl extends BaseServiceImpl<IssueFilter, IssueFi
                     IssueFilter filter = this.get(filterIds.get(i));
                     filter.setSeq(i);
                     return filter;
-                }).toList();
+                }).collect(Collectors.toList());
 
         repository.saveAll(newFilters);
         log.info("Issue filter seq updated with IDs : {}", filterIds);

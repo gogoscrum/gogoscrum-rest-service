@@ -34,6 +34,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Service
@@ -103,8 +104,17 @@ public class IssueServiceImpl extends BaseServiceImpl<Issue, IssueFilter> implem
     }
 
     @Override
+    protected void afterCreate(Issue issue) {
+        sprintService.refreshSprintIssueCount(issue.getSprint().getId());
+    }
+
+    @Override
     protected void beforeUpdate(Long id, Issue existingIssue, Issue newIssue) {
         ProjectMemberUtils.checkDeveloper(projectService.get(existingIssue.getProject().getId()), getCurrentUser());
+
+        if (newIssue.getSprint() == null) {
+            newIssue.setSprint(existingIssue.getProject().getBacklogSprint());
+        }
 
         if (newIssue.getIssueGroup().getStatus().equals(IssueGroupStatus.DONE)) {
             if (!existingIssue.getIssueGroup().getStatus().equals(newIssue.getIssueGroup().getStatus())) {
@@ -130,6 +140,14 @@ public class IssueServiceImpl extends BaseServiceImpl<Issue, IssueFilter> implem
         }
     }
 
+    @Override
+    protected void afterUpdate(Long id, Issue oldIssue, Issue newIssue) {
+        if (!Objects.equals(oldIssue.getSprint().getId(), newIssue.getSprint().getId())) {
+            sprintService.refreshSprintIssueCount(oldIssue.getSprint().getId());
+            sprintService.refreshSprintIssueCount(newIssue.getSprint().getId());
+        }
+    }
+
     protected String[] getUpdateIgnoredProps() {
         return new String[]{"id", "code", "project", "createdTime", "createdBy", "linkToIssues", "linkedByIssues", "comments", "files"};
     }
@@ -141,7 +159,7 @@ public class IssueServiceImpl extends BaseServiceImpl<Issue, IssueFilter> implem
                     Issue issue = this.get(issueIds.get(i));
                     issue.setSeq(i);
                     return issue;
-                }).toList();
+                }).collect(Collectors.toList());
 
         User currentUser = getCurrentUser();
         ProjectMemberUtils.checkDeveloper(projectService.get(newIssues.getFirst().getProject().getId()), currentUser);
@@ -247,12 +265,12 @@ public class IssueServiceImpl extends BaseServiceImpl<Issue, IssueFilter> implem
         Issue issue = this.get(issueId);
         List<Issue> currentLinkTos = issue.getLinkToIssues();
         List<Issue> updatedLinkTos = currentLinkTos.stream()
-                .filter(linkIssue -> !linkIssue.getId().equals(linkToIssueId)).toList();
+                .filter(linkIssue -> !linkIssue.getId().equals(linkToIssueId)).collect(Collectors.toList());
         issue.setLinkToIssues(updatedLinkTos);
 
         List<Issue> currentLinkedBys = issue.getLinkedByIssues();
         List<Issue> updatedLinkedBys = currentLinkedBys.stream()
-                .filter(linkIssue -> !linkIssue.getId().equals(linkToIssueId)).toList();
+                .filter(linkIssue -> !linkIssue.getId().equals(linkToIssueId)).collect(Collectors.toList());
         issue.setLinkedByIssues(updatedLinkedBys);
 
         repository.save(issue);
@@ -375,6 +393,8 @@ public class IssueServiceImpl extends BaseServiceImpl<Issue, IssueFilter> implem
 
             log.info("Deleted {} files of issue {}", files.size(), issue);
         }
+
+        sprintService.refreshSprintIssueCount(issue.getSprint().getId());
     }
 
     @Override

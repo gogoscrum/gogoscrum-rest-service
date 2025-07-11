@@ -15,15 +15,12 @@ import com.shimi.gogoscrum.sprint.model.SprintFilter;
 import com.shimi.gogoscrum.sprint.model.SprintIssueCount;
 import com.shimi.gogoscrum.sprint.repository.SprintIssueCountRepository;
 import com.shimi.gogoscrum.sprint.repository.SprintRepository;
-import com.shimi.gsf.core.event.EntityChangeEvent;
 import com.shimi.gsf.core.exception.BaseServiceException;
 import com.shimi.gsf.core.exception.NoPermissionException;
-import com.shimi.gsf.core.model.Entity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.context.event.EventListener;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -34,7 +31,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 @Service
 public class SprintServiceImpl extends BaseServiceImpl<Sprint, SprintFilter> implements SprintService {
@@ -195,45 +191,7 @@ public class SprintServiceImpl extends BaseServiceImpl<Sprint, SprintFilter> imp
         return this.sprintIssueCountRepository.save(sprintIssueCount);
     }
 
-    /**
-     * Refresh the issue count of the sprint when the issue is created, updated or deleted.
-     * @param event the event that contains the issue change information
-     */
-    @EventListener
-    public void onIssueChanged(EntityChangeEvent event) {
-        Entity entity = Objects.requireNonNullElse(event.getPreviousEntity(), event.getUpdatedEntity());
-
-        if (!(entity instanceof Issue)) {
-            return;
-        }
-
-        Long newSprintId = null;
-        Long oldSprintId = null;
-
-        if (event.getUpdatedEntity() != null) {
-            Issue newIssue = (Issue)event.getUpdatedEntity();
-            if (newIssue.getSprint() != null) {
-                newSprintId = newIssue.getSprint().getId();
-            }
-        }
-
-        if (event.getPreviousEntity() != null) {
-            Issue oldIssue = (Issue)event.getPreviousEntity();
-            if (oldIssue.getSprint() != null) {
-                oldSprintId = oldIssue.getSprint().getId();
-            }
-        }
-
-        if (oldSprintId != null) {
-            this.refreshSprintIssueCount(oldSprintId);
-        }
-
-        if (newSprintId != null && !Objects.equals(newSprintId, oldSprintId)) {
-            this.refreshSprintIssueCount(newSprintId);
-        }
-    }
-
-    private void refreshSprintIssueCount(Long sprintId) {
+    public void refreshSprintIssueCount(Long sprintId) {
         Sprint sprint = repository.getReferenceById(sprintId);
         long oldTotalIssueCount = sprint.getTotalIssueCount();
         long oldDoneIssueCount = sprint.getDoneIssueCount();
