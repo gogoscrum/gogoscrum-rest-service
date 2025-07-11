@@ -83,7 +83,7 @@ gogoscrum是轻量级敏捷项目管理工具，遵循Scrum敏捷实践，为敏
 
 ### 通过docker运行gogoscrum
 
-- 下载压缩包：[https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/downloads/gogoscrum-docker.zip]
+- 下载压缩包：[https://www.gogoscrum.com/downloads/gogoscrum-docker.zip]
 - 解压缩到 `gogoscrum-docker`目录
 - 进入目录，运行命令 `docker compose up --build`
 - 访问 [http://localhost] 开始体验gogoscrum

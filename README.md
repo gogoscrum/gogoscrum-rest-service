@@ -83,7 +83,7 @@ Issue details
 
 ### Run gogoscrum with Docker
 
-- Download [https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/downloads/gogoscrum-docker.zip]
+- Download [https://www.gogoscrum.com/downloads/gogoscrum-docker.zip]
 - Unzip into folder `gogoscrum-docker`
 - Run command in the folder `docker compose up --build` 
 - Access [http://localhost] to start
