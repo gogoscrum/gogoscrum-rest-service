@@ -1,22 +1,26 @@
 package com.shimi.gogoscrum.file.model;
 
-import com.shimi.gogoscrum.file.service.FileStorage;
-
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 public class FileUploadToken implements Serializable {
     @Serial
     private static final long serialVersionUID = 3296083971513494298L;
     private String uploadActionUrl;
-    private FileStorage.FileStorageProvider provider;
+    private String provider;
     private String path;
     private String sourceFileName;
     private String targetFileName;
     private String urlPrefix;
     private Long projectId;
     private TargetType targetType;
+    /**
+     * The provider-specific parameters for the upload request.
+     */
+    private Map<String, String> params = new HashMap<>();
 
     public String getUploadActionUrl() {
         return uploadActionUrl;
@@ -26,11 +30,11 @@ public class FileUploadToken implements Serializable {
         this.uploadActionUrl = uploadActionUrl;
     }
 
-    public FileStorage.FileStorageProvider getProvider() {
+    public String getProvider() {
         return provider;
     }
 
-    public void setProvider(FileStorage.FileStorageProvider provider) {
+    public void setProvider(String provider) {
         this.provider = provider;
     }
 
@@ -86,13 +90,25 @@ public class FileUploadToken implements Serializable {
         return Objects.requireNonNullElse(urlPrefix, "/") + path + "/" + targetFileName;
     }
 
+    public Map<String, String> getParams() {
+        return params;
+    }
+
+    public void setParams(Map<String, String> params) {
+        this.params = params;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("FileUploadToken{");
-        sb.append("action='").append(uploadActionUrl).append('\'');
+        sb.append("uploadActionUrl='").append(uploadActionUrl).append('\'');
         sb.append(", provider='").append(provider).append('\'');
         sb.append(", path='").append(path).append('\'');
-        sb.append(", filename='").append(targetFileName).append('\'');
+        sb.append(", sourceFileName='").append(sourceFileName).append('\'');
+        sb.append(", targetFileName='").append(targetFileName).append('\'');
+        sb.append(", urlPrefix='").append(urlPrefix).append('\'');
+        sb.append(", projectId=").append(projectId);
+        sb.append(", targetType=").append(targetType);
         sb.append('}');
         return sb.toString();
     }

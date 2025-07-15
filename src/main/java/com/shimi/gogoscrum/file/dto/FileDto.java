@@ -4,7 +4,6 @@ import com.shimi.gogoscrum.common.dto.BaseDto;
 import com.shimi.gogoscrum.file.model.File;
 import com.shimi.gogoscrum.file.model.FileType;
 import com.shimi.gogoscrum.file.model.TargetType;
-import com.shimi.gogoscrum.file.service.FileStorage;
 import org.springframework.beans.BeanUtils;
 
 import java.io.Serial;
@@ -19,7 +18,7 @@ public class FileDto extends BaseDto {
     private FileType type;
     private TargetType targetType;
     private Long size;
-    private FileStorage.FileStorageProvider storageProvider;
+    private String storageProvider;
     private boolean folder;
     private Long projectId;
     private FileDto parent;
@@ -115,11 +114,11 @@ public class FileDto extends BaseDto {
         this.parent = parent;
     }
 
-    public FileStorage.FileStorageProvider getStorageProvider() {
+    public String getStorageProvider() {
         return storageProvider;
     }
 
-    public void setStorageProvider(FileStorage.FileStorageProvider storageProvider) {
+    public void setStorageProvider(String storageProvider) {
         this.storageProvider = storageProvider;
     }
 

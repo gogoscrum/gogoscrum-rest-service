@@ -1,0 +1,1 @@
+ALTER TABLE `file` CHANGE `storage_provider` `storage_provider` VARCHAR(20) COMMENT 'Underlying storage provider';

@@ -15,6 +15,7 @@ import com.shimi.gogoscrum.project.service.ProjectService;
 import com.shimi.gogoscrum.project.utils.ProjectMemberUtils;
 import com.shimi.gsf.core.exception.BaseServiceException;
 import com.shimi.gsf.core.exception.EntityNotFoundException;
+import org.pf4j.PluginManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -25,10 +26,22 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
+/**
+ * Service implementation for managing files. Multiple file storage providers can be used,
+ * with the default built-in local storage service. If multiple file storage plugins are
+ * available, the first one (which annotated with the lowest ordinal, e.g. {@code @Extension(ordinal = 0))})
+ * will be used as the major active storage provider. All new files will be uploaded to this
+ * active provider. Meanwhile, the deletion of existing files will be handled by the old
+ * original storage provider that was used when the file was uploaded.
+ */
 @Service
 public class FileServiceImpl extends BaseServiceImpl<File, FileFilter> implements FileService {
     public static final Logger log = LoggerFactory.getLogger(FileServiceImpl.class);
@@ -38,6 +51,35 @@ public class FileServiceImpl extends BaseServiceImpl<File, FileFilter> implement
     private ProjectService projectService;
     @Autowired
     private FileStorage fileStorage;
+    @Autowired
+    private PluginManager pluginManager;
+    private final Map<String , FileStorage> fileStorageServices = new HashMap<>();
+
+    @PostConstruct
+    private void initPlugins() {
+        // Put the default file storage (LOCAL) into the map
+        fileStorageServices.put(fileStorage.getProvider(), fileStorage);
+
+        List<FileStorage> fileStoragePlugins = pluginManager.getExtensions(FileStorage.class);
+
+        if (!fileStoragePlugins.isEmpty()) {
+            // put all file storage plugins into the map
+            fileStorageServices.putAll(fileStoragePlugins.stream()
+                    .collect(Collectors.toMap(FileStorage::getProvider, fs -> fs)));
+
+            fileStorage = fileStoragePlugins.getFirst();
+
+            if (fileStoragePlugins.size() > 1) {
+                log.warn("Multiple file storage plugins found. The first one {} will be used as the storage provider", fileStorage.getProvider());
+            } else {
+                log.info("File storage plugin {} found and will be used as storage provider", fileStorage.getProvider());
+            }
+        } else {
+            if (log.isDebugEnabled()) {
+                log.debug("No file storage plugin found, the LOCAL storage will be used as default");
+            }
+        }
+    }
 
     @Override
     protected FileRepository getRepository() {
@@ -78,6 +120,10 @@ public class FileServiceImpl extends BaseServiceImpl<File, FileFilter> implement
         token.setTargetFileName(targetFileName);
         token.setProjectId(projectId);
         token.setTargetType(targetType);
+
+        if (log.isDebugEnabled()) {
+            log.debug("Generated file upload token: {}", token);
+        }
         return token;
     }
 
@@ -205,10 +251,16 @@ public class FileServiceImpl extends BaseServiceImpl<File, FileFilter> implement
 
     protected void afterDelete(File file) {
         if (StringUtils.hasText(file.getFullPath())) {
-            if (!Objects.equals(file.getStorageProvider(), fileStorage.getProvider())) {
-                throw new BaseServiceException(ErrorCode.INVALID_REQUEST_DATA, "File storage provider is not the same as current storage provider", HttpStatus.BAD_REQUEST);
+            if (Objects.equals(file.getStorageProvider(), fileStorage.getProvider())) {
+                this.fileStorage.delete(file.getFullPath());
+            } else if (fileStorageServices.containsKey(file.getStorageProvider())) {
+                FileStorage oldFileStorage = fileStorageServices.get(file.getStorageProvider());
+                oldFileStorage.delete(file.getFullPath());
+            } else {
+                log.warn("The old file storage service {} does not match current storage service {}, " +
+                        "and the old storage service is not presented, skipping deletion from the storage.",
+                        file.getStorageProvider(), fileStorage.getProvider());
             }
-            this.fileStorage.delete(file.getFullPath());
         }
     }
 }
