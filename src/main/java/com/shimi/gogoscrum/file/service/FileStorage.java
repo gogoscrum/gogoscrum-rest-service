@@ -1,6 +1,7 @@
 package com.shimi.gogoscrum.file.service;
 
 import com.shimi.gogoscrum.file.model.FileUploadToken;
+import org.pf4j.ExtensionPoint;
 
 import java.io.InputStream;
 
@@ -8,7 +9,18 @@ import java.io.InputStream;
  * Interface for file storage services. The implementation of this interface can be either a local file storage service
  * or a cloud object storage service, e.g. Aliyun OSS or AWS S3.
  */
-public interface FileStorage {
+public interface FileStorage extends ExtensionPoint {
+    /**
+     * The upload token will be expired after the specified seconds. Each underlying storage service implementation need to
+     * make sure this rule is implemented correctly, otherwise security issue may be caused.
+     */
+    long TOKEN_EXPIRE_IN_SECONDS = 30;
+
+    /**
+     * The maximum file size allowed for upload, in bytes. This is set to 100 MB.
+     */
+    long MAX_FILE_SIZE_IN_BYTES = 100 * 1024 * 1024;
+
     /**
      * Generate a file upload token for the specified file.
      * @param originalFileName the original file name of the file to be uploaded.
@@ -39,12 +51,7 @@ public interface FileStorage {
 
     /**
      * Get the provider of the file storage service.
-     * @return the provider of the file storage service.
+     * @return the provider name of the file storage service, e.g. LOCAL, ALIYUN, etc.
      */
-    FileStorageProvider getProvider();
-
-    enum FileStorageProvider {
-        LOCAL,
-        ALIYUN
-    }
+    String getProvider();
 }

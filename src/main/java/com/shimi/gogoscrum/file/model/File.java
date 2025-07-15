@@ -2,11 +2,9 @@ package com.shimi.gogoscrum.file.model;
 
 import com.shimi.gogoscrum.common.model.BaseEntity;
 import com.shimi.gogoscrum.file.dto.FileDto;
-import com.shimi.gogoscrum.file.service.FileStorage;
 import com.shimi.gogoscrum.issue.model.Issue;
-import org.springframework.beans.BeanUtils;
-
 import jakarta.persistence.*;
+import org.springframework.beans.BeanUtils;
 
 import java.io.Serial;
 import java.util.Objects;
@@ -23,8 +21,7 @@ public class File extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private TargetType targetType;
     private Long size;
-    @Enumerated(EnumType.STRING)
-    private FileStorage.FileStorageProvider storageProvider;
+    private String storageProvider;
     private Boolean folder = Boolean.FALSE;
     private Long projectId;
     @ManyToOne
@@ -138,11 +135,11 @@ public class File extends BaseEntity {
         this.parent = parent;
     }
 
-    public FileStorage.FileStorageProvider getStorageProvider() {
+    public String getStorageProvider() {
         return storageProvider;
     }
 
-    public void setStorageProvider(FileStorage.FileStorageProvider storageProvider) {
+    public void setStorageProvider(String storageProvider) {
         this.storageProvider = storageProvider;
     }
 

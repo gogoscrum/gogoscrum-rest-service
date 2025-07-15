@@ -23,6 +23,7 @@ import java.nio.file.StandardCopyOption;
 public class LocalFileStorageImpl implements FileStorage {
     private static final Logger log = LoggerFactory.getLogger(LocalFileStorageImpl.class);
     private static final String UPLOAD_ACTION_URL = "/api/files/upload";
+    private static final String STORAGE_PROVIDER_LOCAL = "LOCAL";
 
     @Value("${file.local.dir.base}")
     private String baseDir;
@@ -30,11 +31,17 @@ public class LocalFileStorageImpl implements FileStorage {
     @Value("${file.local.url.prefix}")
     private String urlPrefix;
 
+    public LocalFileStorageImpl() {
+        if (log.isDebugEnabled()) {
+            log.debug("LocalFileStorageImpl initialized");
+        }
+    }
+
     @Override
     public FileUploadToken generateUploadToken(String originalFileName, String path, String fileName) {
         FileUploadToken token = new FileUploadToken();
 
-        token.setProvider(FileStorageProvider.LOCAL);
+        token.setProvider(this.getProvider());
         token.setUploadActionUrl(UPLOAD_ACTION_URL);
         token.setUrlPrefix(urlPrefix);
 
@@ -76,7 +83,7 @@ public class LocalFileStorageImpl implements FileStorage {
     }
 
     @Override
-    public FileStorageProvider getProvider() {
-        return FileStorageProvider.LOCAL;
+    public String getProvider() {
+        return STORAGE_PROVIDER_LOCAL;
     }
 }
