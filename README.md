@@ -134,4 +134,5 @@ You are free to:
 
 However, you **may not sell** or use this software in **commercial** services or products without prior written consent from us.
 
-If you want to use this software in a commercial context (e.g., as part of a SaaS offering, enterprise system, or paid solution), please contact us to obtain a **commercial license**.
+If you want to use this software in a commercial context (e.g., as part of a SaaS offering, enterprise system, or paid solution), please contact us to obtain a **commercial license**: \
+<img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/wechat-qr-contact-us.png" width="100">

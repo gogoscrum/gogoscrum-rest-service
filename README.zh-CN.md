@@ -135,4 +135,5 @@ VITE_FILE_PATH = '指向到后端Java服务中所配置的lfs路径'
 
 但您**不得将本软件用于商业目的**，包括但不限于作为产品或服务进行销售、收费使用或提供给第三方。
 
-如需将本软件用于商业用途（例如 SaaS 服务、企业内部系统或付费解决方案），请联系我们获取**商业授权**。
+如需将本软件用于商业用途（例如 SaaS 服务、企业内部系统或付费解决方案），请联系我们获取**商业授权**：\
+<img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/wechat-qr-contact-us.png" width="100">
