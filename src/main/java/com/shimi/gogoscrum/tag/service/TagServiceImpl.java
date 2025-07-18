@@ -39,7 +39,7 @@ public class TagServiceImpl extends BaseServiceImpl<Tag, TagFilter> implements T
     }
 
     @Override
-    public void beforeCreate(Tag tag) {
+    protected void beforeCreate(Tag tag) {
         ProjectMemberUtils.checkDeveloper(projectService.get(tag.getProjectId()), getCurrentUser());
 
         Tag duplicatedTag = repository.findByNameAndProjectId(tag.getName(), tag.getProjectId());

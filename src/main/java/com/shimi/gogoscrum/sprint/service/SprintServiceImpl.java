@@ -60,7 +60,7 @@ public class SprintServiceImpl extends BaseServiceImpl<Sprint, SprintFilter> imp
     }
 
     @Override
-    public void beforeCreate(Sprint sprint) {
+    protected void beforeCreate(Sprint sprint) {
         ProjectMemberUtils.checkDeveloper(projectService.get(sprint.getProject().getId()), getCurrentUser());
         this.validate(sprint);
     }
