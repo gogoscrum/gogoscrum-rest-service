@@ -366,7 +366,7 @@ public class Issue extends BaseEntity implements Historical {
         sb.append(", priority=").append(priority);
         sb.append(", seq=").append(seq);
         sb.append(", storyPoints=").append(storyPoints);
-        sb.append(", completeTime=").append(completedTime);
+        sb.append(", completedTime=").append(completedTime);
         sb.append(", dueTime=").append(dueTime);
         sb.append('}');
         return sb.toString();
