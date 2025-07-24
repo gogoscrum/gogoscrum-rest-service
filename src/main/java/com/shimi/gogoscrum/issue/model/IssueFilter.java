@@ -1,7 +1,8 @@
 package com.shimi.gogoscrum.issue.model;
 
 import com.shimi.gogoscrum.common.model.BaseEntity;
-import com.shimi.gogoscrum.issue.util.ListOfIssuePriorityToStringConverter;
+import com.shimi.gogoscrum.common.model.Priority;
+import com.shimi.gogoscrum.common.util.ListOfPriorityToStringConverter;
 import com.shimi.gogoscrum.issue.util.ListOfIssueTypeToStringConverter;
 import com.shimi.gogoscrum.common.util.ListOfLongToStringConverter;
 import com.shimi.gogoscrum.common.util.ListOfOrderToStringConverter;
@@ -33,8 +34,8 @@ public class IssueFilter extends BaseEntity implements Filter {
     private List<Long> componentIds;
     @Convert(converter = ListOfIssueTypeToStringConverter.class)
     private List<IssueType> types;
-    @Convert(converter = ListOfIssuePriorityToStringConverter.class)
-    private List<IssuePriority> priorities;
+    @Convert(converter = ListOfPriorityToStringConverter.class)
+    private List<Priority> priorities;
     @Convert(converter = ListOfLongToStringConverter.class)
     private List<Long> tagIds;
     @Convert(converter = ListOfLongToStringConverter.class)
@@ -119,11 +120,11 @@ public class IssueFilter extends BaseEntity implements Filter {
         this.types = types;
     }
 
-    public List<IssuePriority> getPriorities() {
+    public List<Priority> getPriorities() {
         return priorities;
     }
 
-    public void setPriorities(List<IssuePriority> priorities) {
+    public void setPriorities(List<Priority> priorities) {
         this.priorities = priorities;
     }
 

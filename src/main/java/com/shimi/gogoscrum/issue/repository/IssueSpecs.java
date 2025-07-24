@@ -1,7 +1,7 @@
 package com.shimi.gogoscrum.issue.repository;
 
 import com.shimi.gogoscrum.issue.model.Issue;
-import com.shimi.gogoscrum.issue.model.IssuePriority;
+import com.shimi.gogoscrum.common.model.Priority;
 import com.shimi.gogoscrum.issue.model.IssueType;
 import com.shimi.gogoscrum.tag.model.Tag;
 import org.springframework.data.jpa.domain.Specification;
@@ -26,7 +26,7 @@ public class IssueSpecs {
                 criteriaBuilder.in(issue.get("type")).value(types);
     }
 
-    public static Specification<Issue> priorityIn(List<IssuePriority> priorities) {
+    public static Specification<Issue> priorityIn(List<Priority> priorities) {
         return (issue, criteriaQuery, criteriaBuilder) ->
                 criteriaBuilder.in(issue.get("priority")).value(priorities);
     }

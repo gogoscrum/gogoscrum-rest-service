@@ -3,10 +3,9 @@ package com.shimi.gogoscrum.issue.dto;
 import com.shimi.gogoscrum.common.dto.BaseDto;
 import com.shimi.gogoscrum.component.model.Component;
 import com.shimi.gogoscrum.file.dto.FileDto;
-import com.shimi.gogoscrum.file.model.File;
 import com.shimi.gogoscrum.issue.model.Comment;
 import com.shimi.gogoscrum.issue.model.Issue;
-import com.shimi.gogoscrum.issue.model.IssuePriority;
+import com.shimi.gogoscrum.common.model.Priority;
 import com.shimi.gogoscrum.issue.model.IssueType;
 import com.shimi.gogoscrum.project.model.Project;
 import com.shimi.gogoscrum.sprint.dto.SprintDto;
@@ -30,7 +29,7 @@ public class IssueDto extends BaseDto {
     private String code;
     private String description;
     private IssueType type;
-    private IssuePriority priority = IssuePriority.NORMAL;
+    private Priority priority = Priority.NORMAL;
     private Integer seq = 0;
     private Float storyPoints;
     private String projectCode;
@@ -146,11 +145,11 @@ public class IssueDto extends BaseDto {
         this.type = type;
     }
 
-    public IssuePriority getPriority() {
+    public Priority getPriority() {
         return priority;
     }
 
-    public void setPriority(IssuePriority priority) {
+    public void setPriority(Priority priority) {
         this.priority = priority;
     }
 

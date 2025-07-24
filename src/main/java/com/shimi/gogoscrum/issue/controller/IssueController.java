@@ -91,8 +91,8 @@ public class IssueController extends BaseController {
     @Operation(summary = "Copy an issue", description = "Copy the specified issue with all properties except comments and files")
     @Parameters({@Parameter(name = "id", description = "The original issue ID")})
     @PostMapping("/{id}/clone")
-    public IssueDto cloneIssue(@PathVariable Long id) {
-        Issue clonedIssue = issueService.copyIssue(id);
+    public IssueDto clone(@PathVariable Long id) {
+        Issue clonedIssue = issueService.cloneIssue(id);
         return clonedIssue.toDto(true);
     }
 

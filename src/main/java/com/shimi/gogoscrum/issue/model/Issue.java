@@ -1,6 +1,7 @@
 package com.shimi.gogoscrum.issue.model;
 
 import com.shimi.gogoscrum.common.model.BaseEntity;
+import com.shimi.gogoscrum.common.model.Priority;
 import com.shimi.gogoscrum.component.model.Component;
 import com.shimi.gogoscrum.file.dto.FileDto;
 import com.shimi.gogoscrum.file.model.File;
@@ -35,7 +36,7 @@ public class Issue extends BaseEntity implements Historical {
     @Enumerated(EnumType.STRING)
     private IssueType type;
     @Enumerated(EnumType.STRING)
-    private IssuePriority priority = IssuePriority.NORMAL;
+    private Priority priority = Priority.NORMAL;
     private Integer seq = 0;
     private Float storyPoints;
     private Date completedTime;
@@ -216,11 +217,11 @@ public class Issue extends BaseEntity implements Historical {
         this.type = type;
     }
 
-    public IssuePriority getPriority() {
+    public Priority getPriority() {
         return priority;
     }
 
-    public void setPriority(IssuePriority priority) {
+    public void setPriority(Priority priority) {
         this.priority = priority;
     }
 

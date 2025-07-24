@@ -365,16 +365,16 @@ public class IssueServiceImpl extends BaseServiceImpl<Issue, IssueFilter> implem
         return super.update(id, issue);
     }
 
-    public Issue copyIssue(Long issueId) {
+    public Issue cloneIssue(Long issueId) {
         Issue sourceIssue = this.get(issueId);
 
-        Issue copiedIssue = new Issue();
-        BeanUtils.copyProperties(sourceIssue, copiedIssue, "id", "comments", "files", "linkToIssues", "linkedByIssues",
+        Issue clonedIssue = new Issue();
+        BeanUtils.copyProperties(sourceIssue, clonedIssue, "id", "comments", "files", "linkToIssues", "linkedByIssues",
                 "tags", "owner");
-        copiedIssue.setTags(new ArrayList<>(sourceIssue.getTags()));
-        copiedIssue.setName("Copy of " + sourceIssue.getName());
+        clonedIssue.setTags(new ArrayList<>(sourceIssue.getTags()));
+        clonedIssue.setName("Copy of " + sourceIssue.getName());
 
-        return this.create(copiedIssue);
+        return this.create(clonedIssue);
     }
 
     @Override
