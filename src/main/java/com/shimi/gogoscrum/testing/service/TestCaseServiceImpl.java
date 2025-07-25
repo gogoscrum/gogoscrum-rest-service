@@ -126,23 +126,17 @@ public class TestCaseServiceImpl extends BaseServiceImpl<TestCase, TestCaseFilte
     }
 
     @Override
-    public TestCase getVersion(Long id, Integer version) {
-        TestCase testCase = get(id);
+    public TestCaseDetails getDetails(Long testCaseId, Integer version) {
+        TestCase testCase = get(testCaseId);
         ProjectMemberUtils.checkMember(projectService.get(testCase.getProjectId()), getCurrentUser());
 
-        if (Objects.equals(version, testCase.getDetails().getVersion())) {
-            return testCase;
-        }
-
-        TestCaseDetails details = detailsRepository.findByTestCaseIdAndVersion(id, version);
+        TestCaseDetails details = detailsRepository.findByTestCaseIdAndVersion(testCaseId, version);
 
         if (details == null) {
-            throw new BadRequestException("Test case version not found: " + version);
+            throw new BadRequestException("Test case details version not found: " + version);
+        } else {
+            return details;
         }
-
-        testCase.setDetails(details);
-
-        return testCase;
     }
 
     // TODO: Implement this method to count the number of executions for a test case

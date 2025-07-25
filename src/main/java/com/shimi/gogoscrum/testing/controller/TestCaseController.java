@@ -1,6 +1,7 @@
 package com.shimi.gogoscrum.testing.controller;
 
 import com.shimi.gogoscrum.common.controller.BaseController;
+import com.shimi.gogoscrum.testing.dto.TestCaseDetailsDto;
 import com.shimi.gogoscrum.testing.dto.TestCaseDto;
 import com.shimi.gogoscrum.testing.model.TestCase;
 import com.shimi.gogoscrum.testing.model.TestCaseFilter;
@@ -34,19 +35,19 @@ public class TestCaseController extends BaseController {
         return savedTestCase.toDto();
     }
 
-    @Operation(summary = "Get a test case")
-    @Parameters({@Parameter(name = "id", description = "The test case ID"),
-            @Parameter(name = "version", description = "The version of the test case. " +
-                    "If not specified, the latest version will be returned")})
+    @Operation(summary = "Get test cases ")
+    @Parameters({@Parameter(name = "id", description = "The test case ID")})
     @GetMapping("/{id}")
-    public TestCaseDto get(@PathVariable Long id, @RequestParam(required = false) Integer version) {
-        if (version != null && version > 0) {
-            TestCase testCase = testCaseService.getVersion(id, version);
-            return testCase.toDto(true);
-        } else {
-            TestCase testCase = testCaseService.get(id);
-            return testCase.toDto(true);
-        }
+    public TestCaseDto get(@PathVariable Long id) {
+        return testCaseService.get(id).toDto(true);
+    }
+
+    @Operation(summary = "Get test cases details by version")
+    @Parameters({@Parameter(name = "id", description = "The test case ID"),
+            @Parameter(name = "version", description = "The version of the test case. ")})
+    @GetMapping("/{id}/details/{version}")
+    public TestCaseDetailsDto getDetails(@PathVariable Long id, @PathVariable Integer version) {
+        return testCaseService.getDetails(id, version).toDto();
     }
 
     @Operation(summary = "Update a test case")
