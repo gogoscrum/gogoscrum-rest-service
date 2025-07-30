@@ -6,6 +6,7 @@ import com.shimi.gogoscrum.testing.model.TestCaseDetails;
 import com.shimi.gogoscrum.testing.model.TestStep;
 import com.shimi.gogoscrum.testing.model.TestType;
 import com.shimi.gogoscrum.testing.utils.ListOfStepToStringConverter;
+import com.shimi.gogoscrum.user.dto.UserDto;
 import jakarta.persistence.Convert;
 import org.springframework.beans.BeanUtils;
 
@@ -18,6 +19,7 @@ public class TestCaseDetailsDto extends BaseDto {
     private static final long serialVersionUID = 8008333803486109221L;
     private Long testCaseId;
     private String name;
+    private String description;
     private TestType type;
     private Priority priority = Priority.NORMAL;
     private Long componentId;
@@ -25,11 +27,18 @@ public class TestCaseDetailsDto extends BaseDto {
     @Convert(converter = ListOfStepToStringConverter.class)
     private List<TestStep> steps = new ArrayList<>();
     private Integer version;
+    private UserDto owner;
+    private Boolean automated = Boolean.FALSE;
 
     @Override
     public TestCaseDetails toEntity() {
         TestCaseDetails entity = new TestCaseDetails();
         BeanUtils.copyProperties(this, entity);
+
+        if (this.owner != null) {
+            entity.setOwner(this.owner.toEntity());
+        }
+
         return entity;
     }
 
@@ -102,5 +111,29 @@ public class TestCaseDetailsDto extends BaseDto {
 
     public void setComponentId(Long componentId) {
         this.componentId = componentId;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public UserDto getOwner() {
+        return owner;
+    }
+
+    public void setOwner(UserDto owner) {
+        this.owner = owner;
+    }
+
+    public Boolean getAutomated() {
+        return automated;
+    }
+
+    public void setAutomated(Boolean automated) {
+        this.automated = automated;
     }
 }

@@ -58,8 +58,8 @@ public class TestCaseController extends BaseController {
         return updateTestCase.toDto();
     }
 
-    @Operation(summary = "Delete a test case", description = "If the test case has no executions, it will be deleted." +
-            "If it has executions, it will be marked as deleted and not shown in the list of test cases. ")
+    @Operation(summary = "Delete a test case", description = "The deleted test case will be marked as deleted " +
+            "and not shown in the list of test cases. ")
     @Parameters({@Parameter(name = "id", description = "The test case ID")})
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {

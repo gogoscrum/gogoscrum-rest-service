@@ -105,24 +105,10 @@ public class TestCaseServiceImpl extends BaseServiceImpl<TestCase, TestCaseFilte
     public void delete(Long id) {
         TestCase testCase = get(id);
         ProjectMemberUtils.checkDeveloper(projectService.get(testCase.getProjectId()), getCurrentUser());
-
-        if (this.countExecutions(testCase.getId()) == 0) {
-            // If there are no executions, we can safely delete the test case and its details
-            long versionCount = detailsRepository.countByTestCaseId(id);
-            detailsRepository.deleteByTestCaseId(id);
-            if (log.isDebugEnabled()) {
-                log.debug("Deleted {} versions of test case details for case ID: {}", versionCount, id);
-            }
-
-            repository.deleteById(id);
-            log.info("Hard deleted test case: {}", testCase);
-        } else {
-            // If there are executions, we perform a soft delete
-            testCase.setDeleted(true);
-            testCase.setUpdateTraceInfo(getCurrentUser());
-            repository.save(testCase);
-            log.info("Test case has execution results, soft deleted: {}", testCase);
-        }
+        testCase.setDeleted(true);
+        testCase.setUpdateTraceInfo(getCurrentUser());
+        repository.save(testCase);
+        log.info("Test case has execution results, soft deleted: {}", testCase);
     }
 
     @Override

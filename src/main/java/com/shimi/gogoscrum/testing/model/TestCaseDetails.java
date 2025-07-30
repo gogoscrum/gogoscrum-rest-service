@@ -4,7 +4,10 @@ import com.shimi.gogoscrum.common.model.BaseEntity;
 import com.shimi.gogoscrum.common.model.Priority;
 import com.shimi.gogoscrum.testing.dto.TestCaseDetailsDto;
 import com.shimi.gogoscrum.testing.utils.ListOfStepToStringConverter;
+import com.shimi.gogoscrum.user.model.User;
 import jakarta.persistence.*;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 import org.springframework.beans.BeanUtils;
 
 import java.io.Serial;
@@ -19,6 +22,7 @@ public class TestCaseDetails extends BaseEntity {
     private Long testCaseId;
     private Long componentId;
     private String name;
+    private String description;
     @Enumerated(EnumType.STRING)
     private TestType type;
     @Enumerated(EnumType.STRING)
@@ -27,11 +31,20 @@ public class TestCaseDetails extends BaseEntity {
     @Convert(converter = ListOfStepToStringConverter.class)
     private List<TestStep> steps = new ArrayList<>();
     private Integer version;
+    @ManyToOne
+    @JoinColumn(name = "owner_id")
+    @NotFound(action = NotFoundAction.IGNORE)
+    private User owner;
+    private Boolean automated = Boolean.FALSE;
 
     @Override
     public TestCaseDetailsDto toDto() {
         TestCaseDetailsDto dto = new TestCaseDetailsDto();
         BeanUtils.copyProperties(this, dto);
+
+        if (this.owner != null) {
+            dto.setOwner(this.owner.toDto().normalize());
+        }
 
         return dto;
     }
@@ -107,13 +120,38 @@ public class TestCaseDetails extends BaseEntity {
         this.priority = priority;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public User getOwner() {
+        return owner;
+    }
+
+    public void setOwner(User owner) {
+        this.owner = owner;
+    }
+
+    public Boolean getAutomated() {
+        return automated;
+    }
+
+    public void setAutomated(Boolean automated) {
+        this.automated = automated;
+    }
+
     @Override
     public final boolean equals(Object object) {
         if (!(object instanceof TestCaseDetails that)) return false;
 
         return testCaseId.equals(that.testCaseId) && Objects.equals(componentId, that.componentId) && name.equals(that.name) &&
                 type == that.type && priority == that.priority && Objects.equals(preconditions, that.preconditions) &&
-                Objects.equals(steps, that.steps) && Objects.equals(version, that.version);
+                Objects.equals(steps, that.steps) && Objects.equals(version, that.version) && Objects.equals(description, that.description) &&
+                Objects.equals(owner, that.owner) && Objects.equals(automated, that.automated);
     }
 
     @Override
@@ -126,6 +164,9 @@ public class TestCaseDetails extends BaseEntity {
         result = 31 * result + Objects.hashCode(preconditions);
         result = 31 * result + Objects.hashCode(steps);
         result = 31 * result + Objects.hashCode(version);
+        result = 31 * result + Objects.hashCode(description);
+        result = 31 * result + Objects.hashCode(owner);
+        result = 31 * result + Objects.hashCode(automated);
         return result;
     }
 
@@ -141,6 +182,9 @@ public class TestCaseDetails extends BaseEntity {
         sb.append(", steps=").append(steps);
         sb.append(", version=").append(version);
         sb.append(", componentId=").append(componentId);
+        sb.append(", description='").append(description).append('\'');
+        sb.append(", owner=").append(owner);
+        sb.append(", automated=").append(automated);
         sb.append('}');
         return sb.toString();
     }
