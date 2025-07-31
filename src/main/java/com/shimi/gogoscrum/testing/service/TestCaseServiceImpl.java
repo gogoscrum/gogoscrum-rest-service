@@ -185,20 +185,27 @@ public class TestCaseServiceImpl extends BaseServiceImpl<TestCase, TestCaseFilte
 
         if (!CollectionUtils.isEmpty(filter.getComponentIds())) {
             Specification<TestCase> componentIdIn = TestCaseSpecs.componentIdIn(filter.getComponentIds());
-
             querySpec = querySpec.and(componentIdIn);
         }
 
         if (!CollectionUtils.isEmpty(filter.getTypes())) {
             Specification<TestCase> typeIn = TestCaseSpecs.typeIn(filter.getTypes());
-
             querySpec = querySpec.and(typeIn);
         }
 
         if (!CollectionUtils.isEmpty(filter.getPriorities())) {
             Specification<TestCase> priorityIn = TestCaseSpecs.priorityIn(filter.getPriorities());
-
             querySpec = querySpec.and(priorityIn);
+        }
+
+        if (!CollectionUtils.isEmpty(filter.getOwners())) {
+            Specification<TestCase> ownerIdIn = TestCaseSpecs.ownerIdIn(filter.getOwners());
+            querySpec = querySpec.and(ownerIdIn);
+        }
+
+        if (!CollectionUtils.isEmpty(filter.getCreators())) {
+            Specification<TestCase> creatorIdIn = TestCaseSpecs.creatorIdIn(filter.getCreators());
+            querySpec = querySpec.and(creatorIdIn);
         }
 
         if (StringUtils.hasText(filter.getKeyword())) {

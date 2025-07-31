@@ -14,6 +14,8 @@ public class TestCaseFilter extends BaseFilter {
     private List<Long> componentIds;
     private List<TestType> types;
     private List<Priority> priorities;
+    private List<Long> owners;
+    private List<Long> creators;
     private Boolean deleted = Boolean.FALSE;
 
     public Long getProjectId() {
@@ -54,6 +56,22 @@ public class TestCaseFilter extends BaseFilter {
 
     public void setPriorities(List<Priority> priorities) {
         this.priorities = priorities;
+    }
+
+    public List<Long> getOwners() {
+        return owners;
+    }
+
+    public void setOwners(List<Long> owners) {
+        this.owners = owners;
+    }
+
+    public List<Long> getCreators() {
+        return creators;
+    }
+
+    public void setCreators(List<Long> creators) {
+        this.creators = creators;
     }
 
     public Boolean getDeleted() {

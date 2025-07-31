@@ -41,6 +41,16 @@ public class TestCaseSpecs {
                 criteriaBuilder.in(testCase.get("details").get("priority")).value(priorities);
     }
 
+    public static Specification<TestCase> ownerIdIn(List<Long> ownerIds) {
+        return (testCase, criteriaQuery, criteriaBuilder) ->
+                criteriaBuilder.in(testCase.get("details").get("owner").get("id")).value(ownerIds);
+    }
+
+    public static Specification<TestCase> creatorIdIn(List<Long> creatorIds) {
+        return (testCase, criteriaQuery, criteriaBuilder) ->
+                criteriaBuilder.in(testCase.get("createdBy").get("id")).value(creatorIds);
+    }
+
     public static Specification<TestCase> deletedEquals(Boolean deleted) {
         return (testCase, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(testCase.get("deleted"), deleted);
     }
