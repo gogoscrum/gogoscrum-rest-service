@@ -19,7 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/cases")
+@RequestMapping("/testing/cases")
 @CrossOrigin
 @Tag(name = "Test case", description = "Test case Management")
 @RolesAllowed({User.ROLE_USER})
@@ -32,10 +32,10 @@ public class TestCaseController extends BaseController {
     public TestCaseDto create(@RequestBody TestCaseDto testCaseDto) {
         TestCase testCase = testCaseDto.toEntity();
         TestCase savedTestCase = testCaseService.create(testCase);
-        return savedTestCase.toDto();
+        return savedTestCase.toDto(true);
     }
 
-    @Operation(summary = "Get test cases ")
+    @Operation(summary = "Get test case")
     @Parameters({@Parameter(name = "id", description = "The test case ID")})
     @GetMapping("/{id}")
     public TestCaseDto get(@PathVariable Long id) {
@@ -55,7 +55,7 @@ public class TestCaseController extends BaseController {
     @PutMapping("/{id}")
     public TestCaseDto update(@PathVariable Long id, @RequestBody TestCaseDto testCaseDto) {
         TestCase updateTestCase = testCaseService.update(id, testCaseDto.toEntity());
-        return updateTestCase.toDto();
+        return updateTestCase.toDto(true);
     }
 
     @Operation(summary = "Delete a test case", description = "The deleted test case will be marked as deleted " +
@@ -78,7 +78,7 @@ public class TestCaseController extends BaseController {
     @Parameters({@Parameter(name = "id", description = "The ID of test case to be copied")})
     @PostMapping("/{id}/clone")
     public TestCaseDto clone(@PathVariable Long id) {
-        TestCase clonedCase = testCaseService.cloneTestCase(id);
+        TestCase clonedCase = testCaseService.clone(id);
         return clonedCase.toDto(true);
     }
 }

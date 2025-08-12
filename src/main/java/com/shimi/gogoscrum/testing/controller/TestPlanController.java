@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/plans")
+@RequestMapping("/testing/plans")
 @CrossOrigin
 @Tag(name = "Test plan", description = "Test plan Management")
 @RolesAllowed({User.ROLE_USER})
@@ -43,7 +43,7 @@ public class TestPlanController extends BaseController {
         return savedTestPlan.toDto();
     }
 
-    @Operation(summary = "Get test plans ")
+    @Operation(summary = "Get test plan")
     @Parameters({@Parameter(name = "id", description = "The test plan ID")})
     @GetMapping("/{id}")
     public TestPlanDto get(@PathVariable Long id) {

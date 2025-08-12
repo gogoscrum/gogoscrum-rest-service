@@ -39,8 +39,35 @@ public class TestPlanServiceImpl extends BaseServiceImpl<TestPlan, TestPlanFilte
     }
 
     @Override
-    protected TestPlanRepository getRepository() {
-        return repository;
+    protected void beforeCreate(TestPlan testPlan) {
+        this.validateTestPlan(testPlan);
+        ProjectMemberUtils.checkDeveloper(projectService.get(testPlan.getProjectId()), getCurrentUser());
+    }
+
+    @Override
+    protected void beforeUpdate(Long id, TestPlan oldTestPlan, TestPlan newTestPlan) {
+        this.validateTestPlan(newTestPlan);
+        ProjectMemberUtils.checkDeveloper(projectService.get(newTestPlan.getProjectId()), getCurrentUser());
+
+        // Ensure the test plan is not deleted before updating
+        if (oldTestPlan.isDeleted()) {
+            throw new BadRequestException("Cannot update a deleted test plan");
+        }
+    }
+
+    @Override
+    protected void beforeDelete(TestPlan testPlan) {
+        ProjectMemberUtils.checkDeveloper(projectService.get(testPlan.getProjectId()), getCurrentUser());
+    }
+
+    private void validateTestPlan(TestPlan testPlan) {
+        if (testPlan.getProjectId() == null) {
+            throw new BadRequestException("Project ID must be provided for the test run");
+        }
+
+        if (testPlan.getName() == null || testPlan.getName().isEmpty()) {
+            throw new BadRequestException("Test plan name must be provided");
+        }
     }
 
     @Override
@@ -80,5 +107,10 @@ public class TestPlanServiceImpl extends BaseServiceImpl<TestPlan, TestPlanFilte
         }
 
         return querySpec;
+    }
+
+    @Override
+    protected TestPlanRepository getRepository() {
+        return repository;
     }
 }

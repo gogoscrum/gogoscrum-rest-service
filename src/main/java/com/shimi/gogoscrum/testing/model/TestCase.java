@@ -1,14 +1,18 @@
 package com.shimi.gogoscrum.testing.model;
 
 import com.shimi.gogoscrum.common.model.BaseEntity;
+import com.shimi.gogoscrum.file.dto.FileDto;
+import com.shimi.gogoscrum.file.model.File;
 import com.shimi.gogoscrum.testing.dto.TestCaseDto;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import org.springframework.beans.BeanUtils;
+import org.springframework.util.CollectionUtils;
 
 import java.io.Serial;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Entity
 public class TestCase extends BaseEntity {
@@ -21,6 +25,11 @@ public class TestCase extends BaseEntity {
     private TestCaseDetails details;
     private boolean deleted = false;
     private Integer latestVersion;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "test_case_file",
+            joinColumns = @JoinColumn(name = "test_case_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "file_id", referencedColumnName = "id"))
+    private List<File> files = new ArrayList<>();
 
     @Override
     public TestCaseDto toDto() {
@@ -38,6 +47,13 @@ public class TestCase extends BaseEntity {
 
         if (this.createdBy != null) {
             dto.setCreatedBy(this.createdBy.toDto());
+        }
+
+        if (detailed) {
+            if (!CollectionUtils.isEmpty(this.files)) {
+                List<FileDto> fileDtos = this.files.stream().map(File::toDto).collect(Collectors.toList());
+                dto.setFiles(fileDtos);
+            }
         }
 
         return dto;
@@ -88,6 +104,14 @@ public class TestCase extends BaseEntity {
 
     public void setLatestVersion(Integer latestVersion) {
         this.latestVersion = latestVersion;
+    }
+
+    public List<File> getFiles() {
+        return files;
+    }
+
+    public void setFiles(List<File> files) {
+        this.files = files;
     }
 
     @Override

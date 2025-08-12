@@ -68,36 +68,32 @@ public class TestCaseServiceImpl extends BaseServiceImpl<TestCase, TestCaseFilte
     }
 
     /**
-     * Updates an existing test case. If nothing is changed, then only the update trace info is updated.
-     * If any field is changed, a new version of the test case details is created.
+     * Updates an existing test case. A new version of the test case details is created.
      */
     @Override
     public TestCase update(Long id, TestCase testCase) {
+        this.validateTestCase(testCase);
         TestCase existingCase = get(id);
         User currentUser = getCurrentUser();
         ProjectMemberUtils.checkDeveloper(projectService.get(existingCase.getProjectId()), currentUser);
-        this.validateTestCase(testCase);
-        TestCase updatedCase;
-        if (existingCase.equals(testCase)) {
-            // If nothing has changed, just update the trace info
-            existingCase.setUpdateTraceInfo(currentUser);
-            log.info("No changes detected for test case ID: {}, updating trace info only", id);
-            updatedCase = repository.save(existingCase);
-        } else {
-            // Create a new version of the test case details
-            TestCaseDetails details = testCase.getDetails();
-            details.setId(null);
-            details.setTestCaseId(id);
-            details.setVersion(this.generateNextVersion(id));
-            details.setAllTraceInfo(currentUser);
-            TestCaseDetails savedDetails = detailsRepository.save(details);
-            existingCase.setDetails(savedDetails);
-            existingCase.setLatestVersion(savedDetails.getVersion());
-            existingCase.setUpdateTraceInfo(currentUser);
-            updatedCase =repository.save(existingCase);
-            log.info("Created new version of details for test case {}: {}", id, savedDetails);
+
+        if (existingCase.isDeleted()) {
+            throw new BadRequestException("Cannot update a deleted test case");
         }
 
+        TestCaseDetails details = testCase.getDetails();
+        details.setId(null);
+        details.setTestCaseId(id);
+        details.setVersion(this.generateNextVersion(id));
+        details.setAllTraceInfo(currentUser);
+        TestCaseDetails savedDetails = detailsRepository.save(details);
+
+        existingCase.setDetails(savedDetails);
+        existingCase.setLatestVersion(savedDetails.getVersion());
+        existingCase.setFiles(testCase.getFiles());
+        existingCase.setUpdateTraceInfo(currentUser);
+        TestCase updatedCase =repository.save(existingCase);
+        log.info("Created new version of details for test case {}: {}", id, savedDetails);
         return updatedCase;
     }
 
@@ -125,11 +121,6 @@ public class TestCaseServiceImpl extends BaseServiceImpl<TestCase, TestCaseFilte
         }
     }
 
-    // TODO: Implement this method to count the number of executions for a test case
-    private long countExecutions(Long caseId) {
-        return 1;
-    }
-
     private long generateNextCaseCode(Long projectId) {
         long previousCode = Objects.requireNonNullElse(repository.getMaxCode(projectId), 0L);
         return previousCode + 1;
@@ -141,6 +132,10 @@ public class TestCaseServiceImpl extends BaseServiceImpl<TestCase, TestCaseFilte
     }
 
     private void validateTestCase(TestCase testCase) {
+        if (testCase.getProjectId() == null) {
+            throw new BadRequestException("Project ID must be provided for the test case");
+        }
+
         if (testCase.getDetails() == null) {
             throw new BadRequestException("Test case details must be provided");
         }
@@ -148,14 +143,10 @@ public class TestCaseServiceImpl extends BaseServiceImpl<TestCase, TestCaseFilte
         if (!StringUtils.hasText(testCase.getDetails().getName())) {
             throw new BadRequestException("Test case name cannot be empty");
         }
-
-        if (testCase.getProjectId() == null) {
-            throw new BadRequestException("Project ID must be provided for the test case");
-        }
     }
 
     @Override
-    public TestCase cloneTestCase(long testCaseId) {
+    public TestCase clone(long testCaseId) {
         TestCase originalTestCase = get(testCaseId);
         TestCaseDetails originalDetails = originalTestCase.getDetails();
 
@@ -164,7 +155,7 @@ public class TestCaseServiceImpl extends BaseServiceImpl<TestCase, TestCaseFilte
         TestCase clonedCase = new TestCase();
         TestCaseDetails clonedDetails = new TestCaseDetails();
 
-        BeanUtils.copyProperties(originalTestCase, clonedCase, "details");
+        BeanUtils.copyProperties(originalTestCase, clonedCase, "details", "files");
         BeanUtils.copyProperties(originalDetails, clonedDetails);
 
         clonedDetails.setName("Copy of " + originalDetails.getName());

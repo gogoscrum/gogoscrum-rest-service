@@ -7,5 +7,5 @@ import com.shimi.gsf.core.service.GeneralService;
 
 public interface TestCaseService extends GeneralService<TestCase, TestCaseFilter> {
     TestCaseDetails getDetails(Long testCaseId, Integer version);
-    TestCase cloneTestCase(long testCaseId);
+    TestCase clone(long testCaseId);
 }
