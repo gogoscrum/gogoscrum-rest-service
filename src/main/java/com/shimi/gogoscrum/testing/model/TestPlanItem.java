@@ -3,6 +3,7 @@ package com.shimi.gogoscrum.testing.model;
 import com.shimi.gogoscrum.common.model.BaseEntity;
 import com.shimi.gogoscrum.testing.dto.TestPlanItemDto;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import org.springframework.beans.BeanUtils;
@@ -17,6 +18,9 @@ public class TestPlanItem extends BaseEntity {
     @OneToOne
     @JoinColumn(name = "test_case_id")
     private TestCase testCase;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "latest_run_id")
+    private TestRun latestRun;
 
     @Override
     public TestPlanItemDto toDto() {
@@ -29,7 +33,13 @@ public class TestPlanItem extends BaseEntity {
         BeanUtils.copyProperties(this, dto);
 
         if (this.testCase != null) {
+            testCase.setLatestRun(null); // Unnecessary for front-end
             dto.setTestCase(this.testCase.toDto());
+        }
+
+        if (this.latestRun != null) {
+            latestRun.setTestCase(null); // Avoid circular reference
+            dto.setLatestRun(this.latestRun.toDto());
         }
 
         return dto;
@@ -56,6 +66,14 @@ public class TestPlanItem extends BaseEntity {
 
     public void setTestCase(TestCase testCase) {
         this.testCase = testCase;
+    }
+
+    public TestRun getLatestRun() {
+        return latestRun;
+    }
+
+    public void setLatestRun(TestRun latestRun) {
+        this.latestRun = latestRun;
     }
 
     @Override

@@ -19,10 +19,14 @@ public class TestRun extends BaseEntity {
     @Serial
     private static final long serialVersionUID = 6409453185785371608L;
     private Long projectId;
-    private Long testCaseId;
+    @ManyToOne
+    @JoinColumn(name = "test_case_id")
+    private TestCase testCase;
     private Long testCaseDetailsId;
     private Integer testCaseVersion;
-    private Long testPlanId;
+    @ManyToOne
+    @JoinColumn(name = "test_plan_id")
+    private TestPlan testPlan;
     @Convert(converter = ListOfStepResultToStringConverter.class)
     private List<TestStepResult> stepResults = new ArrayList<>();
     @Enumerated(EnumType.STRING)
@@ -46,6 +50,17 @@ public class TestRun extends BaseEntity {
 
         if (this.createdBy != null) {
             dto.setCreatedBy(this.createdBy.toDto());
+        }
+
+        if (this.testCase != null) {
+            this.testCase.setLatestRun(null); // Avoid circular reference
+            dto.setTestCase(this.testCase.toDto());
+            dto.setTestCaseId(this.testCase.getId());
+        }
+
+        if (this.testPlan != null) {
+            dto.setTestPlan(this.testPlan.toDto());
+            dto.setTestPlanId(this.testPlan.getId());
         }
 
         if (detailed) {
@@ -73,12 +88,12 @@ public class TestRun extends BaseEntity {
         this.projectId = projectId;
     }
 
-    public Long getTestCaseId() {
-        return testCaseId;
+    public TestCase getTestCase() {
+        return testCase;
     }
 
-    public void setTestCaseId(Long testCaseId) {
-        this.testCaseId = testCaseId;
+    public void setTestCase(TestCase testCase) {
+        this.testCase = testCase;
     }
 
     public Long getTestCaseDetailsId() {
@@ -97,12 +112,12 @@ public class TestRun extends BaseEntity {
         this.testCaseVersion = testCaseVersion;
     }
 
-    public Long getTestPlanId() {
-        return testPlanId;
+    public TestPlan getTestPlan() {
+        return testPlan;
     }
 
-    public void setTestPlanId(Long testPlanId) {
-        this.testPlanId = testPlanId;
+    public void setTestPlan(TestPlan testPlan) {
+        this.testPlan = testPlan;
     }
 
     public List<TestStepResult> getStepResults() {
@@ -141,10 +156,10 @@ public class TestRun extends BaseEntity {
     public String toString() {
         final StringBuilder sb = new StringBuilder("TestRun{");
         sb.append("projectId=").append(projectId);
-        sb.append(", testCaseId=").append(testCaseId);
+        sb.append(", testCase=").append(testCase);
         sb.append(", testCaseDetailsId=").append(testCaseDetailsId);
         sb.append(", version=").append(testCaseVersion);
-        sb.append(", testPlanId=").append(testPlanId);
+        sb.append(", testPlan=").append(testPlan);
         sb.append(", stepResults=").append(stepResults);
         sb.append(", status=").append(status);
         sb.append(", result='").append(result).append('\'');

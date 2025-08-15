@@ -11,6 +11,7 @@ public class TestPlanItemDto extends BaseDto {
     private static final long serialVersionUID = -2278030931158490073L;
     private Long testPlanId;
     private TestCaseDto testCase;
+    private TestRunDto latestRun;
 
     @Override
     public TestPlanItem toEntity() {
@@ -37,5 +38,13 @@ public class TestPlanItemDto extends BaseDto {
 
     public void setTestCase(TestCaseDto testCase) {
         this.testCase = testCase;
+    }
+
+    public TestRunDto getLatestRun() {
+        return latestRun;
+    }
+
+    public void setLatestRun(TestRunDto latestRun) {
+        this.latestRun = latestRun;
     }
 }

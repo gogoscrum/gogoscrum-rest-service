@@ -2,7 +2,6 @@ package com.shimi.gogoscrum.testing.controller;
 
 import com.shimi.gogoscrum.common.controller.BaseController;
 import com.shimi.gogoscrum.testing.dto.TestPlanDto;
-import com.shimi.gogoscrum.testing.dto.TestPlanItemDto;
 import com.shimi.gogoscrum.testing.model.TestPlan;
 import com.shimi.gogoscrum.testing.model.TestPlanFilter;
 import com.shimi.gogoscrum.testing.model.TestPlanItem;
@@ -66,6 +65,15 @@ public class TestPlanController extends BaseController {
         testPlanService.delete(id);
     }
 
+    @Operation(summary = "Clone a test plan", description = "Create a copy of the specified test plan, " +
+            "including the links to test cases.")
+    @Parameters({@Parameter(name = "id", description = "The test plan ID to clone")})
+    @PostMapping("/{id}/clone")
+    public TestPlanDto clone(@PathVariable Long id) {
+        TestPlan clonedTestPlan = testPlanService.clone(id);
+        return clonedTestPlan.toDto();
+    }
+
     @Operation(summary = "Search test plans")
     @Parameters({@Parameter(name = "filter", description = "Test plan search filter")})
     @PostMapping("/search")
@@ -77,7 +85,7 @@ public class TestPlanController extends BaseController {
     @Operation(summary = "Get test case IDs by test plan ID")
     @Parameters({@Parameter(name = "testPlanId", description = "The test plan ID")})
     @GetMapping("/{testPlanId}/cases")
-    public Long[] getTestCaseIds(@PathVariable Long testPlanId) {
+    public List<Long> getTestCaseIds(@PathVariable Long testPlanId) {
         return testPlanItemService.findTestCaseIds(testPlanId);
     }
 

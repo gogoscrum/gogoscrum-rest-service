@@ -3,22 +3,23 @@ package com.shimi.gogoscrum.testing.service;
 import com.shimi.gogoscrum.common.service.BaseServiceImpl;
 import com.shimi.gogoscrum.project.service.ProjectService;
 import com.shimi.gogoscrum.project.utils.ProjectMemberUtils;
-import com.shimi.gogoscrum.testing.model.TestCase;
-import com.shimi.gogoscrum.testing.model.TestPlan;
-import com.shimi.gogoscrum.testing.model.TestPlanItem;
-import com.shimi.gogoscrum.testing.model.TestPlanItemFilter;
-import com.shimi.gogoscrum.testing.repository.TestCaseSpecs;
+import com.shimi.gogoscrum.testing.model.*;
 import com.shimi.gogoscrum.testing.repository.TestPlanItemRepository;
 import com.shimi.gogoscrum.testing.repository.TestPlanItemSpecs;
+import com.shimi.gogoscrum.testing.repository.TestRunRepository;
+import com.shimi.gsf.core.event.EntityChangeEvent;
 import com.shimi.gsf.core.exception.BadRequestException;
+import com.shimi.gsf.core.model.Entity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.EventListener;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class TestPlanItemServiceImpl extends BaseServiceImpl<TestPlanItem, TestPlanItemFilter> implements TestPlanItemService {
@@ -29,10 +30,11 @@ public class TestPlanItemServiceImpl extends BaseServiceImpl<TestPlanItem, TestP
     private TestPlanService planService;
     @Autowired
     private TestPlanItemRepository repository;
-
+    @Autowired
+    private TestRunRepository testRunRepository;
 
     @Override
-    public Long[] findTestCaseIds(Long testPlanId) {
+    public List<Long> findTestCaseIds(Long testPlanId) {
         return repository.findCaseIds(testPlanId);
     }
 
@@ -51,7 +53,48 @@ public class TestPlanItemServiceImpl extends BaseServiceImpl<TestPlanItem, TestP
                 }).toList();
         repository.saveAll(items);
         log.info("Linked {} test cases to test plan {}: {}", caseIds.size(), planId, caseIds);
+        planService.refreshSummary(planId);
         return items;
+    }
+
+    @Override
+    protected void afterDelete(TestPlanItem item) {
+        planService.refreshSummary(item.getTestPlanId());
+    }
+
+    /**
+     * Event listener to refresh the latest run of a test plan item when an execution record changes.
+     */
+    @EventListener
+    public void onExecutionRecordChanged(EntityChangeEvent event) {
+        Entity entity = Objects.requireNonNullElse(event.getPreviousEntity(), event.getUpdatedEntity());
+
+        if (entity instanceof TestRun run && run.getTestCase() != null && run.getTestPlan() != null) {
+            this.refreshItemLatestRun(run.getTestCase().getId(), run.getTestPlan().getId());
+        }
+    }
+
+    /**
+     * Refresh the latest run of the test plan item after an execution record change.
+     * This method should be called after a test run is created, updated or deleted.
+     * It updates the latest run information for the plan item (i.e. identified by case ID and plan ID).
+     *
+     * @param caseId the ID of the test case to refresh
+     */
+    private void refreshItemLatestRun(Long caseId, Long planId) {
+        TestPlanItem item = repository.findByTestCaseIdAndTestPlanId(caseId, planId);
+        TestRun latestRun = testRunRepository.findTopByTestCaseIdAndTestPlanIdOrderByIdDesc(caseId, planId);
+
+        if (latestRun != null) {
+            item.setLatestRun(latestRun);
+            repository.save(item);
+            log.info("Updated latest execution record for test plan item {}: {}", item.getId(), latestRun);
+        } else {
+            item.setLatestRun(null);
+            repository.save(item);
+            log.info("No execution record found for test plan item {}, set to null", item.getId());
+        }
+        planService.refreshSummary(planId);
     }
 
     @Override

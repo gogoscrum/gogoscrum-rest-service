@@ -2,6 +2,7 @@ package com.shimi.gogoscrum.testing.repository;
 
 import com.shimi.gogoscrum.common.model.Priority;
 import com.shimi.gogoscrum.testing.model.TestCase;
+import com.shimi.gogoscrum.testing.model.TestRun;
 import com.shimi.gogoscrum.testing.model.TestType;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -39,6 +40,11 @@ public class TestCaseSpecs {
     public static Specification<TestCase> priorityIn(List<Priority> priorities) {
         return (testCase, criteriaQuery, criteriaBuilder) ->
                 criteriaBuilder.in(testCase.get("details").get("priority")).value(priorities);
+    }
+
+    public static Specification<TestCase> runStatusIn(List<TestRun.TestRunStatus> runStatuses) {
+        return (testCase, criteriaQuery, criteriaBuilder) ->
+                criteriaBuilder.in(testCase.get("latestRun").get("status")).value(runStatuses);
     }
 
     public static Specification<TestCase> ownerIdIn(List<Long> ownerIds) {

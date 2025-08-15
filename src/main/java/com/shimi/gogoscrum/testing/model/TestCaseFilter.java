@@ -14,6 +14,7 @@ public class TestCaseFilter extends BaseFilter {
     private List<Long> componentIds;
     private List<TestType> types;
     private List<Priority> priorities;
+    private List<TestRun.TestRunStatus> runStatuses;
     private List<Long> owners;
     private List<Long> creators;
     private Boolean deleted = Boolean.FALSE;
@@ -80,5 +81,13 @@ public class TestCaseFilter extends BaseFilter {
 
     public void setDeleted(Boolean deleted) {
         this.deleted = deleted;
+    }
+
+    public List<TestRun.TestRunStatus> getRunStatuses() {
+        return runStatuses;
+    }
+
+    public void setRunStatuses(List<TestRun.TestRunStatus> runStatuses) {
+        this.runStatuses = runStatuses;
     }
 }

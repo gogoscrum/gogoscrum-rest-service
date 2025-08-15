@@ -18,6 +18,12 @@ public class TestPlanDto extends BaseDto {
     private Date endDate;
     private TestType type;
     private UserDto owner;
+    private Long caseCount = 0L;
+    private Long executedCount = 0L;
+    private Long failedCount = 0L;
+    private Long successCount = 0L;
+    private Long blockedCount = 0L;
+    private Long skippedCount = 0L;
 
     @Override
     public TestPlan toEntity() {
@@ -84,5 +90,53 @@ public class TestPlanDto extends BaseDto {
 
     public void setOwner(UserDto owner) {
         this.owner = owner;
+    }
+
+    public Long getCaseCount() {
+        return caseCount;
+    }
+
+    public void setCaseCount(Long caseCount) {
+        this.caseCount = caseCount;
+    }
+
+    public Long getExecutedCount() {
+        return executedCount;
+    }
+
+    public void setExecutedCount(Long executedCount) {
+        this.executedCount = executedCount;
+    }
+
+    public Long getFailedCount() {
+        return failedCount;
+    }
+
+    public void setFailedCount(Long failedCount) {
+        this.failedCount = failedCount;
+    }
+
+    public Long getSuccessCount() {
+        return successCount;
+    }
+
+    public void setSuccessCount(Long successCount) {
+        this.successCount = successCount;
+    }
+
+    public Long getBlockedCount() {
+        return blockedCount;
+    }
+
+    public void setBlockedCount(Long blockedCount) {
+        this.blockedCount = blockedCount;
+    }
+
+    public Long getSkippedCount() {
+        return skippedCount;
+    }
+
+    public void setSkippedCount(Long skippedCount) {
+        this.skippedCount = skippedCount;
     }
 }

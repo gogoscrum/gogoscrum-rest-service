@@ -3,6 +3,8 @@ package com.shimi.gogoscrum.testing.dto;
 import com.shimi.gogoscrum.common.dto.BaseDto;
 import com.shimi.gogoscrum.file.dto.FileDto;
 import com.shimi.gogoscrum.file.model.File;
+import com.shimi.gogoscrum.testing.model.TestCase;
+import com.shimi.gogoscrum.testing.model.TestPlan;
 import com.shimi.gogoscrum.testing.model.TestRun;
 import com.shimi.gogoscrum.testing.model.TestStepResult;
 import org.springframework.beans.BeanUtils;
@@ -18,9 +20,11 @@ public class TestRunDto extends BaseDto {
     private static final long serialVersionUID = 1653212101445935586L;
     private Long projectId;
     private Long testCaseId;
+    private TestCaseDto testCase;
     private Long testCaseDetailsId;
     private Integer testCaseVersion;
     private Long testPlanId;
+    private TestPlanDto testPlan;
     private List<TestStepResult> stepResults = new ArrayList<>();
     private TestRun.TestRunStatus status;
     private String result;
@@ -34,6 +38,18 @@ public class TestRunDto extends BaseDto {
         if (!CollectionUtils.isEmpty(this.files)){
             List<File> fileEntities = this.files.stream().map(FileDto::toEntity).collect(Collectors.toList());
             entity.setFiles(fileEntities);
+        }
+
+        if (testCase != null && testCase.getId() != null) {
+            entity.setTestCase(testCase.toEntity());
+        } else if (testCaseId != null) {
+            entity.setTestCase(new TestCase(testCaseId));
+        }
+
+        if (testPlan != null && testPlan.getId() != null) {
+            entity.setTestPlan(testPlan.toEntity());
+        } else if (testPlanId != null) {
+            entity.setTestPlan(new TestPlan(testPlanId));
         }
 
         return entity;
@@ -54,12 +70,12 @@ public class TestRunDto extends BaseDto {
         this.projectId = projectId;
     }
 
-    public Long getTestCaseId() {
-        return testCaseId;
+    public TestCaseDto getTestCase() {
+        return testCase;
     }
 
-    public void setTestCaseId(Long testCaseId) {
-        this.testCaseId = testCaseId;
+    public void setTestCase(TestCaseDto testCase) {
+        this.testCase = testCase;
     }
 
     public Long getTestCaseDetailsId() {
@@ -78,12 +94,12 @@ public class TestRunDto extends BaseDto {
         this.testCaseVersion = testCaseVersion;
     }
 
-    public Long getTestPlanId() {
-        return testPlanId;
+    public TestPlanDto getTestPlan() {
+        return testPlan;
     }
 
-    public void setTestPlanId(Long testPlanId) {
-        this.testPlanId = testPlanId;
+    public void setTestPlan(TestPlanDto testPlan) {
+        this.testPlan = testPlan;
     }
 
     public List<TestStepResult> getStepResults() {
@@ -116,5 +132,21 @@ public class TestRunDto extends BaseDto {
 
     public void setFiles(List<FileDto> files) {
         this.files = files;
+    }
+
+    public Long getTestCaseId() {
+        return testCaseId;
+    }
+
+    public void setTestCaseId(Long testCaseId) {
+        this.testCaseId = testCaseId;
+    }
+
+    public Long getTestPlanId() {
+        return testPlanId;
+    }
+
+    public void setTestPlanId(Long testPlanId) {
+        this.testPlanId = testPlanId;
     }
 }

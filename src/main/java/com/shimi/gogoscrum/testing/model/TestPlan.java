@@ -25,6 +25,12 @@ public class TestPlan extends BaseEntity {
     @JoinColumn(name = "owner_id")
     @NotFound(action = NotFoundAction.IGNORE)
     private User owner;
+    private Long caseCount = 0L;
+    private Long executedCount = 0L;
+    private Long failedCount = 0L;
+    private Long successCount = 0L;
+    private Long blockedCount = 0L;
+    private Long skippedCount = 0L;
     private boolean deleted = false;
 
     @Override
@@ -111,15 +117,67 @@ public class TestPlan extends BaseEntity {
         this.owner = owner;
     }
 
+    public Long getCaseCount() {
+        return caseCount;
+    }
+
+    public void setCaseCount(Long caseCount) {
+        this.caseCount = caseCount;
+    }
+
+    public Long getExecutedCount() {
+        return executedCount;
+    }
+
+    public void setExecutedCount(Long executedCount) {
+        this.executedCount = executedCount;
+    }
+
+    public Long getSkippedCount() {
+        return skippedCount;
+    }
+
+    public void setSkippedCount(Long skippedCount) {
+        this.skippedCount = skippedCount;
+    }
+
+    public Long getFailedCount() {
+        return failedCount;
+    }
+
+    public void setFailedCount(Long failedCount) {
+        this.failedCount = failedCount;
+    }
+
+    public Long getBlockedCount() {
+        return blockedCount;
+    }
+
+    public void setBlockedCount(Long blockedCount) {
+        this.blockedCount = blockedCount;
+    }
+
+    public Long getSuccessCount() {
+        return successCount;
+    }
+
+    public void setSuccessCount(Long successCount) {
+        this.successCount = successCount;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("TestPlan{");
-        sb.append("id=").append(id);
-        sb.append(", projectId=").append(projectId);
+        sb.append("projectId=").append(projectId);
         sb.append(", name='").append(name).append('\'');
-        sb.append(", startDate=").append(startDate);
-        sb.append(", endDate=").append(endDate);
+        sb.append(", caseCount=").append(caseCount);
+        sb.append(", executedCount=").append(executedCount);
+        sb.append(", failedCount=").append(failedCount);
+        sb.append(", successCount=").append(successCount);
+        sb.append(", blockedCount=").append(blockedCount);
+        sb.append(", skippedCount=").append(skippedCount);
         sb.append(", deleted=").append(deleted);
+        sb.append(", id=").append(id);
         sb.append('}');
         return sb.toString();
     }

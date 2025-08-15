@@ -406,21 +406,6 @@ public class Issue extends BaseEntity implements Historical {
         if (dueTime != null) {
             sb.append(", dueTime=").append(dueTime);
         }
-        if (!CollectionUtils.isEmpty(files)) {
-            sb.append(", files=").append(files.size());
-        }
-        if (!CollectionUtils.isEmpty(tags)) {
-            sb.append(", tags=").append(tags.size());
-        }
-        if (!CollectionUtils.isEmpty(linkToIssues)) {
-            sb.append(", linksTo=").append(linkToIssues.size());
-        }
-        if (!CollectionUtils.isEmpty(linkedByIssues)) {
-            sb.append(", linkedBy=").append(linkedByIssues.size());
-        }
-        if (!CollectionUtils.isEmpty(comments)) {
-            sb.append(", comments=").append(comments.size());
-        }
         return sb.toString();
     }
 }

@@ -64,12 +64,4 @@ public class TestRunController extends BaseController {
         EntityQueryResult<TestRun> queryResult = testRunService.search(filter);
         return queryResult.toDto();
     }
-
-    @Operation(summary = "Copy a test run", description = "Copy the specified test run")
-    @Parameters({@Parameter(name = "id", description = "The ID of test run to be copied")})
-    @PostMapping("/{id}/clone")
-    public TestRunDto clone(@PathVariable Long id) {
-        TestRun clonedRun = testRunService.clone(id);
-        return clonedRun.toDto(true);
-    }
 }

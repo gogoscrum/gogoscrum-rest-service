@@ -30,6 +30,9 @@ public class TestCase extends BaseEntity {
             joinColumns = @JoinColumn(name = "test_case_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "file_id", referencedColumnName = "id"))
     private List<File> files = new ArrayList<>();
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "latest_run_id")
+    private TestRun latestRun;
 
     @Override
     public TestCaseDto toDto() {
@@ -43,6 +46,11 @@ public class TestCase extends BaseEntity {
 
         if (details != null) {
             dto.setDetails(details.toDto());
+        }
+
+        if (latestRun != null) {
+            latestRun.setTestCase(null); // Avoid circular reference
+            dto.setLatestRun(latestRun.toDto());
         }
 
         if (this.createdBy != null) {
@@ -112,6 +120,14 @@ public class TestCase extends BaseEntity {
 
     public void setFiles(List<File> files) {
         this.files = files;
+    }
+
+    public TestRun getLatestRun() {
+        return latestRun;
+    }
+
+    public void setLatestRun(TestRun latestRun) {
+        this.latestRun = latestRun;
     }
 
     @Override

@@ -11,9 +11,9 @@ public interface TestPlanItemService extends GeneralService<TestPlanItem, TestPl
      * Retrieves the IDs of all test cases linked to a specific test plan.
      *
      * @param testPlanId the ID of the test plan
-     * @return an array of Long representing the IDs of the linked test cases
+     * @return a list of Long representing the IDs of the linked test cases
      */
-    Long[] findTestCaseIds(Long testPlanId);
+    List<Long> findTestCaseIds(Long testPlanId);
 
     /**
      * Links all test cases to a test plan.

@@ -6,15 +6,20 @@ import com.shimi.gogoscrum.project.utils.ProjectMemberUtils;
 import com.shimi.gogoscrum.testing.model.TestCase;
 import com.shimi.gogoscrum.testing.model.TestCaseDetails;
 import com.shimi.gogoscrum.testing.model.TestCaseFilter;
+import com.shimi.gogoscrum.testing.model.TestRun;
 import com.shimi.gogoscrum.testing.repository.TestCaseDetailsRepository;
 import com.shimi.gogoscrum.testing.repository.TestCaseRepository;
 import com.shimi.gogoscrum.testing.repository.TestCaseSpecs;
+import com.shimi.gogoscrum.testing.repository.TestRunRepository;
 import com.shimi.gogoscrum.user.model.User;
+import com.shimi.gsf.core.event.EntityChangeEvent;
 import com.shimi.gsf.core.exception.BadRequestException;
+import com.shimi.gsf.core.model.Entity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.EventListener;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -31,6 +36,8 @@ public class TestCaseServiceImpl extends BaseServiceImpl<TestCase, TestCaseFilte
     private ProjectService projectService;
     @Autowired
     private TestCaseDetailsRepository detailsRepository;
+    @Autowired
+    private TestRunRepository testRunRepository;
 
     @Override
     protected TestCaseRepository getRepository() {
@@ -43,12 +50,14 @@ public class TestCaseServiceImpl extends BaseServiceImpl<TestCase, TestCaseFilte
         ProjectMemberUtils.checkDeveloper(projectService.get(testCase.getProjectId()), currentUser);
         this.validateTestCase(testCase);
 
-        // Save the test case
+        TestCaseDetails details = testCase.getDetails();
+
+        // Save the test case without details first
         testCase.setCode(this.generateNextCaseCode(testCase.getProjectId()));
+        testCase.setDetails(null);
         TestCase createdTestCase = super.create(testCase);
 
         // Save the test case details
-        TestCaseDetails details = testCase.getDetails();
         details.setId(null);
         details.setTestCaseId(createdTestCase.getId());
         details.setVersion(1);
@@ -155,13 +164,52 @@ public class TestCaseServiceImpl extends BaseServiceImpl<TestCase, TestCaseFilte
         TestCase clonedCase = new TestCase();
         TestCaseDetails clonedDetails = new TestCaseDetails();
 
-        BeanUtils.copyProperties(originalTestCase, clonedCase, "details", "files");
+        BeanUtils.copyProperties(originalTestCase, clonedCase, "id", "details", "files", "latestRun");
         BeanUtils.copyProperties(originalDetails, clonedDetails);
 
         clonedDetails.setName("Copy of " + originalDetails.getName());
         clonedCase.setDetails(clonedDetails);
 
         return create(clonedCase);
+    }
+
+    /**
+     * Event listener to refresh the latest run of a test case when an execution record changes.
+     */
+    @EventListener
+    public void onExecutionRecordChanged(EntityChangeEvent event) {
+        Entity entity = Objects.requireNonNullElse(event.getPreviousEntity(), event.getUpdatedEntity());
+
+        if (entity instanceof TestRun run && run.getTestCase() != null) {
+            this.refreshLatestRun(run.getTestCase().getId());
+        }
+    }
+
+    /**
+     * Refresh the latest run of the test case after an execution record change.
+     * This method should be called after a test run is created, updated or deleted.
+     * It updates the latest run information in the test case.
+     *
+     * @param caseId the ID of the test case to refresh
+     */
+    private void refreshLatestRun(Long caseId) {
+        TestCase testCase = get(caseId);
+        if (testCase == null) {
+            log.warn("Test case with ID {} not found for refreshing latest run", caseId);
+            return;
+        }
+
+        TestRun latestRun = testRunRepository.findTopByTestCaseIdOrderByIdDesc(caseId);
+
+        if (latestRun != null) {
+            testCase.setLatestRun(latestRun);
+            repository.save(testCase);
+            log.info("Updated latest execution record for test case {}: {}", caseId, latestRun);
+        } else {
+            testCase.setLatestRun(null);
+            repository.save(testCase);
+            log.info("No execution record found for test case {}, set to null", caseId);
+        }
     }
 
     @Override
@@ -187,6 +235,11 @@ public class TestCaseServiceImpl extends BaseServiceImpl<TestCase, TestCaseFilte
         if (!CollectionUtils.isEmpty(filter.getPriorities())) {
             Specification<TestCase> priorityIn = TestCaseSpecs.priorityIn(filter.getPriorities());
             querySpec = querySpec.and(priorityIn);
+        }
+
+        if (!CollectionUtils.isEmpty(filter.getRunStatuses())) {
+            Specification<TestCase> runStatusIn = TestCaseSpecs.runStatusIn(filter.getRunStatuses());
+            querySpec = querySpec.and(runStatusIn);
         }
 
         if (!CollectionUtils.isEmpty(filter.getOwners())) {

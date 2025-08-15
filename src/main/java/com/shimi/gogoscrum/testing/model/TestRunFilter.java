@@ -9,12 +9,15 @@ public class TestRunFilter extends BaseFilter {
     @Serial
     private static final long serialVersionUID = -2013295293395171124L;
     private Long projectId;
-    private Long testCaseId;
-    private Long testCaseDetailsId;
+    private String keyword;
+    private Long caseId;
+    private Long caseDetailsId;
     private Integer version;
-    private Long testPlanId;
+    private Long planId;
     private TestRun.TestRunStatus status;
+    private List<Long> planIds;
     private List<Long> creators;
+    private List<TestRun.TestRunStatus> statuses;
 
     public Long getProjectId() {
         return projectId;
@@ -24,20 +27,28 @@ public class TestRunFilter extends BaseFilter {
         this.projectId = projectId;
     }
 
-    public Long getTestCaseId() {
-        return testCaseId;
+    public String getKeyword() {
+        return keyword;
     }
 
-    public void setTestCaseId(Long testCaseId) {
-        this.testCaseId = testCaseId;
+    public void setKeyword(String keyword) {
+        this.keyword = keyword;
     }
 
-    public Long getTestCaseDetailsId() {
-        return testCaseDetailsId;
+    public Long getCaseId() {
+        return caseId;
     }
 
-    public void setTestCaseDetailsId(Long testCaseDetailsId) {
-        this.testCaseDetailsId = testCaseDetailsId;
+    public void setCaseId(Long caseId) {
+        this.caseId = caseId;
+    }
+
+    public Long getCaseDetailsId() {
+        return caseDetailsId;
+    }
+
+    public void setCaseDetailsId(Long caseDetailsId) {
+        this.caseDetailsId = caseDetailsId;
     }
 
     public Integer getVersion() {
@@ -48,12 +59,12 @@ public class TestRunFilter extends BaseFilter {
         this.version = version;
     }
 
-    public Long getTestPlanId() {
-        return testPlanId;
+    public Long getPlanId() {
+        return planId;
     }
 
-    public void setTestPlanId(Long testPlanId) {
-        this.testPlanId = testPlanId;
+    public void setPlanId(Long planId) {
+        this.planId = planId;
     }
 
     public TestRun.TestRunStatus getStatus() {
@@ -70,5 +81,21 @@ public class TestRunFilter extends BaseFilter {
 
     public void setCreators(List<Long> creators) {
         this.creators = creators;
+    }
+
+    public List<Long> getPlanIds() {
+        return planIds;
+    }
+
+    public void setPlanIds(List<Long> planIds) {
+        this.planIds = planIds;
+    }
+
+    public List<TestRun.TestRunStatus> getStatuses() {
+        return statuses;
+    }
+
+    public void setStatuses(List<TestRun.TestRunStatus> statuses) {
+        this.statuses = statuses;
     }
 }
