@@ -6,6 +6,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 import org.springframework.beans.BeanUtils;
 
 import java.io.Serial;
@@ -15,11 +17,12 @@ public class TestPlanItem extends BaseEntity {
     @Serial
     private static final long serialVersionUID = -5125452752727206777L;
     private Long testPlanId;
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "test_case_id")
     private TestCase testCase;
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "latest_run_id")
+    @NotFound(action = NotFoundAction.IGNORE)
     private TestRun latestRun;
 
     @Override

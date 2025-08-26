@@ -77,4 +77,16 @@ public class IssueSpecs {
             return criteriaBuilder.isTrue(issue.get("sprint").get("backlog"));
         };
     }
+
+    public static Specification<Issue> testCaseIdEquals(Long testCaseId) {
+        return (issue, criteriaQuery, criteriaBuilder) -> {
+            return criteriaBuilder.equal(issue.get("testCase").get("id"), testCaseId);
+        };
+    }
+
+    public static Specification<Issue> testPlanIdEquals(Long testPlanId) {
+        return (issue, criteriaQuery, criteriaBuilder) -> {
+            return criteriaBuilder.equal(issue.get("testPlan").get("id"), testPlanId);
+        };
+    }
 }

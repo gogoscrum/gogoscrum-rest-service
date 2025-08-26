@@ -19,12 +19,12 @@ public class TestRun extends BaseEntity {
     @Serial
     private static final long serialVersionUID = 6409453185785371608L;
     private Long projectId;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "test_case_id")
     private TestCase testCase;
     private Long testCaseDetailsId;
     private Integer testCaseVersion;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "test_plan_id")
     private TestPlan testPlan;
     @Convert(converter = ListOfStepResultToStringConverter.class)
@@ -169,9 +169,9 @@ public class TestRun extends BaseEntity {
     }
 
     public enum TestRunStatus {
-        SKIPPED,
-        BLOCKED,
         SUCCESS,
-        FAILED
+        FAILED,
+        BLOCKED,
+        SKIPPED
     }
 }

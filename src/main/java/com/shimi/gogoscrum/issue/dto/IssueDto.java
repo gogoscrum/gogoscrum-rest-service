@@ -11,6 +11,8 @@ import com.shimi.gogoscrum.project.model.Project;
 import com.shimi.gogoscrum.sprint.dto.SprintDto;
 import com.shimi.gogoscrum.tag.dto.TagDto;
 import com.shimi.gogoscrum.tag.model.Tag;
+import com.shimi.gogoscrum.testing.dto.TestCaseDto;
+import com.shimi.gogoscrum.testing.dto.TestPlanDto;
 import com.shimi.gogoscrum.user.dto.UserDto;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.CollectionUtils;
@@ -44,6 +46,8 @@ public class IssueDto extends BaseDto {
     private Date dueTime;
     private Float estimatedHours;
     private Float actualHours;
+    private TestCaseDto testCase;
+    private TestPlanDto testPlan;
     private List<FileDto> files = new ArrayList<>();
     private List<IssueDto> linkToIssues = new ArrayList<>();
     private List<IssueDto> linkedByIssues = new ArrayList<>();
@@ -77,6 +81,14 @@ public class IssueDto extends BaseDto {
 
         if (this.componentId != null) {
             entity.setComponent(new Component(this.componentId));
+        }
+
+        if (this.testCase != null) {
+            entity.setTestCase(this.testCase.toEntity());
+        }
+
+        if (this.testPlan != null) {
+            entity.setTestPlan(this.testPlan.toEntity());
         }
 
         if (!CollectionUtils.isEmpty(this.comments)){
@@ -327,5 +339,21 @@ public class IssueDto extends BaseDto {
 
     public void setActualHours(Float actualHours) {
         this.actualHours = actualHours;
+    }
+
+    public TestCaseDto getTestCase() {
+        return testCase;
+    }
+
+    public void setTestCase(TestCaseDto testCase) {
+        this.testCase = testCase;
+    }
+
+    public TestPlanDto getTestPlan() {
+        return testPlan;
+    }
+
+    public void setTestPlan(TestPlanDto testPlan) {
+        this.testPlan = testPlan;
     }
 }

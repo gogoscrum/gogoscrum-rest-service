@@ -20,7 +20,7 @@ public class TestCase extends BaseEntity {
     private static final long serialVersionUID = 1794849626692644392L;
     private Long projectId;
     private Long code;
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "latest_details_id")
     private TestCaseDetails details;
     private boolean deleted = false;

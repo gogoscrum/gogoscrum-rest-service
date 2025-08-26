@@ -29,6 +29,8 @@ public class IssueFilterDto extends BaseDto {
     private int pageSize = 10;
     private List<Filter.Order> orders = new ArrayList<>();
     private String language;
+    private Long testCaseId;
+    private Long testPlanId;
 
     @Override
     public IssueFilter toEntity() {
@@ -156,5 +158,21 @@ public class IssueFilterDto extends BaseDto {
 
     public void setLanguage(String language) {
         this.language = language;
+    }
+
+    public Long getTestCaseId() {
+        return testCaseId;
+    }
+
+    public void setTestCaseId(Long testCaseId) {
+        this.testCaseId = testCaseId;
+    }
+
+    public Long getTestPlanId() {
+        return testPlanId;
+    }
+
+    public void setTestPlanId(Long testPlanId) {
+        this.testPlanId = testPlanId;
     }
 }

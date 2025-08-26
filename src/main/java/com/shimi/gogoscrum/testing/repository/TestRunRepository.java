@@ -6,4 +6,5 @@ import com.shimi.gsf.core.repository.GeneralRepository;
 public interface TestRunRepository extends GeneralRepository<TestRun> {
     TestRun findTopByTestCaseIdOrderByIdDesc(Long testCaseId);
     TestRun findTopByTestCaseIdAndTestPlanIdOrderByIdDesc(Long testCaseId, Long testPlanId);
+    Long countByTestPlanId(Long testPlanId);
 }

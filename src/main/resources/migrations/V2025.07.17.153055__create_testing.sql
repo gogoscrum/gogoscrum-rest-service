@@ -90,7 +90,7 @@ CREATE TABLE `test_run` (
   `test_case_version` INT NOT NULL DEFAULT 1 COMMENT 'Version of the test case',
   `test_plan_id` BIGINT COMMENT 'Test plan ID, optional',
   `step_results` JSON COMMENT 'Actual result of all steps in JSON format',
-  `status` ENUM('SKIPPED','BLOCKED','SUCCESS','FAILED') COMMENT 'Status of the test run',
+  `status` ENUM('SUCCESS', 'FAILED', 'BLOCKED', 'SKIPPED') COMMENT 'Status of the test run',
   `result` TEXT COMMENT 'Test case execution result remark',
   `created_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Created time',
   `updated_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Updated time',
@@ -108,5 +108,29 @@ CREATE TABLE `test_run_file` (
   PRIMARY KEY (`test_run_id`, `file_id`)
 ) COMMENT='Test run attachment table';
 
+CREATE TABLE `test_report` (
+  `id` SERIAL COMMENT 'Test report ID',
+  `project_id` BIGINT NOT NULL COMMENT 'Project ID',
+  `test_plan_id` BIGINT COMMENT 'Test plan ID',
+  `name` VARCHAR(1024) NOT NULL COMMENT 'Test report name',
+  `description` TEXT COMMENT 'Test report description',
+  `start_date` TIMESTAMP COMMENT 'Plan start time',
+  `end_date` TIMESTAMP COMMENT 'Plan end time',
+  `owner_id` BIGINT COMMENT 'Owner user ID',
+  `case_summary` JSON COMMENT 'Statistics of test cases in JSON format',
+  `bug_summary` JSON COMMENT 'Statistics of bugs in JSON format',
+  `created_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Created time',
+  `updated_time` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Updated time',
+  `created_by_user_id` BIGINT COMMENT 'Creator user ID',
+  `updated_by_user_id` BIGINT COMMENT 'Updater user ID',
+  PRIMARY KEY (`id`),
+  KEY `IDX_PROJECT_ID` (`project_id`),
+  KEY `IDX_TEST_PLAN_ID` (`test_plan_id`)
+) COMMENT='Test report table';
+
 ALTER TABLE `file` CHANGE `target_type` `target_type` ENUM('PROJECT_FILE', 'PROJECT_AVATAR', 'USER_AVATAR',
 'ISSUE_ATTACHMENT', 'TEXT_EDITOR', 'TEST_CASE_ATTACHMENT', 'TEST_RUN_ATTACHMENT') COMMENT 'Target type';
+
+ALTER TABLE `issue`
+ADD `test_case_id` BIGINT COMMENT 'Test case ID' AFTER `actual_hours`,
+ADD `test_plan_id` BIGINT COMMENT 'Test plan ID' AFTER `test_case_id`;

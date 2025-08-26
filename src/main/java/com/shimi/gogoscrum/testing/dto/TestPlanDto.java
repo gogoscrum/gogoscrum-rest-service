@@ -139,4 +139,33 @@ public class TestPlanDto extends BaseDto {
     public void setSkippedCount(Long skippedCount) {
         this.skippedCount = skippedCount;
     }
+
+    /**
+     * Calculate the progress of the test plan based on executed and total cases.
+     * @return the progress percentage as an integer
+     */
+    public int getProgress() {
+        long total = caseCount != null ? caseCount : 0L;
+        long executed = executedCount != null ? executedCount : 0L;
+
+        if (total == 0) {
+            return 0; // Avoid division by zero
+        }
+
+        return Math.round((float) executed / total * 100);
+    }
+
+    /**
+     * Normalize the DTO to remove any sensitive information, only keeping minimal fields.
+     * @return the normalized TestPlanDTO
+     */
+    @Override
+    public TestPlanDto normalize() {
+        TestPlanDto normalized = new TestPlanDto();
+
+        normalized.setId(this.id);
+        normalized.setName(this.name);
+
+        return normalized;
+    }
 }

@@ -51,6 +51,10 @@ public class IssueFilter extends BaseEntity implements Filter {
     private Boolean backlog;
     @Transient
     private String language;
+    @Transient
+    private Long testCaseId;
+    @Transient
+    private Long testPlanId;
 
     @Override
     public IssueFilterDto toDto() {
@@ -193,6 +197,22 @@ public class IssueFilter extends BaseEntity implements Filter {
 
     public void setLanguage(String language) {
         this.language = language;
+    }
+
+    public Long getTestCaseId() {
+        return testCaseId;
+    }
+
+    public void setTestCaseId(Long testCaseId) {
+        this.testCaseId = testCaseId;
+    }
+
+    public Long getTestPlanId() {
+        return testPlanId;
+    }
+
+    public void setTestPlanId(Long testPlanId) {
+        this.testPlanId = testPlanId;
     }
 
     @Override

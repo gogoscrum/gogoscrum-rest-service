@@ -339,6 +339,16 @@ public class IssueServiceImpl extends BaseServiceImpl<Issue, IssueFilter> implem
             querySpec = Objects.isNull(querySpec) ? codeOrNameLike : querySpec.and(codeOrNameLike);
         }
 
+        if (filter.getTestCaseId() != null) {
+            Specification<Issue> testCaseIdEquals = IssueSpecs.testCaseIdEquals(filter.getTestCaseId());
+            querySpec = Objects.isNull(querySpec) ? testCaseIdEquals : querySpec.and(testCaseIdEquals);
+        }
+
+        if (filter.getTestPlanId() != null) {
+            Specification<Issue> testPlanIdEquals = IssueSpecs.testPlanIdEquals(filter.getTestPlanId());
+            querySpec = Objects.isNull(querySpec) ? testPlanIdEquals : querySpec.and(testPlanIdEquals);
+        }
+
         return querySpec;
     }
 
@@ -434,10 +444,10 @@ public class IssueServiceImpl extends BaseServiceImpl<Issue, IssueFilter> implem
     public byte[] export(IssueFilter filter) {
         filter.getOrders().add(new Filter.Order("id", Filter.Direction.ASC));
         List<Issue> issues = this.searchAll(filter);
-        List<String> enHeaders = Arrays.asList("Key", "Title", "Type", "Priority", "Status", "Story point", "Estimated hours", "Actual hours",
-                "Sprint", "Reporter", "Created time", "Updated time", "Due date", "Assignee", "Tags", "Description", "Comments");
-        List<String> cnHeaders = Arrays.asList("代码", "标题", "类型", "优先级", "状态", "故事点", "预估工时", "实际工时",
-                "迭代", "提交者", "创建时间", "更新时间", "截止时间", "执行者", "标签", "描述", "评论");
+        List<String> enHeaders = Arrays.asList("Key", "Title", "Type", "Priority", "Status", "Story point", "Component", "Estimated hours", "Actual hours",
+                "Sprint", "Reporter", "Created time", "Updated time", "Due date", "Assignee", "Test case", "Test plan", "Tags", "Description", "Comments");
+        List<String> cnHeaders = Arrays.asList("代码", "标题", "类型", "优先级", "状态", "故事点", "功能模块", "预估工时", "实际工时",
+                "迭代", "提交者", "创建时间", "更新时间", "截止时间", "执行者", "测试用例", "测试计划", "标签", "描述", "评论");
         byte[] result = Exporter.exportExcel("Issues", "cn".equalsIgnoreCase(filter.getLanguage()) ? cnHeaders : enHeaders, toExcelBodyRows(issues));
         log.info("Exported {} issues to Excel for filter: {}", issues.size(), filter);
         return result;
@@ -456,6 +466,7 @@ public class IssueServiceImpl extends BaseServiceImpl<Issue, IssueFilter> implem
         cells.add(issue.getPriority().name());
         cells.add(issue.getIssueGroup() != null ? issue.getIssueGroup().getLabel() : null);
         cells.add(issue.getStoryPoints() != null ? issue.getStoryPoints() : null);
+        cells.add(issue.getComponent() != null ? issue.getComponent().getName() : null);
         cells.add(issue.getEstimatedHours() != null ? issue.getEstimatedHours() : null);
         cells.add(issue.getActualHours() != null ? issue.getActualHours() : null);
         cells.add(issue.getSprint() != null ? issue.getSprint().getName() : null);
@@ -464,6 +475,8 @@ public class IssueServiceImpl extends BaseServiceImpl<Issue, IssueFilter> implem
         cells.add(issue.getUpdatedTime());
         cells.add(issue.getDueTime());
         cells.add(issue.getOwner() != null ? issue.getOwner().getNickname() : null);
+        cells.add(issue.getTestCase() != null ? issue.getTestCase().getDetails().getName() : null);
+        cells.add(issue.getTestPlan() != null ? issue.getTestPlan().getName() : null);
         cells.add(!CollectionUtils.isEmpty(issue.getTags()) ? getTagNames(issue) : null);
         cells.add(issue.getDescription());
         cells.add(!CollectionUtils.isEmpty(issue.getComments()) ? getComments(issue) : null);

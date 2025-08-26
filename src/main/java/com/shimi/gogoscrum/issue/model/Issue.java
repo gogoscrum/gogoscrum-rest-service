@@ -12,6 +12,8 @@ import com.shimi.gogoscrum.project.model.Project;
 import com.shimi.gogoscrum.sprint.model.Sprint;
 import com.shimi.gogoscrum.tag.dto.TagDto;
 import com.shimi.gogoscrum.tag.model.Tag;
+import com.shimi.gogoscrum.testing.model.TestCase;
+import com.shimi.gogoscrum.testing.model.TestPlan;
 import com.shimi.gogoscrum.user.model.User;
 import jakarta.persistence.*;
 import org.hibernate.annotations.NotFound;
@@ -67,6 +69,16 @@ public class Issue extends BaseEntity implements Historical {
     @JoinColumn(name = "owner_id")
     @NotFound(action = NotFoundAction.IGNORE)
     private User owner;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "test_case_id")
+    @NotFound(action = NotFoundAction.IGNORE)
+    private TestCase testCase;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "test_plan_id")
+    @NotFound(action = NotFoundAction.IGNORE)
+    private TestPlan testPlan;
 
     @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "issue", fetch = FetchType.LAZY)
     private List<Comment> comments = new ArrayList<>();
@@ -154,6 +166,14 @@ public class Issue extends BaseEntity implements Historical {
         if (detailed) {
             if (this.createdBy != null) {
                 dto.setCreatedBy(this.createdBy.toDto());
+            }
+
+            if (this.testCase != null) {
+                dto.setTestCase(this.testCase.toDto());
+            }
+
+            if (this.testPlan != null) {
+                dto.setTestPlan(this.testPlan.toDto());
             }
 
             if (!CollectionUtils.isEmpty(this.comments)) {
@@ -357,12 +377,27 @@ public class Issue extends BaseEntity implements Historical {
         this.actualHours = actualHours;
     }
 
+    public TestCase getTestCase() {
+        return testCase;
+    }
+
+    public void setTestCase(TestCase testCase) {
+        this.testCase = testCase;
+    }
+
+    public TestPlan getTestPlan() {
+        return testPlan;
+    }
+
+    public void setTestPlan(TestPlan testPlan) {
+        this.testPlan = testPlan;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("Issue{");
         sb.append("name='").append(name).append('\'');
         sb.append(", code='").append(code).append('\'');
-        sb.append(", description='").append(description).append('\'');
         sb.append(", type=").append(type);
         sb.append(", priority=").append(priority);
         sb.append(", seq=").append(seq);
