@@ -1,6 +1,7 @@
 package com.shimi.gogoscrum.issue.model;
 
 import com.shimi.gogoscrum.common.model.BaseEntity;
+import com.shimi.gogoscrum.common.model.Priority;
 import com.shimi.gogoscrum.component.model.Component;
 import com.shimi.gogoscrum.file.dto.FileDto;
 import com.shimi.gogoscrum.file.model.File;
@@ -11,6 +12,8 @@ import com.shimi.gogoscrum.project.model.Project;
 import com.shimi.gogoscrum.sprint.model.Sprint;
 import com.shimi.gogoscrum.tag.dto.TagDto;
 import com.shimi.gogoscrum.tag.model.Tag;
+import com.shimi.gogoscrum.testing.model.TestCase;
+import com.shimi.gogoscrum.testing.model.TestPlan;
 import com.shimi.gogoscrum.user.model.User;
 import jakarta.persistence.*;
 import org.hibernate.annotations.NotFound;
@@ -35,7 +38,7 @@ public class Issue extends BaseEntity implements Historical {
     @Enumerated(EnumType.STRING)
     private IssueType type;
     @Enumerated(EnumType.STRING)
-    private IssuePriority priority = IssuePriority.NORMAL;
+    private Priority priority = Priority.NORMAL;
     private Integer seq = 0;
     private Float storyPoints;
     private Date completedTime;
@@ -66,6 +69,16 @@ public class Issue extends BaseEntity implements Historical {
     @JoinColumn(name = "owner_id")
     @NotFound(action = NotFoundAction.IGNORE)
     private User owner;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "test_case_id")
+    @NotFound(action = NotFoundAction.IGNORE)
+    private TestCase testCase;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "test_plan_id")
+    @NotFound(action = NotFoundAction.IGNORE)
+    private TestPlan testPlan;
 
     @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "issue", fetch = FetchType.LAZY)
     private List<Comment> comments = new ArrayList<>();
@@ -155,6 +168,14 @@ public class Issue extends BaseEntity implements Historical {
                 dto.setCreatedBy(this.createdBy.toDto());
             }
 
+            if (this.testCase != null) {
+                dto.setTestCase(this.testCase.toDto());
+            }
+
+            if (this.testPlan != null) {
+                dto.setTestPlan(this.testPlan.toDto());
+            }
+
             if (!CollectionUtils.isEmpty(this.comments)) {
                 List<CommentDto> commentDtos = this.comments.stream().map(Comment::toDto).toList();
                 dto.setComments(commentDtos);
@@ -216,11 +237,11 @@ public class Issue extends BaseEntity implements Historical {
         this.type = type;
     }
 
-    public IssuePriority getPriority() {
+    public Priority getPriority() {
         return priority;
     }
 
-    public void setPriority(IssuePriority priority) {
+    public void setPriority(Priority priority) {
         this.priority = priority;
     }
 
@@ -356,12 +377,27 @@ public class Issue extends BaseEntity implements Historical {
         this.actualHours = actualHours;
     }
 
+    public TestCase getTestCase() {
+        return testCase;
+    }
+
+    public void setTestCase(TestCase testCase) {
+        this.testCase = testCase;
+    }
+
+    public TestPlan getTestPlan() {
+        return testPlan;
+    }
+
+    public void setTestPlan(TestPlan testPlan) {
+        this.testPlan = testPlan;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("Issue{");
         sb.append("name='").append(name).append('\'');
         sb.append(", code='").append(code).append('\'');
-        sb.append(", description='").append(description).append('\'');
         sb.append(", type=").append(type);
         sb.append(", priority=").append(priority);
         sb.append(", seq=").append(seq);
@@ -404,21 +440,6 @@ public class Issue extends BaseEntity implements Historical {
         }
         if (dueTime != null) {
             sb.append(", dueTime=").append(dueTime);
-        }
-        if (!CollectionUtils.isEmpty(files)) {
-            sb.append(", files=").append(files.size());
-        }
-        if (!CollectionUtils.isEmpty(tags)) {
-            sb.append(", tags=").append(tags.size());
-        }
-        if (!CollectionUtils.isEmpty(linkToIssues)) {
-            sb.append(", linksTo=").append(linkToIssues.size());
-        }
-        if (!CollectionUtils.isEmpty(linkedByIssues)) {
-            sb.append(", linkedBy=").append(linkedByIssues.size());
-        }
-        if (!CollectionUtils.isEmpty(comments)) {
-            sb.append(", comments=").append(comments.size());
         }
         return sb.toString();
     }

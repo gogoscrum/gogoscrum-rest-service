@@ -9,7 +9,7 @@ import com.shimi.gsf.core.service.GeneralService;
 import java.util.List;
 
 public interface IssueService extends GeneralService<Issue, IssueFilter> {
-    Issue copyIssue(Long issueId);
+    Issue cloneIssue(Long issueId);
 
     void updateIssuesSeq(List<Long> issueIds);
 

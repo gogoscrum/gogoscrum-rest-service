@@ -2,7 +2,6 @@ package com.shimi.gogoscrum.component.model;
 
 import com.shimi.gogoscrum.common.model.BaseEntity;
 import com.shimi.gogoscrum.component.dto.ComponentDto;
-import com.shimi.gogoscrum.user.dto.UserDto;
 import jakarta.persistence.Entity;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.StringUtils;

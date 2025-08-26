@@ -2,7 +2,7 @@ package com.shimi.gogoscrum.issue.dto;
 
 import com.shimi.gogoscrum.common.dto.BaseDto;
 import com.shimi.gogoscrum.issue.model.IssueFilter;
-import com.shimi.gogoscrum.issue.model.IssuePriority;
+import com.shimi.gogoscrum.common.model.Priority;
 import com.shimi.gogoscrum.issue.model.IssueType;
 import com.shimi.gsf.core.model.Filter;
 import org.springframework.beans.BeanUtils;
@@ -22,13 +22,15 @@ public class IssueFilterDto extends BaseDto {
     private List<Long> groupIds;
     private List<Long> componentIds;
     private List<IssueType> types;
-    private List<IssuePriority> priorities;
+    private List<Priority> priorities;
     private List<Long> tagIds;
     private List<Long> ownerIds;
     private int page = 1;
     private int pageSize = 10;
     private List<Filter.Order> orders = new ArrayList<>();
     private String language;
+    private Long testCaseId;
+    private Long testPlanId;
 
     @Override
     public IssueFilter toEntity() {
@@ -102,11 +104,11 @@ public class IssueFilterDto extends BaseDto {
         this.types = types;
     }
 
-    public List<IssuePriority> getPriorities() {
+    public List<Priority> getPriorities() {
         return priorities;
     }
 
-    public void setPriorities(List<IssuePriority> priorities) {
+    public void setPriorities(List<Priority> priorities) {
         this.priorities = priorities;
     }
 
@@ -156,5 +158,21 @@ public class IssueFilterDto extends BaseDto {
 
     public void setLanguage(String language) {
         this.language = language;
+    }
+
+    public Long getTestCaseId() {
+        return testCaseId;
+    }
+
+    public void setTestCaseId(Long testCaseId) {
+        this.testCaseId = testCaseId;
+    }
+
+    public Long getTestPlanId() {
+        return testPlanId;
+    }
+
+    public void setTestPlanId(Long testPlanId) {
+        this.testPlanId = testPlanId;
     }
 }

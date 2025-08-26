@@ -74,10 +74,6 @@ public class FileServiceImpl extends BaseServiceImpl<File, FileFilter> implement
             } else {
                 log.info("File storage plugin {} found and will be used as storage provider", fileStorage.getProvider());
             }
-        } else {
-            if (log.isDebugEnabled()) {
-                log.debug("No file storage plugin found, the LOCAL storage will be used as default");
-            }
         }
     }
 
