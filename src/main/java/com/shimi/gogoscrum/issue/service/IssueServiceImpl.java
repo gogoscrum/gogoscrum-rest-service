@@ -142,7 +142,9 @@ public class IssueServiceImpl extends BaseServiceImpl<Issue, IssueFilter> implem
 
     @Override
     protected void afterUpdate(Long id, Issue oldIssue, Issue newIssue) {
-        if (!Objects.equals(oldIssue.getSprint().getId(), newIssue.getSprint().getId())) {
+        // If the sprint or issue group changed, need to refresh the issue count of both old and new sprints
+        if (!Objects.equals(oldIssue.getSprint().getId(), newIssue.getSprint().getId()) ||
+                !Objects.equals(oldIssue.getIssueGroup().getId(), newIssue.getIssueGroup().getId())) {
             sprintService.refreshSprintIssueCount(oldIssue.getSprint().getId());
             sprintService.refreshSprintIssueCount(newIssue.getSprint().getId());
         }

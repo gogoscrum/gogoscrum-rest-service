@@ -133,7 +133,7 @@ public class Sprint extends BaseEntity implements Historical {
     }
 
     public Float getProgress() {
-        if(totalIssueCount != null && totalIssueCount > 1) {
+        if(totalIssueCount != null && totalIssueCount > 0) {
             return (float)(doneIssueCount != null ? doneIssueCount : 0) / totalIssueCount;
         } else {
             return 0F;
