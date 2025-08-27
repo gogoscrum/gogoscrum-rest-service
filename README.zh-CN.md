@@ -30,17 +30,22 @@ gogoscrum是轻量级敏捷项目管理工具，遵循Scrum敏捷实践，为敏
 
 ## 页面截图
 
-经典风格看板
-
-<img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/white-board-classic.png" width="680">
 
 彩色贴纸风格看板
 
 <img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/white-board-sticky-notes.png" width="680">
 
+经典风格看板
+
+<img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/white-board-classic.png" width="680">
+
 黑暗模式看板
 
 <img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/dark-board.png" width="680">
+
+项目列表
+
+<img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/project-list.png" width="680">
 
 任务列表
 
@@ -56,7 +61,28 @@ gogoscrum是轻量级敏捷项目管理工具，遵循Scrum敏捷实践，为敏
 
 任务详情
 
-<img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/issue-edit.png" width="480">
+<img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/issue-edit.png" width="680">
+
+测试用例列表
+
+<img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/test-case-list.png" width="680">
+
+测试计划列表
+
+<img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/test-plan-list.png" width="680">
+
+测试执行记录
+
+<img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/test-execution-list.png" width="680">
+
+测试执行详情
+
+<img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/test-execution-details.png" width="680">
+
+测试报告
+
+<img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/test-report-details.png" width="680">
+
 
 ## 技术栈
 

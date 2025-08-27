@@ -29,17 +29,21 @@ gogoscrum is a lightweight agile project management tool designed for efficient 
 
 ## Screenshots
 
-Classic board
-
-<img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/white-board-classic.png" width="680">
-
 Sticky-notes board
 
 <img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/white-board-sticky-notes.png" width="680">
 
+Classic board
+
+<img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/white-board-classic.png" width="680">
+
 Dark mode board
 
 <img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/dark-board.png" width="680">
+
+Project list
+
+<img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/project-list.png" width="680">
 
 Issue list
 
@@ -55,7 +59,27 @@ Burn-down chart
 
 Issue details
 
-<img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/issue-edit.png" width="480">
+<img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/issue-edit.png" width="680">
+
+Test case list
+
+<img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/test-case-list.png" width="680">
+
+Test plan list
+
+<img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/test-plan-list.png" width="680">
+
+Test execution records
+
+<img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/test-execution-list.png" width="680">
+
+Test execution details
+
+<img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/test-execution-details.png" width="680">
+
+Test report
+
+<img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/test-report-details.png" width="680">
 
 ## Technologies
 
