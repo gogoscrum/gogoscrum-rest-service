@@ -51,6 +51,15 @@ public class ComponentController extends BaseController {
         return this.assembleComponentTree(components);
     }
 
+    @Operation(summary = "Get all components as a list")
+    @Parameters({
+            @Parameter(name = "projectId", description = "The ID of the project")})
+    @GetMapping
+    public List<ComponentDto> getAllComponents(@RequestParam long projectId) {
+        List<Component> components = componentService.findByProjectId(projectId);
+        return components.stream().map(Component::toDto).collect(Collectors.toList());
+    }
+
     private ComponentDto assembleComponentTree(List<Component> components) {
         ComponentDto root = new ComponentDto();
         root.setName("root");

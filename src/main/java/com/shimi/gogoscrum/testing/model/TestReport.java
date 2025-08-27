@@ -2,7 +2,6 @@ package com.shimi.gogoscrum.testing.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.shimi.gogoscrum.common.model.BaseEntity;
-import com.shimi.gogoscrum.common.model.Priority;
 import com.shimi.gogoscrum.testing.dto.TestReportDto;
 import com.shimi.gogoscrum.testing.utils.BugSummaryToStringConverter;
 import com.shimi.gogoscrum.testing.utils.CaseSummaryToStringConverter;
@@ -156,10 +155,10 @@ public class TestReport extends BaseEntity {
         private Long caseCount = 0L;
         private Long executedCaseCount = 0L;
         private Long executionRecordCount = 0L;
-        private LinkedHashMap<TestRun.TestRunStatus, Long> caseByStatusSummary;
-        private LinkedHashMap<Long, Long> caseByComponentSummary;
-        private LinkedHashMap<TestType, Long> caseByTypeSummary;
-        private LinkedHashMap<Long, Long> caseByExecutorSummary;
+        private List<SummaryEntry> caseByStatusSummary;
+        private List<SummaryEntry> caseByComponentSummary;
+        private List<SummaryEntry> caseByTypeSummary;
+        private List<SummaryEntry> caseByExecutorSummary;
 
         public List<Long> getCaseIds() {
             return caseIds;
@@ -193,35 +192,35 @@ public class TestReport extends BaseEntity {
             this.executionRecordCount = executionRecordCount;
         }
 
-        public LinkedHashMap<TestRun.TestRunStatus, Long> getCaseByStatusSummary() {
+        public List<SummaryEntry> getCaseByStatusSummary() {
             return caseByStatusSummary;
         }
 
-        public void setCaseByStatusSummary(LinkedHashMap<TestRun.TestRunStatus, Long> caseByStatusSummary) {
+        public void setCaseByStatusSummary(List<SummaryEntry> caseByStatusSummary) {
             this.caseByStatusSummary = caseByStatusSummary;
         }
 
-        public LinkedHashMap<Long, Long> getCaseByComponentSummary() {
+        public List<SummaryEntry> getCaseByComponentSummary() {
             return caseByComponentSummary;
         }
 
-        public void setCaseByComponentSummary(LinkedHashMap<Long, Long> caseByComponentSummary) {
+        public void setCaseByComponentSummary(List<SummaryEntry> caseByComponentSummary) {
             this.caseByComponentSummary = caseByComponentSummary;
         }
 
-        public LinkedHashMap<TestType, Long> getCaseByTypeSummary() {
+        public List<SummaryEntry> getCaseByTypeSummary() {
             return caseByTypeSummary;
         }
 
-        public void setCaseByTypeSummary(LinkedHashMap<TestType, Long> caseByTypeSummary) {
+        public void setCaseByTypeSummary(List<SummaryEntry> caseByTypeSummary) {
             this.caseByTypeSummary = caseByTypeSummary;
         }
 
-        public LinkedHashMap<Long, Long> getCaseByExecutorSummary() {
+        public List<SummaryEntry> getCaseByExecutorSummary() {
             return caseByExecutorSummary;
         }
 
-        public void setCaseByExecutorSummary(LinkedHashMap<Long, Long> caseByExecutorSummary) {
+        public void setCaseByExecutorSummary(List<SummaryEntry> caseByExecutorSummary) {
             this.caseByExecutorSummary = caseByExecutorSummary;
         }
 
@@ -237,6 +236,15 @@ public class TestReport extends BaseEntity {
             return Math.round((float) executedCaseCount / caseCount * 100);
         }
 
+        public int getFailedCaseCount() {
+            if (caseByStatusSummary == null || caseByStatusSummary.isEmpty()) {
+                return 0;
+            }
+            Optional<SummaryEntry> failedEntry = caseByStatusSummary.stream().filter(entry ->
+                    Objects.equals(entry.getKey(), TestRun.TestRunStatus.FAILED.name())).findFirst();
+            return failedEntry.map(SummaryEntry::getValue).orElse(0L).intValue();
+        }
+
         /**
          * Calculates the pass rate of test cases as a percentage, which is the ratio of
          * successful test cases to the total number of test cases.
@@ -244,11 +252,15 @@ public class TestReport extends BaseEntity {
          * @return the pass rate as a float, or 0 if there are no cases or no executed cases.
          */
         public int getCasePassRate() {
+            // try to find the SUCCESS entry in caseByStatusSummary
+            Optional<SummaryEntry> successEntry = caseByStatusSummary.stream().filter(entry ->
+                    Objects.equals(entry.getKey(), TestRun.TestRunStatus.SUCCESS.name())).findFirst();
+
             if (caseCount == 0 || executedCaseCount == 0 || caseByStatusSummary == null
-                    || caseByStatusSummary.isEmpty() || !caseByStatusSummary.containsKey(TestRun.TestRunStatus.SUCCESS)) {
+                    || caseByStatusSummary.isEmpty() || successEntry.isEmpty()) {
                 return 0;
             }
-            return Math.round((float) caseByStatusSummary.get(TestRun.TestRunStatus.SUCCESS) / caseCount * 100);
+            return Math.round((float) successEntry.get().getValue() / caseCount * 100);
         }
     }
 
@@ -256,11 +268,11 @@ public class TestReport extends BaseEntity {
     public static class BugSummary {
         private Long bugCount = 0L;
         private List<Long> bugIds = new ArrayList<>();
-        private LinkedHashMap<Priority, Long> bugByPrioritySummary;
-        private LinkedHashMap<String, Long> bugByStatusSummary;
-        private LinkedHashMap<Long, Long> bugByCreatorSummary;
-        private LinkedHashMap<Long, Long> bugByAssigneeSummary;
-        private LinkedHashMap<Long, Long> bugByComponentSummary;
+        private List<SummaryEntry> bugByPrioritySummary;
+        private List<SummaryEntry> bugByStatusSummary;
+        private List<SummaryEntry> bugByCreatorSummary;
+        private List<SummaryEntry> bugByAssigneeSummary;
+        private List<SummaryEntry> bugByComponentSummary;
 
         public Long getBugCount() {
             return bugCount;
@@ -278,44 +290,73 @@ public class TestReport extends BaseEntity {
             this.bugIds = bugIds;
         }
 
-        public Map<Priority, Long> getBugByPrioritySummary() {
+        public List<SummaryEntry> getBugByPrioritySummary() {
             return bugByPrioritySummary;
         }
 
-        public void setBugByPrioritySummary(LinkedHashMap<Priority, Long> bugByPrioritySummary) {
+        public void setBugByPrioritySummary(List<SummaryEntry> bugByPrioritySummary) {
             this.bugByPrioritySummary = bugByPrioritySummary;
         }
 
-        public LinkedHashMap<String, Long> getBugByStatusSummary() {
+        public List<SummaryEntry> getBugByStatusSummary() {
             return bugByStatusSummary;
         }
 
-        public void setBugByStatusSummary(LinkedHashMap<String, Long> bugByStatusSummary) {
+        public void setBugByStatusSummary(List<SummaryEntry> bugByStatusSummary) {
             this.bugByStatusSummary = bugByStatusSummary;
         }
 
-        public LinkedHashMap<Long, Long> getBugByCreatorSummary() {
+        public List<SummaryEntry> getBugByCreatorSummary() {
             return bugByCreatorSummary;
         }
 
-        public void setBugByCreatorSummary(LinkedHashMap<Long, Long> bugByCreatorSummary) {
+        public void setBugByCreatorSummary(List<SummaryEntry> bugByCreatorSummary) {
             this.bugByCreatorSummary = bugByCreatorSummary;
         }
 
-        public LinkedHashMap<Long, Long> getBugByAssigneeSummary() {
+        public List<SummaryEntry> getBugByAssigneeSummary() {
             return bugByAssigneeSummary;
         }
 
-        public void setBugByAssigneeSummary(LinkedHashMap<Long, Long> bugByAssigneeSummary) {
+        public void setBugByAssigneeSummary(List<SummaryEntry> bugByAssigneeSummary) {
             this.bugByAssigneeSummary = bugByAssigneeSummary;
         }
 
-        public LinkedHashMap<Long, Long> getBugByComponentSummary() {
+        public List<SummaryEntry> getBugByComponentSummary() {
             return bugByComponentSummary;
         }
 
-        public void setBugByComponentSummary(LinkedHashMap<Long, Long> bugByComponentSummary) {
+        public void setBugByComponentSummary(List<SummaryEntry> bugByComponentSummary) {
             this.bugByComponentSummary = bugByComponentSummary;
+        }
+    }
+
+    public static class SummaryEntry {
+        private String key;
+        private Long value;
+
+        public SummaryEntry() {
+        }
+
+        public SummaryEntry(String key, Long value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        public String getKey() {
+            return key;
+        }
+
+        public void setKey(String key) {
+            this.key = key;
+        }
+
+        public Long getValue() {
+            return value;
+        }
+
+        public void setValue(Long value) {
+            this.value = value;
         }
     }
 }

@@ -5,7 +5,9 @@ import com.shimi.gogoscrum.common.service.BaseServiceImpl;
 import com.shimi.gogoscrum.project.service.ProjectService;
 import com.shimi.gogoscrum.project.utils.ProjectMemberUtils;
 import com.shimi.gogoscrum.testing.model.*;
-import com.shimi.gogoscrum.testing.repository.*;
+import com.shimi.gogoscrum.testing.repository.TestReportRepository;
+import com.shimi.gogoscrum.testing.repository.TestReportSpecs;
+import com.shimi.gogoscrum.testing.repository.TestRunRepository;
 import com.shimi.gsf.core.exception.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,10 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class TestReportServiceImpl extends BaseServiceImpl<TestReport, TestReportFilter> implements TestReportService {
@@ -31,38 +30,6 @@ public class TestReportServiceImpl extends BaseServiceImpl<TestReport, TestRepor
     private ProjectService projectService;
     @Autowired
     private TestRunRepository testRunRepository;
-
-    @Override
-    protected Specification<TestReport> toSpec(TestReportFilter filter) {
-        Specification<TestReport> querySpec = null;
-
-        if (filter.getProjectId() != null) {
-            querySpec = TestReportSpecs.projectIdEquals(filter.getProjectId());
-        } else {
-            throw new BadRequestException("Project ID is required to query test reports");
-        }
-
-        if (filter.getPlanId() != null) {
-            Specification<TestReport> testPlanEquals = TestReportSpecs.planIdEquals(filter.getPlanId());
-            querySpec = querySpec.and(testPlanEquals);
-        } else if (!CollectionUtils.isEmpty(filter.getPlanIds())) {
-            Specification<TestReport> planIdIn = TestReportSpecs.planIdIn(filter.getPlanIds());
-            querySpec = querySpec.and(planIdIn);
-        }
-
-        if (!CollectionUtils.isEmpty(filter.getCreators())) {
-            Specification<TestReport> creatorIdIn = TestReportSpecs.creatorIdIn(filter.getCreators());
-            querySpec = querySpec.and(creatorIdIn);
-        }
-
-        if (StringUtils.hasText(filter.getKeyword())) {
-            String keyword = filter.getKeyword();
-            Specification<TestReport> nameLike = TestReportSpecs.nameLike(keyword);
-            querySpec = querySpec.and(nameLike);
-        }
-
-        return querySpec;
-    }
 
     @Override
     public TestReport generateReport(Long testPlanId) {
@@ -114,114 +81,97 @@ public class TestReportServiceImpl extends BaseServiceImpl<TestReport, TestRepor
         return bugSummary;
     }
 
-    private LinkedHashMap<TestRun.TestRunStatus, Long> countCaseByStatus(TestPlan plan) {
-        Map<TestRun.TestRunStatus, Long> map = Map.of(TestRun.TestRunStatus.SUCCESS, plan.getSuccessCount(),
-                TestRun.TestRunStatus.FAILED, plan.getFailedCount(),
-                TestRun.TestRunStatus.BLOCKED, plan.getBlockedCount(),
-                TestRun.TestRunStatus.SKIPPED, plan.getSkippedCount());
-        // sort the entries in the map by the ordinal value of the key enum
-        return map.entrySet().stream()
-                .sorted(Map.Entry.comparingByKey((a, b) -> Integer.compare(a.ordinal(), b.ordinal())))
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        Map.Entry::getValue,
-                        (e1, e2) -> e1,
-                        LinkedHashMap::new
-                ));
+    private List<TestReport.SummaryEntry> countCaseByStatus(TestPlan plan) {
+        return List.of(new TestReport.SummaryEntry(TestRun.TestRunStatus.SUCCESS.name(), plan.getSuccessCount()),
+                new TestReport.SummaryEntry(TestRun.TestRunStatus.FAILED.name(), plan.getFailedCount()),
+                new TestReport.SummaryEntry(TestRun.TestRunStatus.BLOCKED.name(), plan.getBlockedCount()),
+                new TestReport.SummaryEntry(TestRun.TestRunStatus.SKIPPED.name(), plan.getSkippedCount()));
     }
 
-    private LinkedHashMap<Long, Long> countCaseByComponent(Long planId) {
+    private List<TestReport.SummaryEntry> countCaseByComponent(Long planId) {
         List<Object[]> rawResults = repository.countCaseByComponent(planId);
-        Map<Long, Long> map = rawResults.stream().collect(
-                Collectors.toMap(arr -> arr[0] == null ? 0L : (Long) arr[0],
-                        arr -> (Long) arr[1]));
-        // sort the entries in the map by the key (component ID) descending
-        return map.entrySet().stream()
-                .sorted(Map.Entry.comparingByKey((a, b) -> Long.compare(b, a)))
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        Map.Entry::getValue,
-                        (e1, e2) -> e1,
-                        LinkedHashMap::new
-                ));
+        return rawResults.stream().map(arr ->
+                        new TestReport.SummaryEntry(arr[0] == null ? "0" : String.valueOf(arr[0]), (Long) arr[1]))
+                .toList();
     }
 
-    private LinkedHashMap<TestType, Long> countCaseByType(Long planId) {
+    private List<TestReport.SummaryEntry> countCaseByType(Long planId) {
         List<Object[]> rawResults = repository.countCaseByType(planId);
-        Map<TestType, Long> map = rawResults.stream().collect(
-                Collectors.toMap(arr -> arr[0] == null ? TestType.NOT_SET : (TestType) arr[0],
-                        arr -> (Long) arr[1]));
-        // sort the entries in the map by the ordinal value of the key enum
-        return map.entrySet().stream()
-                .sorted(Map.Entry.comparingByKey((a, b) -> Integer.compare(a.ordinal(), b.ordinal())))
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        Map.Entry::getValue,
-                        (e1, e2) -> e1,
-                        LinkedHashMap::new
-                ));
+        return rawResults.stream().map(arr ->
+                new TestReport.SummaryEntry(arr[0] == null ? TestType.NOT_SET.name() : ((TestType) arr[0]).name(),
+                        (Long) arr[1])).toList();
     }
 
-    private LinkedHashMap<Long, Long> countCaseByExecutor(Long planId) {
+    private List<TestReport.SummaryEntry> countCaseByExecutor(Long planId) {
         List<Object[]> rawResults = repository.countCaseByExecutor(planId);
-        Map<Long, Long> map = rawResults.stream().collect(
-                Collectors.toMap(arr -> arr[0] == null ? 0L : (Long) arr[0],
-                        arr -> (Long) arr[1]));
-        // sort the entries in the map by the key (user ID) descending
-        return map.entrySet().stream()
-                .sorted(Map.Entry.comparingByKey((a, b) -> Long.compare(b, a)))
-                .collect(Collectors.toMap(
-                        Map.Entry::getKey,
-                        Map.Entry::getValue,
-                        (e1, e2) -> e1,
-                        LinkedHashMap::new
-                ));
+        return rawResults.stream().map(arr ->
+                new TestReport.SummaryEntry(String.valueOf(arr[0]), (Long) arr[1])).toList();
     }
 
-    private LinkedHashMap<Priority, Long> countBugByPriority(Long planId) {
+    private List<TestReport.SummaryEntry> countBugByPriority(Long planId) {
         List<Object[]> rawResults = repository.countBugByPriority(planId);
-        return rawResults.stream().collect(
-                Collectors.toMap(arr -> (Priority) arr[0],
-                        arr -> (Long) arr[1],
-                        (e1, e2) -> e1,
-                        LinkedHashMap::new));
+        return rawResults.stream().map(arr ->
+                new TestReport.SummaryEntry(((Priority) arr[0]).name(), (Long) arr[1])).toList();
     }
 
-    private LinkedHashMap<String, Long> countBugByStatus(Long planId) {
+    private List<TestReport.SummaryEntry> countBugByStatus(Long planId) {
         List<Object[]> rawResults = repository.countBugByStatus(planId);
-        return rawResults.stream().collect(
-                Collectors.toMap(arr -> (String) arr[0],
-                        arr -> (Long) arr[1],
-                        (e1, e2) -> e1,
-                        LinkedHashMap::new));
+        return rawResults.stream().map(arr ->
+                new TestReport.SummaryEntry((String) arr[0], (Long) arr[1])).toList();
     }
 
-    private LinkedHashMap<Long, Long> countBugByCreator(Long planId) {
+    private List<TestReport.SummaryEntry> countBugByCreator(Long planId) {
         List<Object[]> rawResults = repository.countBugByCreator(planId);
-        return rawResults.stream().collect(
-                Collectors.toMap(arr -> (Long) arr[0],
-                        arr -> (Long) arr[1], (e1, e2) -> e1,
-                        LinkedHashMap::new));
+        return rawResults.stream().map(arr ->
+                new TestReport.SummaryEntry(String.valueOf(arr[0]), (Long) arr[1])).toList();
     }
 
-    private LinkedHashMap<Long, Long> countBugByAssignee(Long planId) {
+    private List<TestReport.SummaryEntry> countBugByAssignee(Long planId) {
         List<Object[]> rawResults = repository.countBugByAssignee(planId);
-        return rawResults.stream().collect(
-                Collectors.toMap(arr -> arr[0] == null ? 0L : (Long) arr[0],
-                        arr -> (Long) arr[1], (e1, e2) -> e1,
-                        LinkedHashMap::new));
+        return rawResults.stream().map(arr ->
+                new TestReport.SummaryEntry(String.valueOf(arr[0]), (Long) arr[1])).toList();
     }
 
-    private LinkedHashMap<Long, Long> countBugByComponent(Long planId) {
+    private List<TestReport.SummaryEntry> countBugByComponent(Long planId) {
         List<Object[]> rawResults = repository.countBugByComponent(planId);
-        return rawResults.stream().collect(
-                Collectors.toMap(arr -> arr[0] == null ? 0L : (Long) arr[0],
-                        arr -> (Long) arr[1], (e1, e2) -> e1,
-                        LinkedHashMap::new));
+        return rawResults.stream().map(arr ->
+                new TestReport.SummaryEntry(String.valueOf(arr[0]), (Long) arr[1])).toList();
     }
 
     @Override
     protected TestReportRepository getRepository() {
         return repository;
+    }
+
+    @Override
+    protected Specification<TestReport> toSpec(TestReportFilter filter) {
+        Specification<TestReport> querySpec = null;
+
+        if (filter.getProjectId() != null) {
+            querySpec = TestReportSpecs.projectIdEquals(filter.getProjectId());
+        } else {
+            throw new BadRequestException("Project ID is required to query test reports");
+        }
+
+        if (filter.getPlanId() != null) {
+            Specification<TestReport> testPlanEquals = TestReportSpecs.planIdEquals(filter.getPlanId());
+            querySpec = querySpec.and(testPlanEquals);
+        } else if (!CollectionUtils.isEmpty(filter.getPlanIds())) {
+            Specification<TestReport> planIdIn = TestReportSpecs.planIdIn(filter.getPlanIds());
+            querySpec = querySpec.and(planIdIn);
+        }
+
+        if (!CollectionUtils.isEmpty(filter.getCreators())) {
+            Specification<TestReport> creatorIdIn = TestReportSpecs.creatorIdIn(filter.getCreators());
+            querySpec = querySpec.and(creatorIdIn);
+        }
+
+        if (StringUtils.hasText(filter.getKeyword())) {
+            String keyword = filter.getKeyword();
+            Specification<TestReport> nameLike = TestReportSpecs.nameLike(keyword);
+            querySpec = querySpec.and(nameLike);
+        }
+
+        return querySpec;
     }
 }

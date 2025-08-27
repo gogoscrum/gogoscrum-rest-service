@@ -15,20 +15,22 @@ public interface TestReportRepository extends GeneralRepository<TestReport> {
             "FROM TestCaseDetails d INNER JOIN TestPlanItem i on d.testCaseId = i.testCase.id " +
             "INNER JOIN TestCase c ON c.details.id = d.id " +
             "WHERE i.testPlanId = :planId " +
-            "GROUP BY d.componentId order by d.componentId")
+            "GROUP BY d.componentId " +
+            "ORDER BY CASE WHEN d.componentId IS NULL THEN 1 ELSE 0 END, d.componentId")
     List<Object[]> countCaseByComponent(Long planId);
 
     @Query(value = "SELECT d.type, COUNT(d) " +
             "FROM TestCaseDetails d INNER JOIN TestPlanItem i on d.testCaseId = i.testCase.id " +
             "INNER JOIN TestCase c ON c.details.id = d.id " +
             "WHERE i.testPlanId = :planId " +
-            "GROUP BY d.type")
+            "GROUP BY d.type " +
+            "ORDER BY CASE WHEN d.type IS NULL THEN 1 ELSE 0 END")
     List<Object[]> countCaseByType(Long planId);
 
     @Query(value = "SELECT r.createdBy.id, COUNT(c) " +
             "FROM TestRun r INNER JOIN TestCase c on c.latestRun.id = r.id " +
             "INNER JOIN TestPlanItem i on c.id = i.testCase.id " +
-            "WHERE i.testPlanId = :planId " +
+            "WHERE i.testPlanId = :planId AND r.testPlan.id = i.testPlanId " +
             "GROUP BY r.createdBy.id")
     List<Object[]> countCaseByExecutor(Long planId);
 
