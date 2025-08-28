@@ -429,14 +429,22 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, ProjectFilter> 
         Project project = get(projectId);
         ProjectMemberUtils.checkOwner(project, getCurrentUser());
 
+        Long oldFileId = null;
         if (project.getAvatar() != null) {
-            fileService.delete(project.getAvatar().getId());
+            oldFileId = project.getAvatar().getId();
         }
 
+        // Create new avatar file and link it to the project
         File savedAvatar = fileService.create(avatarFile);
         project.setAvatar(savedAvatar);
         project.setUpdateTraceInfo(getCurrentUser());
         Project updatedProject = repository.save(project);
+
+        // Delete old avatar file if exists
+        if (oldFileId != null) {
+            fileService.delete(oldFileId);
+        }
+
         log.info("Project {} avatar file updated to {}", projectId, savedAvatar.getId());
         this.updateFileCountAndTotalSize(projectId, 1, avatarFile.getSize());
         return updatedProject;
@@ -449,11 +457,13 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, ProjectFilter> 
 
         File avatarFile = project.getAvatar();
         if (avatarFile != null) {
-            fileService.delete(avatarFile.getId());
+            Long fileId = avatarFile.getId();
+            // Unlink the avatar from project first, then delete the file
             project.setAvatar(null);
             project.setUpdateTraceInfo(getCurrentUser());
             repository.save(project);
-            log.info("Project {} avatar file {} deleted.", projectId, avatarFile.getId());
+            fileService.delete(fileId);
+            log.info("Project {} avatar file {} deleted.", projectId, fileId);
             this.updateFileCountAndTotalSize(projectId, -1, -avatarFile.getSize());
         } else {
             log.warn("Project {} has no avatar file to delete", projectId);

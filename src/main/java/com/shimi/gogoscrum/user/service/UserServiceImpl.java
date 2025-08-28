@@ -115,14 +115,21 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserFilter> implement
 
         User user = get(userId);
 
+        Long oldFileId = null;
         if (user.getAvatar() != null) {
-            fileService.delete(user.getAvatar().getId());
+            oldFileId = user.getAvatar().getId();
         }
 
+        // Create new avatar file and link it to user
         user.setAvatar(fileService.create(avatarFile));
-
         user.setUpdateTraceInfo(getCurrentUser());
         User updatedUser = repository.save(user);
+
+        // Delete old avatar file if exists
+        if (oldFileId != null) {
+            fileService.delete(oldFileId);
+        }
+
         log.info("User {} avatar updated", userId);
 
         return updatedUser;
@@ -136,10 +143,12 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserFilter> implement
 
         User user = get(userId);
         if (user.getAvatar() != null) {
-            fileService.delete(user.getAvatar().getId());
+            Long fileId = user.getAvatar().getId();
+            // Unlink the avatar from user first, then delete the file
             user.setAvatar(null);
             user.setUpdateTraceInfo(getCurrentUser());
             repository.save(user);
+            fileService.delete(fileId);
             log.info("User {} avatar deleted", userId);
         } else {
             log.warn("User {} has no avatar to delete", userId);
