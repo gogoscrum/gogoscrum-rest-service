@@ -57,6 +57,14 @@ Burn-down chart
 
 <img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/burn-down-chart.png" width="680">
 
+Team velocity chart
+
+<img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/team-velocity-chart.png" width="680">
+
+Sprint cumulative flow chart
+
+<img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/cumulative-flow-chart.png" width="680">
+
 Issue details
 
 <img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/issue-edit.png" width="680">
