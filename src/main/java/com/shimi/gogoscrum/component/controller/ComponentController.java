@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.LinkedHashMap;
@@ -62,22 +63,23 @@ public class ComponentController extends BaseController {
 
     private ComponentDto assembleComponentTree(List<Component> components) {
         ComponentDto root = new ComponentDto();
-        root.setName("root");
+        if (!CollectionUtils.isEmpty(components)) {
+            root.setName("root");
 
-        Map<Long, ComponentDto> dtoMap =
-                components.stream().collect(Collectors.toMap(Component::getId, Component::toDto, (u, v) -> u, LinkedHashMap::new));
+            Map<Long, ComponentDto> dtoMap =
+                    components.stream().collect(Collectors.toMap(Component::getId, Component::toDto, (u, v) -> u, LinkedHashMap::new));
 
-        dtoMap.values().forEach(dto -> {
-            Long parentId = dto.getParentId();
+            dtoMap.values().forEach(dto -> {
+                Long parentId = dto.getParentId();
 
-            if (parentId != null && dtoMap.containsKey(parentId)) {
-                ComponentDto parent = dtoMap.get(parentId);
-                parent.getChildren().add(dto);
-            } else {
-                root.getChildren().add(dto);
-            }
-        });
-
+                if (parentId != null && dtoMap.containsKey(parentId)) {
+                    ComponentDto parent = dtoMap.get(parentId);
+                    parent.getChildren().add(dto);
+                } else {
+                    root.getChildren().add(dto);
+                }
+            });
+        }
         return root;
     }
 

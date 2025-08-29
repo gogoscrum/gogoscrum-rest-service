@@ -39,9 +39,6 @@ public class AuthenticationHandler implements AuthenticationSuccessHandler, Auth
         User principal = (User) authentication.getPrincipal();
         User user = userService.get(principal.getId());
         try {
-            final String ipAddr = IpUtil.getIpAddr(request);
-            user.setLastLoginIp(ipAddr);
-            userService.updateLastLoginInfo(user);
             // To ensure the snowflake ID is serialized as a string
             ObjectMapper mapper = new ObjectMapper().registerModule(
                     new SimpleModule().addSerializer(Long.class, new ToStringSerializer()));
