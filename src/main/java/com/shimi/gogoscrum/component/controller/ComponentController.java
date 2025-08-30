@@ -77,6 +77,7 @@ public class ComponentController extends BaseController {
                 root.getChildren().add(dto);
             }
         });
+
         return root;
     }
 
