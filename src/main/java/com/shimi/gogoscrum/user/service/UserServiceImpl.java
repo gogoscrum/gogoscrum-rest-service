@@ -2,6 +2,7 @@ package com.shimi.gogoscrum.user.service;
 
 import com.shimi.gogoscrum.common.exception.ErrorCode;
 import com.shimi.gogoscrum.common.service.BaseServiceImpl;
+import com.shimi.gogoscrum.common.util.IpUtil;
 import com.shimi.gogoscrum.file.model.File;
 import com.shimi.gogoscrum.file.service.FileService;
 import com.shimi.gogoscrum.user.model.Preference;
@@ -13,6 +14,7 @@ import com.shimi.gsf.core.exception.BaseServiceException;
 import com.shimi.gsf.core.exception.EntityDuplicatedException;
 import com.shimi.gsf.core.exception.EntityNotFoundException;
 import com.shimi.gsf.core.exception.NoPermissionException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +40,8 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserFilter> implement
     private UserRepository repository;
     @Autowired
     private FileService fileService;
+    @Autowired
+    private HttpServletRequest request;
 
     @Override
     protected UserRepository getRepository() {
@@ -190,6 +194,8 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserFilter> implement
     @EventListener(InteractiveAuthenticationSuccessEvent.class)
     public void userLoggedIn(InteractiveAuthenticationSuccessEvent event) {
         User user = (User) event.getAuthentication().getPrincipal();
+        final String ipAddr = IpUtil.getIpAddr(request);
+        user.setLastLoginIp(ipAddr);
 
         if (log.isDebugEnabled()) {
             log.debug("User logged in via {}: {}", event.getGeneratedBy().getSimpleName(), user);
