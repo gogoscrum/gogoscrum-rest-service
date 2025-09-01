@@ -1,0 +1,1 @@
+ALTER TABLE `doc` ADD `public_access` BOOLEAN NOT NULL DEFAULT FALSE COMMENT 'If this doc can be publicly accessed' AFTER `content`;

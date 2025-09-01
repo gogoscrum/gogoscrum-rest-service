@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -36,11 +37,36 @@ public class DocController extends BaseController {
     }
 
     @Operation(summary = "Get doc by ID")
-    @Parameters({@Parameter(name = "id", description = "The component ID")})
+    @Parameters({@Parameter(name = "id", description = "The doc ID")})
     @GetMapping("/{id}")
     public DocDto get(@PathVariable Long id) {
         Doc doc = docService.get(id);
         return doc.toDto(true);
+    }
+
+    @Operation(summary = "Get doc by ID, this API is for public access")
+    @Parameters({@Parameter(name = "id", description = "The doc ID")})
+    @GetMapping("/view/{id}")
+    @PermitAll
+    public DocDto getAsPublic(@PathVariable Long id) {
+        Doc doc = docService.get(id);
+        return doc.toDto(true);
+    }
+
+    @Operation(summary = "Update doc to public access")
+    @Parameters({
+            @Parameter(name = "id", description = "The doc ID")})
+    @PostMapping("/{id}/public")
+    public DocDto setPublicAccess(@PathVariable Long id) {
+        return docService.updatePublicAccess(id, Boolean.TRUE).toDto(true);
+    }
+
+    @Operation(summary = "Update doc to private access")
+    @Parameters({
+            @Parameter(name = "id", description = "The doc ID")})
+    @DeleteMapping("/{id}/public")
+    public DocDto deletePublicAccess(@PathVariable Long id) {
+        return docService.updatePublicAccess(id, Boolean.FALSE).toDto(true);
     }
 
     @Operation(summary = "Update an existing doc")

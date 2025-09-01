@@ -12,6 +12,7 @@ public class DocDto extends BaseDto {
     private Long projectId;
     private String name;
     private String content;
+    private Boolean publicAccess = Boolean.FALSE;
 
     @Override
     public Doc toEntity() {
@@ -42,5 +43,13 @@ public class DocDto extends BaseDto {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public Boolean getPublicAccess() {
+        return publicAccess;
+    }
+
+    public void setPublicAccess(Boolean publicAccess) {
+        this.publicAccess = publicAccess;
     }
 }
