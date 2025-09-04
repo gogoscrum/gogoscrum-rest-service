@@ -25,6 +25,7 @@ gogoscrum is a lightweight agile project management tool designed for efficient 
 - **Product Backlog**: Prioritize and organize issues by importance and scope to focus on high-impact tasks first.
 - **File Sharing**: Create folders and upload files for seamless team collaboration.
 - **Documents**: Centralize critical information for easy access and reference by team members anytime.
+- **Test Management**: Create test cases, add them to test plans, execute the cases, and generate detailed test reports.
 - **Charts**: Visualize progress with Burndown charts (by story points), Velocity charts, and Cumulative Flow diagrams for each sprint.
 
 ## Screenshots
