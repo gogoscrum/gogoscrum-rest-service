@@ -158,6 +158,11 @@ VITE_FILE_PATH = '指向到后端Java服务中所配置的lfs路径'
 微信扫码加入gogoscrum开发者交流群：\
 <img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/wechat-qr-dev-group.png" width="100">
 
+## 官方微信公众号
+
+微信扫码关注gogoscrum官方微信公众号：\
+<img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/wechat-qr-official-account.jpg" width="100">
+
 ## 授权协议
 
 本项目基于 **Apache License 2.0** 进行授权，并附加以下条款。
