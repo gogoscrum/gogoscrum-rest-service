@@ -81,21 +81,11 @@ public class IssueGroupServiceImpl extends BaseServiceImpl<IssueGroup, IssueGrou
         checkDuplicatedGroupLabel(issueGroup, issueGroup.getProject().getId());
     }
 
-//    @Override
-//    protected void afterCreate(IssueGroup issueGroup) {
-//        this.eventPublisher.publishEvent(new IssueGroupEvent(MultipleActionEvent.ActionType.CREATE, issueGroup, issueGroup));
-//    }
-
     @Override
     protected void beforeUpdate(Long id, IssueGroup existingEntity, IssueGroup newEntity) {
         ProjectMemberUtils.checkDeveloper(projectService.get(existingEntity.getProject().getId()), getCurrentUser());
         checkDuplicatedGroupLabel(newEntity, existingEntity.getProject().getId());
     }
-
-//    @Override
-//    protected void afterUpdate(Long id, IssueGroup oldGroup, IssueGroup newGroup) {
-//        this.eventPublisher.publishEvent(new IssueGroupEvent(MultipleActionEvent.ActionType.UPDATE, oldGroup, newGroup));
-//    }
 
     private void checkDuplicatedGroupLabel(IssueGroup issueGroup, Long projectId) {
         IssueGroup existingGroup = repository.getByProjectIdAndLabelEquals(projectId, issueGroup.getLabel());
@@ -115,11 +105,6 @@ public class IssueGroupServiceImpl extends BaseServiceImpl<IssueGroup, IssueGrou
 
         this.moveIssuesIntoTodo(issueGroup);
     }
-
-//    @Override
-//    protected void afterDelete(IssueGroup issueGroup) {
-//        this.eventPublisher.publishEvent(new IssueGroupEvent(MultipleActionEvent.ActionType.DELETE, issueGroup, issueGroup));
-//    }
 
     /**
      * Move all the issues in the deleting group into the sprint backlog (e.g. the to do list of each sprint)
