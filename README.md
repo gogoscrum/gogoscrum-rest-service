@@ -32,15 +32,15 @@ gogoscrum is a lightweight agile project management tool designed for efficient 
 
 Sticky-notes board
 
-<img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/white-board-sticky-notes.png" width="680">
+<img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/en/white-board-sticky-notes.png" width="680">
 
 Classic board
 
-<img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/white-board-classic.png" width="680">
+<img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/en/white-board-classic.png" width="680">
 
 Dark mode board
 
-<img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/dark-board.png" width="680">
+<img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/en/dark-board.png" width="680">
 
 Project list
 
@@ -48,7 +48,7 @@ Project list
 
 Issue list
 
-<img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/issue-list.png" width="680">
+<img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/en/issue-list.png" width="680">
 
 File list
 
@@ -68,7 +68,7 @@ Sprint cumulative flow chart
 
 Issue details
 
-<img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/issue-edit.png" width="680">
+<img src="https://gogoscrum.oss-cn-hangzhou.aliyuncs.com/materials/en/issue-edit.png" width="680">
 
 Test case list
 
