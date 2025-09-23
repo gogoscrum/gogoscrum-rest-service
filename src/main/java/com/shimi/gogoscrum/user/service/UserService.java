@@ -4,8 +4,11 @@ import com.shimi.gogoscrum.file.model.File;
 import com.shimi.gogoscrum.user.model.Preference;
 import com.shimi.gogoscrum.user.model.User;
 import com.shimi.gogoscrum.user.model.UserFilter;
+import com.shimi.gogoscrum.user.oauth.OauthProvider;
 import com.shimi.gsf.core.service.GeneralService;
 import org.springframework.security.core.userdetails.UserDetailsService;
+
+import java.util.List;
 
 /**
  * UserService is an interface that extends GeneralService and UserDetailsService.
@@ -26,4 +29,36 @@ public interface UserService extends GeneralService<User, UserFilter>, UserDetai
     User updateAvatar(Long userId, File avatarFile);
 
     void deleteAvatar(Long userId);
+
+    /**
+     * Get the list of configured 3rd-party OAuth providers.
+     * @return the list of OAuth provider configurations
+     */
+    List<OauthProvider.ProviderConfig> getOauthProviders();
+
+    /**
+     * Get a specific OAuth provider by its unique name.
+     * @param name the unique name of the OAuth provider
+     * @return the OAuth provider instance
+     */
+    OauthProvider getOauthProvider(String name);
+
+    /**
+     * Retrieve user info from 3rd-party OAuth provider based on the provided OAuth information.
+     * If the user is already existing, then log them in. If not, return a new user object
+     * with the information retrieved from the provider, so that the caller can decide
+     * whether to create a brand-new user or bind to an existing user.
+     * @param oauthInfo the OAuth information from the callback
+     * @return the user information retrieved from the provider or an existing user
+     */
+    User retrieveUser(OauthProvider.OauthInfo oauthInfo);
+
+    /**
+     * Create a new user or bind the OAuth info to an existing user based on the provided user object.
+     * The user object should contain a flag indicating whether to bind to an existing user.
+     * If binding, the user object should also contain the username and password of the existing user to bind.
+     * @param user the user object containing the OAuth info and binding information
+     * @return the created user
+     */
+    User createOrBindFromOauth(User user);
 }

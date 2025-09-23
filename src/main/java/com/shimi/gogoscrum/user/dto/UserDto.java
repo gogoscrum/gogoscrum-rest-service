@@ -7,9 +7,12 @@ import com.shimi.gogoscrum.file.dto.FileDto;
 import com.shimi.gogoscrum.user.model.Preference;
 import com.shimi.gogoscrum.user.model.User;
 import org.springframework.beans.BeanUtils;
+import org.springframework.util.CollectionUtils;
 
 import java.io.Serial;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class UserDto extends BaseDto implements com.shimi.gsf.core.dto.UserDto {
     @Serial
@@ -26,11 +29,16 @@ public class UserDto extends BaseDto implements com.shimi.gsf.core.dto.UserDto {
     private Date lastLoginTime;
     private String lastLoginIp;
     private Preference preference;
+    private List<UserBindingDto> bindings = new ArrayList<>();
+    private boolean bindToExistingUser;
 
     @Override
     public User toEntity() {
         User entity = new User();
-        BeanUtils.copyProperties(this, entity);
+        BeanUtils.copyProperties(this, entity, "bindings");
+        if (!CollectionUtils.isEmpty(bindings)) {
+            entity.setBindings(bindings.stream().map(UserBindingDto::toEntity).toList());
+        }
         return entity;
     }
 
@@ -134,6 +142,22 @@ public class UserDto extends BaseDto implements com.shimi.gsf.core.dto.UserDto {
 
     public void setAvatar(FileDto avatar) {
         this.avatar = avatar;
+    }
+
+    public List<UserBindingDto> getBindings() {
+        return bindings;
+    }
+
+    public void setBindings(List<UserBindingDto> bindings) {
+        this.bindings = bindings;
+    }
+
+    public boolean isBindToExistingUser() {
+        return bindToExistingUser;
+    }
+
+    public void setBindToExistingUser(boolean bindToExistingUser) {
+        this.bindToExistingUser = bindToExistingUser;
     }
 
     /**

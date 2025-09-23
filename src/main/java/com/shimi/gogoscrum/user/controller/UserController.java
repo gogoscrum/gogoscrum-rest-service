@@ -7,6 +7,7 @@ import com.shimi.gogoscrum.user.dto.UserDto;
 import com.shimi.gogoscrum.user.model.Preference;
 import com.shimi.gogoscrum.user.model.User;
 import com.shimi.gogoscrum.user.model.UserFilter;
+import com.shimi.gogoscrum.user.oauth.OauthProvider;
 import com.shimi.gogoscrum.user.service.UserService;
 import com.shimi.gsf.core.dto.Dto;
 import com.shimi.gsf.core.dto.DtoQueryResult;
@@ -18,9 +19,19 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.RememberMeServices;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -29,8 +40,11 @@ import java.util.Map;
 @Tag(name = "User", description = "User management")
 @RolesAllowed({User.ROLE_USER})
 public class UserController extends BaseController {
+    private static final Logger log = LoggerFactory.getLogger(UserController.class);
     @Autowired
     private UserService userService;
+    @Autowired
+    private RememberMeServices rememberMeServices;
 
     @Operation(summary = "Create a new user")
     @PostMapping("/register")
@@ -105,5 +119,75 @@ public class UserController extends BaseController {
         String newPassword = params.get("newPassword");
 
         userService.updatePassword(user.getId(), oldPassword, newPassword);
+    }
+
+    @Operation(summary = "Get the list of configured 3rd-party OAuth providers")
+    @GetMapping("/oauth/providers")
+    @PermitAll
+    public List<OauthProvider.ProviderConfig> getOauthProviders() {
+        return userService.getOauthProviders();
+    }
+
+    @Operation(summary = "Get the login URL for a specific OAuth provider")
+    @Parameters({@Parameter(name = "provider", description = "The unique name of the OAuth provider")})
+    @GetMapping("/oauth/{provider}/login/url")
+    @PermitAll
+    public String getOauthLoginUrl(@PathVariable String provider) {
+        return userService.getOauthProvider(provider).getLoginUrl();
+    }
+
+    @Operation(summary = "Login or register with 3rd party OAuth info")
+    @PostMapping("/oauth/login")
+    @PermitAll
+    public UserDto loginByOauth(@RequestBody OauthProvider.OauthInfo oauthDto,
+                                  HttpServletRequest request, HttpServletResponse response) {
+        User user = userService.retrieveUser(oauthDto);
+        user.setLastLoginIp(IpUtil.getIpAddr(request));
+
+        // If it's an existing user, login directly; if not, the UI will ask the user
+        // whether to bind to an existing account or create a brand-new account.
+        // Since this is a front-end logic, so put it in controller.
+        if (user.getId() != null) {
+            Authentication auth = this.authenticateUser(user, request, response);
+            rememberMeServices.loginSuccess(request, response, auth);
+
+            user = (User) auth.getPrincipal();
+        }
+
+        return user.toDto(true);
+    }
+
+    @Operation(summary = "Create a new user or bind to an existing user")
+    @PostMapping("/oauth/register")
+    @PermitAll
+    public UserDto createOrBindFromOauth(@RequestBody UserDto userDto,
+                                       HttpServletRequest request, HttpServletResponse response) {
+        User user = userDto.toEntity();
+        user.setLastLoginIp(IpUtil.getIpAddr(request));
+        User createdUser = userService.createOrBindFromOauth(user);
+
+        if (createdUser.getId() != null) {
+            Authentication auth = this.authenticateUser(user, request, response);
+            rememberMeServices.loginSuccess(request, response, auth);
+        }
+
+        return createdUser.toDto(true);
+    }
+
+    /**
+     * Manually authenticate a user and set the authentication in the security context.
+     */
+    private Authentication authenticateUser(User user, HttpServletRequest request, HttpServletResponse response) {
+        Authentication auth = new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities());
+        // Create a fresh SecurityContext
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(auth);
+        SecurityContextHolder.setContext(context);
+
+        // Explicitly persist the SecurityContext into session (Spring Boot 3.x required)
+        new HttpSessionSecurityContextRepository().saveContext(context, request, response);
+        log.debug("User logged in: {}", auth.getPrincipal());
+
+        return auth;
     }
 }

@@ -8,6 +8,7 @@ import java.io.InputStream;
 /**
  * Interface for file storage services. The implementation of this interface can be either a local file storage service
  * or a cloud object storage service, e.g. Aliyun OSS or AWS S3.
+ * This interface is a PF4J extension point, so different implementations can be plugged in and selected at runtime.
  */
 public interface FileStorage extends ExtensionPoint {
     /**

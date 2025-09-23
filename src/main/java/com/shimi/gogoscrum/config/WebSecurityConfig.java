@@ -53,7 +53,8 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         String[] csrfIgnores = {"/files/upload"};
-        String[] publicApis = {"/swagger-ui/**", "/v3/api-docs/**", "/health", "/csrf", "/users/register", "/users/login", "/docs/view/**"};
+        String[] publicApis = {"/swagger-ui/**", "/v3/api-docs/**", "/health", "/csrf", "/users/register", "/users/login",
+                "/users/oauth/**", "/docs/view/**"};
         http
                 .cors(cors -> cors
                         .configurationSource(corsConfigurationSource())

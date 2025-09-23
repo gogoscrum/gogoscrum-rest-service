@@ -2,17 +2,19 @@ package com.shimi.gogoscrum.user.service;
 
 import com.shimi.gogoscrum.common.exception.ErrorCode;
 import com.shimi.gogoscrum.common.service.BaseServiceImpl;
+import com.shimi.gogoscrum.common.util.RandomToolkit;
 import com.shimi.gogoscrum.file.model.File;
 import com.shimi.gogoscrum.file.service.FileService;
 import com.shimi.gogoscrum.user.model.Preference;
 import com.shimi.gogoscrum.user.model.User;
+import com.shimi.gogoscrum.user.model.UserBinding;
 import com.shimi.gogoscrum.user.model.UserFilter;
+import com.shimi.gogoscrum.user.oauth.OauthProvider;
+import com.shimi.gogoscrum.user.repository.UserBindingRepository;
 import com.shimi.gogoscrum.user.repository.UserRepository;
 import com.shimi.gogoscrum.user.repository.UserSpecs;
-import com.shimi.gsf.core.exception.BaseServiceException;
-import com.shimi.gsf.core.exception.EntityDuplicatedException;
-import com.shimi.gsf.core.exception.EntityNotFoundException;
-import com.shimi.gsf.core.exception.NoPermissionException;
+import com.shimi.gsf.core.exception.*;
+import org.pf4j.PluginManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,10 +27,12 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.util.Date;
-import java.util.Objects;
+import javax.annotation.PostConstruct;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -38,6 +42,27 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserFilter> implement
     private UserRepository repository;
     @Autowired
     private FileService fileService;
+    @Autowired
+    private UserBindingRepository bindRepository;
+    @Autowired
+    private PluginManager pluginManager;
+    private final Map<String, OauthProvider> oauthProvidersMap = new HashMap<>();
+
+    @PostConstruct
+    private void initPlugins() {
+        List<OauthProvider> oauthProviderPlugins = pluginManager.getExtensions(OauthProvider.class);
+
+        if (!oauthProviderPlugins.isEmpty()) {
+            oauthProvidersMap.putAll(oauthProviderPlugins.stream().collect(
+                    Collectors.toMap(OauthProvider::getName, p -> p, (p1, p2) -> p1)
+            ));
+
+            log.info("Loaded {} 3rd-party OAuth provider plugins: {}", oauthProviderPlugins.size(),
+                    String.join(", ", oauthProvidersMap.keySet()));
+        } else {
+            log.debug("No 3rd-party OAuth provider plugins found");
+        }
+    }
 
     @Override
     protected UserRepository getRepository() {
@@ -46,9 +71,16 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserFilter> implement
 
     @Override
     protected void beforeCreate(User user) {
-        this.verifyUsername(user);
-        this.verifyPassword(user.getPassword());
-        user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
+        // For normal user registration, username and password are required;
+        // For OAuth user creation, password will be empty and username will be generated
+        if (CollectionUtils.isEmpty(user.getBindings())) {
+            this.verifyUsername(user);
+            this.verifyPassword(user.getPassword());
+            user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
+        } else {
+            user.setUsername(RandomToolkit.getRandomString(16));
+            user.setPassword(null);
+        }
     }
 
     private void verifyUsername(User user) {
@@ -66,7 +98,8 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserFilter> implement
             User userById = super.get(user.getId());
 
             if (userById != null && !userById.getUsername().equals(user.getUsername())) {
-                throw new BaseServiceException("usernameCannotChange", "Username cannot be changed to: " + user.getUsername(), HttpStatus.BAD_REQUEST);
+                throw new BaseServiceException("usernameCannotChange", "Username cannot be changed to: " + user.getUsername(),
+                        HttpStatus.BAD_REQUEST);
             }
         }
 
@@ -87,7 +120,7 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserFilter> implement
 
     /**
      * Update user basic information. For now only nickname can be updated.
-     * @param id User ID
+     * @param id   User ID
      * @param user User object with updated information
      * @return Updated User object
      */
@@ -227,9 +260,105 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserFilter> implement
         User user = repository.findByUsername(username);
         if (user == null) {
             throw new EntityNotFoundException("Cannot find user by username \"" + username + "\"");
+        } else if (!StringUtils.hasText(user.getPassword())) {
+            throw new BaseServiceException("pwdNotSet", "User has no password set. Please use social login.", HttpStatus.PRECONDITION_FAILED);
         } else {
             log.debug("Loaded user by username {}: {}", username, user);
             return user;
+        }
+    }
+
+    @Override
+    public List<OauthProvider.ProviderConfig> getOauthProviders() {
+        return this.oauthProvidersMap.values().stream().map(OauthProvider::getConfig).toList();
+    }
+
+    @Override
+    public OauthProvider getOauthProvider(String name) {
+        if (!this.oauthProvidersMap.containsKey(name)) {
+            throw new BadRequestException("Unsupported OAuth provider: " + name);
+        }
+        return this.oauthProvidersMap.get(name);
+    }
+
+    public User retrieveUser(OauthProvider.OauthInfo oauthInfo) {
+        OauthProvider oauthProvider = this.oauthProvidersMap.get(oauthInfo.getProvider());
+        if (oauthProvider == null) {
+            throw new BadRequestException("Unsupported OAuth provider: " + oauthInfo.getProvider());
+        }
+        OauthProvider.OauthUser oauthUser = oauthProvider.retrieveUser(oauthInfo);
+        return this.parseUser(oauthUser);
+    }
+
+    private User parseUser(OauthProvider.OauthUser oauthUser) {
+        UserBinding binding = bindRepository.getByProviderAndExtUserId(oauthUser.getProvider(), oauthUser.getExtUserId());
+        User user = null;
+
+        if (binding != null) {
+            // Existing user found via binding, fetch full user details
+            user = this.get(binding.getUser().getId());
+        } else {
+            // No existing user, return a new one (but not saved in DB yet) with binding
+            user = new User();
+
+            binding = new UserBinding();
+            binding.setProvider(oauthUser.getProvider());
+            binding.setExtUserId(oauthUser.getExtUserId());
+            binding.setUser(user);
+
+            user.getBindings().add(binding);
+            user.setNickname(oauthUser.getUsername());
+            // Note: The avatar file need to be copied into file storage when creating the user
+            File avatarFile= new File();
+            avatarFile.setFullPath(oauthUser.getAvatarUrl());
+            user.setAvatar(avatarFile);
+        }
+
+        return user;
+    }
+
+    public User createOrBindFromOauth(User user) {
+        UserBinding binding = user.getBindings().getFirst();
+        this.verifyBinding(binding);
+        User targetUser = null;
+
+        if (user.isBindToExistingUser()) {
+            targetUser = repository.findByUsername(user.getUsername());
+            if (!BCrypt.checkpw(targetUser.getPassword(), user.getPassword())) {
+                throw new BaseServiceException(ErrorCode.WRONG_PASSWORD, "Wrong password", HttpStatus.PRECONDITION_FAILED);
+            }
+
+            binding.setUser(targetUser);
+        } else {
+            targetUser = this.create(user);
+            binding.setUser(targetUser);
+        }
+
+        binding.setId(null);
+        binding.setAllTraceInfo(targetUser);
+        bindRepository.save(binding);
+        log.info("Created new user from OAuth and bound to {}: {}", binding.getProvider(), targetUser);
+
+        return targetUser;
+    }
+
+    private void verifyBinding(UserBinding binding) {
+        if (!StringUtils.hasText(binding.getProvider())) {
+            throw new BadRequestException("Bad binding info, OAuth provider is missing");
+        }
+
+        if (!StringUtils.hasText(binding.getExtUserId())) {
+            throw new BadRequestException("Bad binding info, external user ID is missing");
+        }
+
+        if (!this.oauthProvidersMap.containsKey(binding.getProvider())) {
+            throw new BadRequestException("Bad binding info, unsupported OAuth provider: " + binding.getProvider());
+        }
+
+        UserBinding existingBind = bindRepository.getByProviderAndExtUserId(binding.getProvider(), binding.getExtUserId());
+
+        if (existingBind != null) {
+            throw new EntityDuplicatedException("This " + binding.getProvider() + " account is already linked to another user");
         }
     }
 

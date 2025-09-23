@@ -5,19 +5,14 @@ import com.shimi.gogoscrum.file.dto.FileDto;
 import com.shimi.gogoscrum.file.model.File;
 import com.shimi.gogoscrum.user.dto.UserDto;
 import com.shimi.gogoscrum.user.utils.UserPreferenceConverter;
-import jakarta.persistence.Convert;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.util.CollectionUtils;
 
 import java.io.Serial;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 public class User extends BaseEntity implements com.shimi.gsf.core.model.User {
@@ -39,6 +34,11 @@ public class User extends BaseEntity implements com.shimi.gsf.core.model.User {
     private String lastLoginIp;
     @Convert(converter = UserPreferenceConverter.class)
     private Preference preference;
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+    private List<UserBinding> bindings = new ArrayList<>();
+
+    @Transient
+    private boolean bindToExistingUser;
 
     public User() {
     }
@@ -49,14 +49,25 @@ public class User extends BaseEntity implements com.shimi.gsf.core.model.User {
 
     @Override
     public UserDto toDto() {
+        return this.toDto(false);
+    }
+
+    @Override
+    public UserDto toDto(boolean detailed) {
         UserDto dto = new UserDto();
-        BeanUtils.copyProperties(this, dto, "password");
+        BeanUtils.copyProperties(this, dto, "password", "password", "bindings");
 
         if (this.avatar != null) {
             // to avoid circular reference, we only set the URL in the DTO
             FileDto avatarDto = new FileDto();
             avatarDto.setUrl(avatar.getUrl());
             dto.setAvatar(avatarDto);
+        }
+
+        if (detailed) {
+            if (!CollectionUtils.isEmpty(this.bindings)) {
+                dto.setBindings(this.bindings.stream().map(UserBinding::toDto).toList());
+            }
         }
 
         return dto;
@@ -174,6 +185,22 @@ public class User extends BaseEntity implements com.shimi.gsf.core.model.User {
 
     public void setAvatar(File avatar) {
         this.avatar = avatar;
+    }
+
+    public List<UserBinding> getBindings() {
+        return bindings;
+    }
+
+    public void setBindings(List<UserBinding> bindings) {
+        this.bindings = bindings;
+    }
+
+    public boolean isBindToExistingUser() {
+        return bindToExistingUser;
+    }
+
+    public void setBindToExistingUser(boolean bindToExistingUser) {
+        this.bindToExistingUser = bindToExistingUser;
     }
 
     @Override
