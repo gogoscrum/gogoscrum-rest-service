@@ -324,20 +324,21 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserFilter> implement
 
         if (user.isBindToExistingUser()) {
             targetUser = repository.findByUsername(user.getUsername());
-            if (!BCrypt.checkpw(targetUser.getPassword(), user.getPassword())) {
+            if (!BCrypt.checkpw(user.getPassword(), targetUser.getPassword())) {
                 throw new BaseServiceException(ErrorCode.WRONG_PASSWORD, "Wrong password", HttpStatus.PRECONDITION_FAILED);
             }
 
             binding.setUser(targetUser);
         } else {
             targetUser = this.create(user);
+            log.info("Created new user from {} OAuth: {}", binding.getProvider(), targetUser);
             binding.setUser(targetUser);
         }
 
         binding.setId(null);
         binding.setAllTraceInfo(targetUser);
         bindRepository.save(binding);
-        log.info("Created new user from OAuth and bound to {}: {}", binding.getProvider(), targetUser);
+        log.info("Created new OAuth binding from {} to user: {}", binding.getProvider(), targetUser);
 
         return targetUser;
     }

@@ -76,7 +76,7 @@ public class UserController extends BaseController {
     @Operation(summary = "Update current user's basic info")
     @Parameters({@Parameter(name = "id", description = "The ID of the user")})
     @PutMapping("/my/basics")
-    public UserDto updateBasics( @RequestBody UserDto userDto) {
+    public UserDto updateBasics(@RequestBody UserDto userDto) {
         User user = userDto.toEntity();
         User savedUser = userService.updateUserBasics(getCurrentUser().getId(), user);
         return savedUser.toDto();
@@ -140,7 +140,8 @@ public class UserController extends BaseController {
     @PostMapping("/oauth/login")
     @PermitAll
     public UserDto loginByOauth(@RequestBody OauthProvider.OauthInfo oauthDto,
-                                  HttpServletRequest request, HttpServletResponse response) {
+                                @RequestParam(value = "rememberMe") boolean rememberMe,
+                                HttpServletRequest request, HttpServletResponse response) {
         User user = userService.retrieveUser(oauthDto);
         user.setLastLoginIp(IpUtil.getIpAddr(request));
 
@@ -149,7 +150,10 @@ public class UserController extends BaseController {
         // Since this is a front-end logic, so put it in controller.
         if (user.getId() != null) {
             Authentication auth = this.authenticateUser(user, request, response);
-            rememberMeServices.loginSuccess(request, response, auth);
+
+            if (rememberMe) {
+                rememberMeServices.loginSuccess(request, response, auth);
+            }
 
             user = (User) auth.getPrincipal();
         }
@@ -161,14 +165,18 @@ public class UserController extends BaseController {
     @PostMapping("/oauth/register")
     @PermitAll
     public UserDto createOrBindFromOauth(@RequestBody UserDto userDto,
-                                       HttpServletRequest request, HttpServletResponse response) {
+                                         @RequestParam(value = "rememberMe") boolean rememberMe,
+                                         HttpServletRequest request, HttpServletResponse response) {
         User user = userDto.toEntity();
         user.setLastLoginIp(IpUtil.getIpAddr(request));
         User createdUser = userService.createOrBindFromOauth(user);
 
         if (createdUser.getId() != null) {
             Authentication auth = this.authenticateUser(user, request, response);
-            rememberMeServices.loginSuccess(request, response, auth);
+
+            if (rememberMe) {
+                rememberMeServices.loginSuccess(request, response, auth);
+            }
         }
 
         return createdUser.toDto(true);
