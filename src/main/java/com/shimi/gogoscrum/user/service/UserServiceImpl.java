@@ -324,6 +324,13 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserFilter> implement
 
         if (user.isBindToExistingUser()) {
             targetUser = repository.findByUsername(user.getUsername());
+
+            if (targetUser == null) {
+                throw new EntityNotFoundException(ErrorCode.USER_NOT_FOUND, "Cannot find user by username: " + user.getUsername());
+            } else if (!StringUtils.hasText(targetUser.getPassword())) {
+                throw new BaseServiceException(ErrorCode.WRONG_PASSWORD, "The target user has no password set. Cannot bind to OAuth account.", HttpStatus.PRECONDITION_FAILED);
+            }
+
             if (!BCrypt.checkpw(user.getPassword(), targetUser.getPassword())) {
                 throw new BaseServiceException(ErrorCode.WRONG_PASSWORD, "Wrong password", HttpStatus.PRECONDITION_FAILED);
             }
