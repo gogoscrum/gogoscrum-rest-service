@@ -8,5 +8,5 @@ public interface UserBindingRepository extends GeneralRepository<UserBinding> {
 
     UserBinding getByProviderAndUserId(String provider, Long userId);
 
-    UserBinding getByUnionId(String unionId);
+    UserBinding getTopByUnionId(String unionId);
 }

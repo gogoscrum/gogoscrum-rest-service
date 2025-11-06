@@ -4,6 +4,8 @@ import com.shimi.gogoscrum.common.exception.ErrorCode;
 import com.shimi.gogoscrum.common.service.BaseServiceImpl;
 import com.shimi.gogoscrum.common.util.RandomToolkit;
 import com.shimi.gogoscrum.file.model.File;
+import com.shimi.gogoscrum.file.model.FileType;
+import com.shimi.gogoscrum.file.model.TargetType;
 import com.shimi.gogoscrum.file.service.FileService;
 import com.shimi.gogoscrum.user.model.Preference;
 import com.shimi.gogoscrum.user.model.User;
@@ -294,25 +296,58 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserFilter> implement
         UserBinding binding = bindRepository.getByProviderAndExtUserId(oauthUser.getProvider(), oauthUser.getExtUserId());
         User user = null;
 
+        // Found binding by ext ID
         if (binding != null) {
-            // Existing user found via binding, fetch full user details
+            // if union ID is available, but not linked yet, update the binding
+            if (StringUtils.hasText(oauthUser.getUnionId()) && !StringUtils.hasText(binding.getUnionId())) {
+                binding.setUnionId(oauthUser.getUnionId());
+                bindRepository.save(binding);
+                log.info("Updated union ID for existing binding: {}", binding);
+            }
             user = this.get(binding.getUser().getId());
-        } else {
-            // No existing user, return a new one (but not saved in DB yet) with binding
-            user = new User();
-
-            binding = new UserBinding();
-            binding.setProvider(oauthUser.getProvider());
-            binding.setExtUserId(oauthUser.getExtUserId());
-            binding.setUser(user);
-
-            user.getBindings().add(binding);
-            user.setNickname(oauthUser.getUsername());
-            // Note: The avatar file need to be copied into file storage when creating the user
-            File avatarFile= new File();
-            avatarFile.setFullPath(oauthUser.getAvatarUrl());
-            user.setAvatar(avatarFile);
         }
+
+        // No binding found for the ext ID, try again by union ID
+        if (StringUtils.hasText(oauthUser.getUnionId())) {
+            binding = bindRepository.getTopByUnionId(oauthUser.getUnionId());
+
+            // Found binding by union ID, create new ext ID binding
+            if (binding != null) {
+                UserBinding newBinding = new UserBinding();
+                newBinding.setProvider(oauthUser.getProvider());
+                newBinding.setExtUserId(oauthUser.getExtUserId());
+                newBinding.setUnionId(oauthUser.getUnionId());
+                newBinding.setUser(binding.getUser());
+                newBinding.setAllTraceInfo(binding.getUser());
+                bindRepository.save(newBinding);
+                log.info("Created new binding for existing user by union ID: {}", newBinding);
+
+                user = this.get(binding.getUser().getId());
+            }
+        }
+
+        if (user != null) {
+            if (!user.isEnabled()) {
+                throw new NoPermissionException(ErrorCode.USER_DISABLED, "User is disabled");
+            }
+            return user;
+        }
+
+        // No binding found either by ext ID or union ID, return a new user (but not saved in DB yet) with new binding
+        user = new User();
+        user.setNickname(oauthUser.getUsername());
+        File avatarFile= new File();
+        avatarFile.setFullPath(oauthUser.getAvatarUrl());
+        user.setAvatar(avatarFile);
+
+        // Add new binding for this OAuth provider
+        UserBinding newBinding = new UserBinding();
+        newBinding.setProvider(oauthUser.getProvider());
+        newBinding.setExtUserId(oauthUser.getExtUserId());
+        newBinding.setUnionId(oauthUser.getUnionId());
+        newBinding.setUser(user);
+
+        user.getBindings().add(newBinding);
 
         return user;
     }
@@ -323,26 +358,45 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserFilter> implement
         User targetUser = null;
 
         if (user.isBindToExistingUser()) {
+            // User want to bind to existing user
             targetUser = repository.findByUsername(user.getUsername());
 
             if (targetUser == null) {
                 throw new EntityNotFoundException(ErrorCode.USER_NOT_FOUND, "Cannot find user by username: " + user.getUsername());
             } else if (!StringUtils.hasText(targetUser.getPassword())) {
                 throw new BaseServiceException(ErrorCode.WRONG_PASSWORD, "The target user has no password set. Cannot bind to OAuth account.", HttpStatus.PRECONDITION_FAILED);
+            } else if (!targetUser.isEnabled()) {
+                throw new NoPermissionException(ErrorCode.USER_DISABLED, "The target user is disabled. Cannot bind to OAuth account.");
             }
 
             if (!BCrypt.checkpw(user.getPassword(), targetUser.getPassword())) {
                 throw new BaseServiceException(ErrorCode.WRONG_PASSWORD, "Wrong password", HttpStatus.PRECONDITION_FAILED);
             }
-
-            binding.setUser(targetUser);
         } else {
+            // User want to create a new user account
+            // Create new user at first
             targetUser = this.create(user);
             log.info("Created new user from {} OAuth: {}", binding.getProvider(), targetUser);
-            binding.setUser(targetUser);
+
+            // Then create avatar file if provided (this has to be done after user is created to set trace info)
+            // TODO: Enhancement - The avatar file can be copied into file storage when creating the user
+            if (user.getAvatar() != null && StringUtils.hasText(user.getAvatar().getFullPath())) {
+                File avatarFile = new File();
+                avatarFile.setFullPath(user.getAvatar().getFullPath());
+                avatarFile.setStorageProvider("EXTERNAL");
+                avatarFile.setTargetType(TargetType.USER_AVATAR);
+                avatarFile.setType(FileType.IMAGE);
+                avatarFile.setName("avatar_" + binding.getProvider() + "_" + binding.getExtUserId());
+                avatarFile.setAllTraceInfo(targetUser);
+                targetUser.setAvatar(fileService.create(avatarFile));
+                repository.save(targetUser);
+                log.info("Created avatar file for new OAuth user {}: {}", targetUser.getId(), targetUser.getAvatar());
+            }
         }
 
+        // Create binding from OAuth to the target user
         binding.setId(null);
+        binding.setUser(targetUser);
         binding.setAllTraceInfo(targetUser);
         bindRepository.save(binding);
         log.info("Created new OAuth binding from {} to user: {}", binding.getProvider(), targetUser);

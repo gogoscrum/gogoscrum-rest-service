@@ -3,6 +3,7 @@ package com.shimi.gogoscrum.user.controller;
 import com.shimi.gogoscrum.common.controller.BaseController;
 import com.shimi.gogoscrum.common.util.IpUtil;
 import com.shimi.gogoscrum.file.dto.FileDto;
+import com.shimi.gogoscrum.file.model.File;
 import com.shimi.gogoscrum.user.dto.UserDto;
 import com.shimi.gogoscrum.user.model.Preference;
 import com.shimi.gogoscrum.user.model.User;
@@ -29,6 +30,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -169,6 +171,12 @@ public class UserController extends BaseController {
                                          HttpServletRequest request, HttpServletResponse response) {
         User user = userDto.toEntity();
         user.setLastLoginIp(IpUtil.getIpAddr(request));
+        // Set avatar if provided
+        if (StringUtils.hasText(userDto.getAvatarUrl())) {
+            File avatarFile = new File();
+            avatarFile.setFullPath(userDto.getAvatarUrl());
+            user.setAvatar(avatarFile);
+        }
         User createdUser = userService.createOrBindFromOauth(user);
 
         if (createdUser.getId() != null) {

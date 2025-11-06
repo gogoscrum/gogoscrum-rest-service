@@ -57,7 +57,7 @@ public interface OauthProvider extends ExtensionPoint {
         private String iconUrl;
         /**
          * Languages supported by this OAuth provider, e.g., "en", "cn", check the front-end
-         * project to the full list of supported languages.
+         * project for the full list of supported languages.
          * If set, this provider will be shown only to users with the specified languages.
          * If not set, it will be shown to all users.
          */
@@ -139,6 +139,7 @@ public interface OauthProvider extends ExtensionPoint {
         String getUsername();
         String getAvatarUrl();
         String getExtUserId();
+        String getUnionId();
     }
 }
 

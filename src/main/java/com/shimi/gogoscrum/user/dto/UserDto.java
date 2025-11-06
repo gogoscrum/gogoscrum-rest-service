@@ -13,6 +13,7 @@ import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class UserDto extends BaseDto implements com.shimi.gsf.core.dto.UserDto {
     @Serial
@@ -37,7 +38,7 @@ public class UserDto extends BaseDto implements com.shimi.gsf.core.dto.UserDto {
         User entity = new User();
         BeanUtils.copyProperties(this, entity, "bindings");
         if (!CollectionUtils.isEmpty(bindings)) {
-            entity.setBindings(bindings.stream().map(UserBindingDto::toEntity).toList());
+            entity.setBindings(bindings.stream().map(UserBindingDto::toEntity).collect(Collectors.toList()));
         }
         return entity;
     }
