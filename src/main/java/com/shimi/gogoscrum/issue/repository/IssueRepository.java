@@ -3,6 +3,7 @@ package com.shimi.gogoscrum.issue.repository;
 import com.shimi.gogoscrum.issue.dto.IssueCountDto;
 import com.shimi.gogoscrum.issue.model.Issue;
 import com.shimi.gsf.core.repository.GeneralRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
@@ -17,4 +18,13 @@ public interface IssueRepository extends GeneralRepository<Issue> {
             " from Issue i" +
             " where i.sprint.id = :sprintId group by i.issueGroup")
     List<IssueCountDto> countIssueByStatus(Long sprintId);
+
+    /**
+     * Creates a link between an issue and a file in the issue_file junction table. Use native insert to avoid racing conditions.
+     * @param issueId the ID of the issue
+     * @param fileId the ID of the file
+     */
+    @Modifying
+    @Query(value = "insert into issue_file (issue_id, file_id) values (:issueId, :fileId)", nativeQuery = true)
+    void addIssueFileLink(Long issueId, Long fileId);
 }

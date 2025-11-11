@@ -251,21 +251,14 @@ public class Project extends BaseEntity implements Historical {
         this.totalFileSize = totalFileSize;
     }
 
-//    @Override
-//    public String toString() {
-//        return "Project{" + "id=" + id +
-//                ", name='" + name + '\'' +
-//                ", code='" + code + '\'' +
-//                ", participators=" + projectMembers.size() +
-//                '}';
-//    }
-
-    public String getDebugInfo() {
-        return "Project{" +
-                "id=" + id +
-                ", fileCount=" + fileCount +
-                ", totalFileSize=" + totalFileSize +
-                '}';
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Project{");
+        sb.append("id=").append(id);
+        sb.append(", code='").append(code).append('\'');
+        sb.append(", name='").append(name).append('\'');
+        sb.append('}');
+        return sb.toString();
     }
 
     @Override

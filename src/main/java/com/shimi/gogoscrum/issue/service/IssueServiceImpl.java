@@ -5,6 +5,7 @@ import com.shimi.gogoscrum.common.util.Exporter;
 import com.shimi.gogoscrum.component.model.Component;
 import com.shimi.gogoscrum.component.service.ComponentService;
 import com.shimi.gogoscrum.file.model.File;
+import com.shimi.gogoscrum.file.model.TargetType;
 import com.shimi.gogoscrum.file.service.FileService;
 import com.shimi.gogoscrum.issue.dto.IssueCountDto;
 import com.shimi.gogoscrum.issue.event.IssueSeqUpdatedEvent;
@@ -20,7 +21,7 @@ import com.shimi.gogoscrum.tag.model.Tag;
 import com.shimi.gogoscrum.user.model.User;
 import com.shimi.gogoscrum.user.service.UserService;
 import com.shimi.gsf.core.event.EntityChangeEvent;
-import com.shimi.gsf.core.exception.BaseServiceException;
+import com.shimi.gsf.core.exception.BadRequestException;
 import com.shimi.gsf.core.model.Entity;
 import com.shimi.gsf.core.model.Filter;
 import org.slf4j.Logger;
@@ -210,10 +211,15 @@ public class IssueServiceImpl extends BaseServiceImpl<Issue, IssueFilter> implem
         Project project = projectService.get(issue.getProject().getId());
         Long projectId = project.getId();
         ProjectMemberUtils.checkDeveloper(project, getCurrentUser());
+
+        // Create the file
         file.setProjectId(projectId);
-        file.setIssue(issue);
+        file.setTargetType(TargetType.ISSUE_ATTACHMENT);
         File savedFile = fileService.create(file);
-        log.info("Issue {} added attachment {}", issueId, savedFile.getId());
+
+        // Add the file to issue's file list (use native insert to avoid racing conditions)
+        repository.addIssueFileLink(issueId, savedFile.getId());
+        log.info("File {} added to issue {}", savedFile.getId(), issueId);
         return savedFile;
     }
 
@@ -221,11 +227,22 @@ public class IssueServiceImpl extends BaseServiceImpl<Issue, IssueFilter> implem
     public void deleteFile(Long issueId, Long fileId) {
         Issue issue = this.get(issueId);
         ProjectMemberUtils.checkDeveloper(projectService.get(issue.getProject().getId()), getCurrentUser());
-        File file = fileService.get(fileId);
-        if (!Objects.equals(file.getIssue().getId(), issueId)) {
-            throw new BaseServiceException("File with ID " + fileId + " does not belong to issue with ID " + issueId);
-        }
+
+        // Verify if the file belongs to the issue
+        issue.getFiles().stream()
+                .filter(f -> f.getId().equals(fileId))
+                .findFirst()
+                .orElseThrow(() -> new BadRequestException("File " + fileId + " does not belong to issue " + issueId));
+
+        // Delete the file
         fileService.delete(fileId);
+
+        // Also remove the file from issue's file list
+        List<File> updatedFiles = issue.getFiles().stream()
+                .filter(f -> !f.getId().equals(fileId))
+                .collect(Collectors.toList());
+        issue.setFiles(updatedFiles);
+        repository.save(issue);
         log.info("File {} deleted from issue {}", fileId, issueId);
     }
 

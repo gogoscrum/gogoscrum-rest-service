@@ -83,8 +83,11 @@ public class Issue extends BaseEntity implements Historical {
     @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "issue", fetch = FetchType.LAZY)
     private List<Comment> comments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "issue", fetch = FetchType.LAZY)
-    @OrderBy("id ASC")
+    @OneToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "issue_file",
+            joinColumns = @JoinColumn(name = "issue_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "file_id", referencedColumnName = "id"))
     private List<File> files = new ArrayList<>();
 
     @OneToMany(fetch = FetchType.LAZY)

@@ -2,7 +2,6 @@ package com.shimi.gogoscrum.file.model;
 
 import com.shimi.gogoscrum.common.model.BaseEntity;
 import com.shimi.gogoscrum.file.dto.FileDto;
-import com.shimi.gogoscrum.issue.model.Issue;
 import jakarta.persistence.*;
 import org.springframework.beans.BeanUtils;
 
@@ -27,9 +26,6 @@ public class File extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "parent_id")
     private File parent;
-    @ManyToOne
-    @JoinColumn(name = "issue_id")
-    private Issue issue;
 
     @Override
     public FileDto toDto() {
@@ -151,14 +147,6 @@ public class File extends BaseEntity {
         } else {
             return Objects.requireNonNullElse(urlPrefix, "/") + fullPath;
         }
-    }
-
-    public Issue getIssue() {
-        return issue;
-    }
-
-    public void setIssue(Issue issue) {
-        this.issue = issue;
     }
 
     @Override

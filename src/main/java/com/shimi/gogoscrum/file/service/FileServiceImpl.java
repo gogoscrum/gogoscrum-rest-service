@@ -102,7 +102,6 @@ public class FileServiceImpl extends BaseServiceImpl<File, FileFilter> implement
 
         if (projectId != null) {
             Project project = projectService.get(projectId);
-            log.debug("project loaded: {}, {}", project, project.getDebugInfo());
             ProjectMemberUtils.checkDeveloper(project, getCurrentUser());
         }
 
