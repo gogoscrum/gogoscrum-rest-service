@@ -38,3 +38,4 @@ build/
 /src/main/resources/application-dev.properties
 .DS_Store
 license.key
+src/main/resources/application-prod.properties
