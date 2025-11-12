@@ -16,11 +16,17 @@ import com.shimi.gogoscrum.user.repository.UserBindingRepository;
 import com.shimi.gogoscrum.user.repository.UserRepository;
 import com.shimi.gogoscrum.user.repository.UserSpecs;
 import com.shimi.gsf.core.exception.*;
+import com.shimi.gsf.core.model.EntityQueryResult;
+import com.shimi.gsf.util.PageQueryResultConverter;
 import org.pf4j.PluginManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent;
@@ -254,7 +260,6 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserFilter> implement
         if (log.isDebugEnabled()) {
             log.debug("Updated user's last login info: {}", updatedUser);
         }
-
     }
 
     @Override
@@ -268,6 +273,28 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserFilter> implement
             log.debug("Loaded user by username {}: {}", username, user);
             return user;
         }
+    }
+
+    @Override
+    public EntityQueryResult<User> findProjectMates(int page, int pageSize, String keyword ) {
+        PageRequest pageable = PageRequest.of(page, pageSize, Sort.Direction.DESC, "id");
+        User currentUser = getCurrentUser();
+        Page<User> contents;
+
+        if (StringUtils.hasText(keyword)) {
+            // Search by exact username globally first
+            User byUsername = repository.findByUsername(keyword);
+
+            if (byUsername != null) {
+                contents = new PageImpl<User>(List.of(byUsername));
+            } else {
+                contents = repository.findProjectMates(currentUser, pageable, keyword);
+            }
+        } else {
+            contents = repository.findProjectMates(currentUser, pageable);
+        }
+
+        return PageQueryResultConverter.toQueryResult(contents);
     }
 
     @Override

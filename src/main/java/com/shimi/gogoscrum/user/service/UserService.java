@@ -5,6 +5,7 @@ import com.shimi.gogoscrum.user.model.Preference;
 import com.shimi.gogoscrum.user.model.User;
 import com.shimi.gogoscrum.user.model.UserFilter;
 import com.shimi.gogoscrum.user.oauth.OauthProvider;
+import com.shimi.gsf.core.model.EntityQueryResult;
 import com.shimi.gsf.core.service.GeneralService;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
@@ -29,6 +30,15 @@ public interface UserService extends GeneralService<User, UserFilter>, UserDetai
     User updateAvatar(Long userId, File avatarFile);
 
     void deleteAvatar(Long userId);
+
+    /**
+     * Find users who are used to work with the current user in the same projects, filtered by keyword (nickname or username).
+     * @param page the page number
+     * @param pageSize the size of each page
+     * @param keyword the keyword to filter users (optional)
+     * @return the paginated result of users
+     */
+    EntityQueryResult<User> findProjectMates(int page, int pageSize, String keyword);
 
     /**
      * Get the list of configured 3rd-party OAuth providers.

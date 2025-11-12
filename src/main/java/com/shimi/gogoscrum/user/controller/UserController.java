@@ -57,6 +57,11 @@ public class UserController extends BaseController {
         return userService.create(user).toDto();
     }
 
+    /**
+     * Search users with the given filter. If the platform is running in SaaS mode, when inviting users to join a project,
+     * you should not use this API. Instead, use the "findProjectMates" API to search users who have joined at least one
+     * common project with the current user. This is to avoid exposing all users in the system to each other.
+     */
     @Operation(summary = "Search Users")
     @Parameters({
             @Parameter(name = "filter", description = "The search filer")})
@@ -65,6 +70,22 @@ public class UserController extends BaseController {
         filter.setEnabled(Boolean.TRUE);
         EntityQueryResult<User> queryResult = userService.search(filter);
         return queryResult.toDto();
+    }
+
+    /**
+     * Search project mates, i.e., users who have joined at least one common project with the current user.
+     * This is useful when inviting users to join a project while the platform is running as a SaaS service.
+     * For those companies using self-hosted deployment, they can directly search all users.
+     */
+    @Operation(summary = "Search project mates, i.e., users who have joined at least one common project with the current user")
+    @Parameters({
+            @Parameter(name = "key", description = "The query keywords, can be username or nickname"),
+            @Parameter(name = "page", description = "The page number, starting from 1"),
+            @Parameter(name = "pageSize", description = "The page size")})
+    @GetMapping("/mates")
+    public DtoQueryResult<Dto> findProjectMates(UserFilter filter) {
+        EntityQueryResult<User> queryResults = userService.findProjectMates(filter.getPage(), filter.getPageSize(), filter.getKeyword());
+        return queryResults.toDto();
     }
 
     @Operation(summary = "Get a user")
