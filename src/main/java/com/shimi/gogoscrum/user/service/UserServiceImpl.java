@@ -323,7 +323,7 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserFilter> implement
         UserBinding binding = bindRepository.getByProviderAndExtUserId(oauthUser.getProvider(), oauthUser.getExtUserId());
         User user = null;
 
-        // Found binding by ext ID
+        // If found binding by ext ID
         if (binding != null) {
             // if union ID is available, but not linked yet, update the binding
             if (StringUtils.hasText(oauthUser.getUnionId()) && !StringUtils.hasText(binding.getUnionId())) {
@@ -332,13 +332,11 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserFilter> implement
                 log.info("Updated union ID for existing binding: {}", binding);
             }
             user = this.get(binding.getUser().getId());
-        }
-
-        // No binding found for the ext ID, try again by union ID
-        if (StringUtils.hasText(oauthUser.getUnionId())) {
+        } else if (StringUtils.hasText(oauthUser.getUnionId())) {
+            // No binding found for the ext ID, try again by union ID
             binding = bindRepository.getTopByUnionId(oauthUser.getUnionId());
 
-            // Found binding by union ID, create new ext ID binding
+            // If found binding by union ID, create new ext ID binding
             if (binding != null) {
                 UserBinding newBinding = new UserBinding();
                 newBinding.setProvider(oauthUser.getProvider());
@@ -353,6 +351,7 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserFilter> implement
             }
         }
 
+        // If user found by either ext ID or union ID, return the user
         if (user != null) {
             if (!user.isEnabled()) {
                 throw new NoPermissionException(ErrorCode.USER_DISABLED, "User is disabled");
