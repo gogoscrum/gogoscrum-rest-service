@@ -25,6 +25,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.EOFException;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.security.Principal;
 import java.util.Arrays;
 import java.util.List;
@@ -52,10 +53,20 @@ public class WebSocketServer {
     public void onOpen(Session session, @PathParam("projectId") Long projectId, @PathParam("sprintId") Long sprintId) {
         addSessionIntoPool(session, projectId, sprintId);
         int joinedCount = onlineCount.incrementAndGet();
+        session.setMaxIdleTimeout(0); // Disable timeout
+        this.startHeartbeat(session);
 
         if (log.isDebugEnabled()) {
             log.debug("New websocket connected to sprint board {} by session {} from user {}, total online users is {} now", sprintId,
                     session.getId(), getUserFromSession(session), joinedCount);
+        }
+    }
+
+    private void startHeartbeat(Session session) {
+        try {
+            session.getAsyncRemote().sendPing(ByteBuffer.wrap("ping".getBytes()));
+        } catch (IOException e) {
+            log.error("Failed to send ping to session {}: {}", session.getId(), e.getMessage(), e);
         }
     }
 
