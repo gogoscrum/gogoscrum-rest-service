@@ -23,6 +23,7 @@ import com.shimi.gogoscrum.user.service.UserService;
 import com.shimi.gsf.core.event.EntityChangeEvent;
 import com.shimi.gsf.core.exception.BadRequestException;
 import com.shimi.gsf.core.model.Entity;
+import com.shimi.gsf.core.model.EntityQueryResult;
 import com.shimi.gsf.core.model.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -297,11 +298,25 @@ public class IssueServiceImpl extends BaseServiceImpl<Issue, IssueFilter> implem
     }
 
     @Override
+    public EntityQueryResult<Issue> search(IssueFilter filter) {
+        Long projectId = filter.getProjectId();
+
+        if (projectId == null) {
+            throw new BadRequestException("Project ID is required for issue search.");
+        }
+
+        ProjectMemberUtils.checkDeveloper(projectService.get(projectId), getCurrentUser());
+        return super.search(filter);
+    }
+
+    @Override
     protected Specification<Issue> toSpec(IssueFilter filter) {
         Specification<Issue> querySpec = null;
 
         if (filter.getProjectId() != null) {
             querySpec = IssueSpecs.projectIdEquals(filter.getProjectId());
+        } else {
+            throw new BadRequestException("Project ID is required for issue search.");
         }
 
         if (!CollectionUtils.isEmpty(filter.getTypes())) {
@@ -461,6 +476,14 @@ public class IssueServiceImpl extends BaseServiceImpl<Issue, IssueFilter> implem
 
     @Override
     public byte[] export(IssueFilter filter) {
+        Long projectId = filter.getProjectId();
+
+        if (projectId == null) {
+            throw new BadRequestException("Project ID is required for issue search.");
+        }
+
+        ProjectMemberUtils.checkDeveloper(projectService.get(projectId), getCurrentUser());
+
         filter.getOrders().add(new Filter.Order("id", Filter.Direction.ASC));
         List<Issue> issues = this.searchAll(filter);
         List<String> enHeaders = Arrays.asList("Key", "Title", "Type", "Priority", "Status", "Story point", "Component", "Estimated hours", "Actual hours",
