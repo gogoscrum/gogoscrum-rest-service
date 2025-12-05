@@ -305,7 +305,7 @@ public class IssueServiceImpl extends BaseServiceImpl<Issue, IssueFilter> implem
             throw new BadRequestException("Project ID is required for issue search.");
         }
 
-        ProjectMemberUtils.checkDeveloper(projectService.get(projectId), getCurrentUser());
+        ProjectMemberUtils.checkMember(projectService.get(projectId), getCurrentUser());
         return super.search(filter);
     }
 
