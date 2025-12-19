@@ -49,6 +49,7 @@ public class IssueFilter extends BaseEntity implements Filter {
     private int pageSize = 10;
     @Transient
     private Boolean backlog;
+    // for exporting, now supports "en", "cn"
     @Transient
     private String language;
     @Transient

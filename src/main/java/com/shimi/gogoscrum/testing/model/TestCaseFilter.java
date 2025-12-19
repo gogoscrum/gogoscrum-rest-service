@@ -18,6 +18,8 @@ public class TestCaseFilter extends BaseFilter {
     private List<Long> owners;
     private List<Long> creators;
     private Boolean deleted = Boolean.FALSE;
+    // for exporting, now supports "en", "cn"
+    private String language;
 
     public Long getProjectId() {
         return projectId;
@@ -81,6 +83,14 @@ public class TestCaseFilter extends BaseFilter {
 
     public void setDeleted(Boolean deleted) {
         this.deleted = deleted;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
     }
 
     public List<TestRun.TestRunStatus> getRunStatuses() {

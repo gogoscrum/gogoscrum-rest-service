@@ -1,12 +1,13 @@
 package com.shimi.gogoscrum.testing.service;
 
 import com.shimi.gogoscrum.common.service.BaseServiceImpl;
+import com.shimi.gogoscrum.common.util.Exporter;
+import com.shimi.gogoscrum.component.model.Component;
+import com.shimi.gogoscrum.component.service.ComponentService;
+import com.shimi.gogoscrum.project.model.Project;
 import com.shimi.gogoscrum.project.service.ProjectService;
 import com.shimi.gogoscrum.project.utils.ProjectMemberUtils;
-import com.shimi.gogoscrum.testing.model.TestCase;
-import com.shimi.gogoscrum.testing.model.TestCaseDetails;
-import com.shimi.gogoscrum.testing.model.TestCaseFilter;
-import com.shimi.gogoscrum.testing.model.TestRun;
+import com.shimi.gogoscrum.testing.model.*;
 import com.shimi.gogoscrum.testing.repository.TestCaseDetailsRepository;
 import com.shimi.gogoscrum.testing.repository.TestCaseRepository;
 import com.shimi.gogoscrum.testing.repository.TestCaseSpecs;
@@ -25,7 +26,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 public class TestCaseServiceImpl extends BaseServiceImpl<TestCase, TestCaseFilter> implements TestCaseService {
@@ -38,6 +43,8 @@ public class TestCaseServiceImpl extends BaseServiceImpl<TestCase, TestCaseFilte
     private TestCaseDetailsRepository detailsRepository;
     @Autowired
     private TestRunRepository testRunRepository;
+    @Autowired
+    private ComponentService componentService;
 
     @Override
     protected TestCaseRepository getRepository() {
@@ -273,5 +280,70 @@ public class TestCaseServiceImpl extends BaseServiceImpl<TestCase, TestCaseFilte
         }
 
         return querySpec;
+    }
+
+    @Override
+    public byte[] export(TestCaseFilter filter) {
+        if (filter == null || filter.getProjectId() == null) {
+            throw new BadRequestException("Project ID is required to export test cases");
+        }
+
+        Project project = projectService.get(filter.getProjectId());
+        // Guest users are not allowed to export test cases
+        ProjectMemberUtils.checkDeveloper(project, getCurrentUser());
+
+        List<TestCase> cases = this.searchAll(filter);
+        List<String> enHeaders = List.of("Key", "Title", "Type", "Priority", "Component", "Preconditions", "Steps",
+                "Owner", "Latest Run", "Automation", "Created By", "Created Time", "Updated Time", "Attachments", "Description");
+        List<String> cnHeaders = List.of("代码", "标题", "类型", "优先级", "功能模块", "前置条件", "步骤",
+                "负责人", "最近执行", "自动化", "创建者", "创建时间", "更新时间", "附件数", "描述");
+
+        List<List<Object>> rows = cases.stream().map(this::toExportRow).toList();
+        return Exporter.exportExcel("Test Cases", "cn".equalsIgnoreCase(filter.getLanguage()) ? cnHeaders : enHeaders, rows);
+    }
+
+    private List<Object> toExportRow(TestCase testCase) {
+        List<Object> row = new ArrayList<>();
+        row.add(testCase.getCode());
+        row.add(testCase.getDetails() != null ? testCase.getDetails().getName() : null);
+        row.add(testCase.getDetails() != null && testCase.getDetails().getType() != null ?
+                testCase.getDetails().getType().name() : null);
+        row.add(testCase.getDetails() != null && testCase.getDetails().getPriority() != null ?
+                testCase.getDetails().getPriority().name() : null);
+        row.add(resolveComponentName(testCase));
+        row.add(testCase.getDetails() != null ? testCase.getDetails().getPreconditions() : null);
+        row.add(formatSteps(testCase));
+        row.add(testCase.getDetails() != null && testCase.getDetails().getOwner() != null ?
+                testCase.getDetails().getOwner().getNickname() : null);
+        row.add(testCase.getLatestRun() != null ? testCase.getLatestRun().getStatus() : null);
+        row.add(testCase.getDetails() != null ? Boolean.TRUE.equals(testCase.getDetails().getAutomated()) : Boolean.FALSE);
+        row.add(testCase.getCreatedBy() != null ? testCase.getCreatedBy().getNickname() : null);
+        row.add(testCase.getCreatedTime());
+        row.add(testCase.getUpdatedTime());
+        row.add(testCase.getFiles() != null ? testCase.getFiles().size() : 0);
+        row.add(testCase.getDetails() != null ? testCase.getDetails().getDescription() : null);
+        return row;
+    }
+
+    private String formatSteps(TestCase testCase) {
+        if (testCase.getDetails() == null || CollectionUtils.isEmpty(testCase.getDetails().getSteps())) {
+            return null;
+        }
+
+        return IntStream.range(0, testCase.getDetails().getSteps().size())
+                .mapToObj(index -> {
+                    TestStep step = testCase.getDetails().getSteps().get(index);
+                    return String.format("%d. %s -> %s", index + 1, step.getDescription(), step.getExpectation());
+                })
+                .collect(Collectors.joining("\n"));
+    }
+
+    private String resolveComponentName(TestCase testCase) {
+        if (testCase.getDetails() == null || testCase.getDetails().getComponentId() == null) {
+            return null;
+        }
+
+        Component component = componentService.get(testCase.getDetails().getComponentId());
+        return component != null ? component.getName() : null;
     }
 }

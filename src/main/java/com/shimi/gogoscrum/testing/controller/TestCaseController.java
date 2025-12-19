@@ -16,7 +16,16 @@ import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/testing/cases")
@@ -80,5 +89,21 @@ public class TestCaseController extends BaseController {
     public TestCaseDto clone(@PathVariable Long id) {
         TestCase clonedCase = testCaseService.clone(id);
         return clonedCase.toDto(true);
+    }
+
+    @Operation(summary = "Export test cases")
+    @Parameters({@Parameter(name = "filter", description = "Test case export filter")})
+    @PostMapping("/export")
+    public ResponseEntity<Resource> export(@RequestBody TestCaseFilter filter) {
+        filter = Objects.requireNonNullElse(filter, new TestCaseFilter());
+        byte[] bytes = testCaseService.export(filter);
+
+        ByteArrayResource resource = new ByteArrayResource(bytes);
+        String filename = String.format("test-cases-exported-%s.xlsx", new SimpleDateFormat("yyyyMMddHHmm").format(new Date()));
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("application/vnd.ms-excel"))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
+                .body(resource);
     }
 }

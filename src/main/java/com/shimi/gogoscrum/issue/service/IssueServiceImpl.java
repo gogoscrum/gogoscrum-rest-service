@@ -482,6 +482,7 @@ public class IssueServiceImpl extends BaseServiceImpl<Issue, IssueFilter> implem
             throw new BadRequestException("Project ID is required for issue search.");
         }
 
+        // Guest users are not allowed to export test cases
         ProjectMemberUtils.checkDeveloper(projectService.get(projectId), getCurrentUser());
 
         filter.getOrders().add(new Filter.Order("id", Filter.Direction.ASC));
