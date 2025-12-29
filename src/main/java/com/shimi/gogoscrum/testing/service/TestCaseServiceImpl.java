@@ -83,6 +83,15 @@ public class TestCaseServiceImpl extends BaseServiceImpl<TestCase, TestCaseFilte
         return createdTestCase;
     }
 
+    @Override
+    public List<TestCase> createAll(List<TestCase> testCases) {
+        List<TestCase> createdCases = new ArrayList<>();
+        for (TestCase testCase : testCases) {
+            createdCases.add(this.create(testCase));
+        }
+        return createdCases;
+    }
+
     /**
      * Updates an existing test case. A new version of the test case details is created.
      */
@@ -152,12 +161,21 @@ public class TestCaseServiceImpl extends BaseServiceImpl<TestCase, TestCaseFilte
             throw new BadRequestException("Project ID must be provided for the test case");
         }
 
-        if (testCase.getDetails() == null) {
+        TestCaseDetails details = testCase.getDetails();
+
+        if (details == null) {
             throw new BadRequestException("Test case details must be provided");
         }
 
-        if (!StringUtils.hasText(testCase.getDetails().getName())) {
+        if (!StringUtils.hasText(details.getName())) {
             throw new BadRequestException("Test case name cannot be empty");
+        }
+
+        if (details.getComponentId() != null) {
+            Component component = componentService.get(details.getComponentId());
+            if (component == null || !component.getProjectId().equals(testCase.getProjectId())) {
+                throw new BadRequestException("Invalid component ID, please make sure the component exists in the project");
+            }
         }
     }
 
@@ -289,7 +307,7 @@ public class TestCaseServiceImpl extends BaseServiceImpl<TestCase, TestCaseFilte
         }
 
         Project project = projectService.get(filter.getProjectId());
-        // Guest users are not allowed to export test cases
+        // Only project developers (without guest users) are not allowed to export test cases
         ProjectMemberUtils.checkDeveloper(project, getCurrentUser());
 
         List<TestCase> cases = this.searchAll(filter);

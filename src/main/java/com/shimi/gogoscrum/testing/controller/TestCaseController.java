@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
 
 @RestController
@@ -42,6 +43,14 @@ public class TestCaseController extends BaseController {
         TestCase testCase = testCaseDto.toEntity();
         TestCase savedTestCase = testCaseService.create(testCase);
         return savedTestCase.toDto(true);
+    }
+
+    @Operation(summary = "Create multiple test cases")
+    @PostMapping("/batch")
+    public List<TestCaseDto> createAll(@RequestBody List<TestCaseDto> testCaseDtos) {
+        List<TestCase> testCases = testCaseDtos.stream().map(TestCaseDto::toEntity).toList();
+        List<TestCase> savedTestCases = testCaseService.createAll(testCases);
+        return savedTestCases.stream().map(tc -> tc.toDto(true)).toList();
     }
 
     @Operation(summary = "Get test case")
