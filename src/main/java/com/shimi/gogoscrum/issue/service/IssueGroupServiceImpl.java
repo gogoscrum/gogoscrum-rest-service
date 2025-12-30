@@ -113,6 +113,7 @@ public class IssueGroupServiceImpl extends BaseServiceImpl<IssueGroup, IssueGrou
     private void moveIssuesIntoTodo(IssueGroup deletingGroup) {
         IssueFilter filter = new IssueFilter();
         filter.setPageSize(Integer.MAX_VALUE);
+        filter.setProjectId(deletingGroup.getProject().getId());
         filter.setGroupIds(Collections.singletonList(deletingGroup.getId()));
 
         EntityQueryResult<Issue> queryResult = issueService.search(filter);
@@ -127,7 +128,7 @@ public class IssueGroupServiceImpl extends BaseServiceImpl<IssueGroup, IssueGrou
             });
             issueService.saveAll(issues);
 
-            log.info("{} issues moved from group {} (id = {}) into todo status (id = {})", issues.size(),
+            log.info("Moved {} issue(s) from group {} (id = {}) into group TODO (id = {})", issues.size(),
                     deletingGroup.getLabel(), deletingGroup.getId(), toDoIssueGroup.getId());
         }
     }

@@ -169,7 +169,7 @@ public class IssueServiceImpl extends BaseServiceImpl<Issue, IssueFilter> implem
         ProjectMemberUtils.checkDeveloper(projectService.get(newIssues.getFirst().getProject().getId()), currentUser);
 
         repository.saveAll(newIssues);
-        log.info("Issue seq updated with IDs in : {}", issueIds);
+        log.info("Updated issue seq of: {}", issueIds);
 
         if(!CollectionUtils.isEmpty(newIssues)) {
             Issue issue = newIssues.getFirst();
