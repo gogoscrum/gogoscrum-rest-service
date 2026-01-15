@@ -131,7 +131,7 @@ Test report
 - Modify the database connection and other configuration details in `application-dev.properties`
   - Manually create the database in advance; all tables will be created automatically when the service starts
   - Ensure that Redis is installed and running on your local machine
-  - Create an `lfs` directory for storing uploaded files, and update the `file.local.dir.base` setting to point to this directory
+  - Create an `lfs` directory for storing uploaded files, and update the `file.local.dir.base` setting to point to this directory (lsf stands for Local File Storage, which is a gogoscrum built-in file service)
 - Run `GogoscrumApplication.java` to start the backend service, and check the logs to confirm the service starts properly
 - Visit [http://localhost:8080/health] to verify the service is running correctly
 
@@ -141,7 +141,7 @@ Test report
 - Create a `.env.local` file in the root of the project and add the following content:
 ```
 NODE_ENV=development
-VITE_FILE_PATH = 'Path to the lfs directory configured in the backend Java service'
+VITE_FILE_PATH = 'Path to the lfs directory configured in the backend Java service (the value of file.local.dir.base in application-dev.properties)'
 ```
 - Run `npm i` to install dependencies
 - Run `npm run dev` to start the frontend project

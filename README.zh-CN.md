@@ -133,7 +133,7 @@ gogoscrum是轻量级敏捷项目管理工具，遵循Scrum敏捷实践，为敏
 - 修改 `application-dev.properties` 中的数据库连接及其它配置信息
   - 预先手动创建好数据库，服务启动时会自动创建所有的表
   - 检查本地Redis服务是否已安装并已启动
-  - 创建lfs目录用于保存上传的文件，并修改 `file.local.dir.base` 配置指向该目录
+  - 创建lfs目录用于保存上传的文件，并修改 `file.local.dir.base` 配置指向该目录（lsf是gogoscrum自带的Local File Storage本地文件存储服务的缩写）
 - 运行 `GogoscrumApplication.java` 启动服务，查看服务端日志，确认服务启动正常
 - 访问 [http://localhost:8080/health] 验证服务已正常运行
 
@@ -143,7 +143,7 @@ gogoscrum是轻量级敏捷项目管理工具，遵循Scrum敏捷实践，为敏
 - 在项目根目录下新建文件 `.env.local` 并添加以下内容：
 ```
 NODE_ENV=development
-VITE_FILE_PATH = '指向到后端Java服务中所配置的lfs路径'
+VITE_FILE_PATH = '指向到后端Java服务中所配置的lfs目录的完整路径（application-dev.properties文件中所设定的file.local.dir.base的值）'
 ```
 - 运行命令 `npm install` 安装依赖
 - 运行命令 `npm run dev` 启动前端项目
