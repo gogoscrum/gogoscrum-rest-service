@@ -19,8 +19,6 @@ import java.util.List;
 public interface UserService extends GeneralService<User, UserFilter>, UserDetailsService {
     User updateUserBasics(Long id, User user);
 
-    boolean checkPassword(Long id, String oldPassword);
-
     void updatePassword(Long id, String oldPassword, String newPassword);
 
     void updateLastLoginInfo(User user);
@@ -71,4 +69,10 @@ public interface UserService extends GeneralService<User, UserFilter>, UserDetai
      * @return the created user
      */
     User createOrBindFromOauth(User user);
+
+    /**
+     * Unbind the OAuth binding from current user.
+     * @param bindingId the ID of the UserBinding to unbind
+     */
+    void unbindOauth(Long bindingId);
 }

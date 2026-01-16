@@ -202,12 +202,6 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserFilter> implement
     }
 
     @Override
-    public boolean checkPassword(Long id, String oldPassword) {
-        User user = get(id);
-        return BCrypt.checkpw(oldPassword, user.getPassword());
-    }
-
-    @Override
     public void updatePassword(Long userId, String oldPassword, String newPassword) {
         this.verifyPassword(newPassword);
 
@@ -267,8 +261,6 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserFilter> implement
         User user = repository.findByUsername(username);
         if (user == null) {
             throw new EntityNotFoundException("Cannot find user by username \"" + username + "\"");
-        } else if (!StringUtils.hasText(user.getPassword())) {
-            throw new BaseServiceException("pwdNotSet", "User has no password set. Please use social login.", HttpStatus.PRECONDITION_FAILED);
         } else {
             log.debug("Loaded user by username {}: {}", username, user);
             return user;
@@ -428,6 +420,31 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserFilter> implement
         log.info("Created new OAuth binding from {} to user: {}", binding.getProvider(), targetUser);
 
         return targetUser;
+    }
+
+    @Override
+    public void unbindOauth(Long bindingId) {
+        Optional<UserBinding> optionalBinding = bindRepository.findById(bindingId);
+
+        if (optionalBinding.isEmpty()) {
+            throw new EntityNotFoundException("Cannot find binding with ID: " + bindingId);
+        }
+
+        UserBinding binding = optionalBinding.get();
+
+        if (!Objects.equals(binding.getUser().getId(), getCurrentUser().getId())) {
+            throw new NoPermissionException("You can only unbind your own OAuth bindings");
+        }
+
+        // Cannot unbind the last binding if no password is set
+        List<UserBinding> allBindings = binding.getUser().getBindings();
+        if (allBindings.size() <= 1 && !StringUtils.hasText(binding.getUser().getPassword())) {
+            throw new BaseServiceException("cannotUnbindLastBinding", "Cannot unbind the last OAuth binding when no password is set",
+                    HttpStatus.BAD_REQUEST);
+        }
+
+        bindRepository.delete(binding);
+        log.info("Unbound OAuth binding {} from user {}", bindingId, binding.getUser().getId());
     }
 
     private void verifyBinding(UserBinding binding) {

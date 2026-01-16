@@ -93,7 +93,7 @@ public class UserController extends BaseController {
     @GetMapping("/{id}")
     public UserDto get(@PathVariable Long id) {
         User user = userService.get(id);
-        return user.toDto();
+        return user.toDto(true);
     }
 
     @Operation(summary = "Update current user's basic info")
@@ -124,13 +124,6 @@ public class UserController extends BaseController {
     public UserDto updatePreference(@RequestBody Preference preference) {
         User savedUser = userService.updatePreference(getCurrentUser().getId(), preference);
         return savedUser.toDto();
-    }
-
-    @Operation(summary = "Check current user's password")
-    @Parameters({@Parameter(name = "password", description = "The password of the user.")})
-    @GetMapping("/my/pwd/check")
-    public boolean checkOldPassword(@RequestParam(value = "password") String oldPassword) {
-        return userService.checkPassword(this.getCurrentUser().getId(), oldPassword);
     }
 
     @Operation(summary = "Update current user's password")
@@ -201,7 +194,7 @@ public class UserController extends BaseController {
         User createdUser = userService.createOrBindFromOauth(user);
 
         if (createdUser.getId() != null) {
-            Authentication auth = this.authenticateUser(user, request, response);
+            Authentication auth = this.authenticateUser(createdUser, request, response);
 
             if (rememberMe) {
                 rememberMeServices.loginSuccess(request, response, auth);
@@ -209,6 +202,13 @@ public class UserController extends BaseController {
         }
 
         return createdUser.toDto(true);
+    }
+
+    @Operation(summary = "Unbind 3rd-party OAuth from current user")
+    @Parameters({@Parameter(name = "bindingId", description = "The ID of the UserBinding to unbind")})
+    @DeleteMapping("/oauth/bindings/{bindingId}")
+    public void unbindOauth(@PathVariable Long bindingId) {
+        userService.unbindOauth(bindingId);
     }
 
     /**
