@@ -10,6 +10,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.io.Serial;
 import java.util.*;
@@ -68,6 +69,8 @@ public class User extends BaseEntity implements com.shimi.gsf.core.model.User {
             if (!CollectionUtils.isEmpty(this.bindings)) {
                 dto.setBindings(this.bindings.stream().map(UserBinding::toDto).toList());
             }
+
+            dto.setHasPassword(StringUtils.hasText(this.password));
         }
 
         return dto;

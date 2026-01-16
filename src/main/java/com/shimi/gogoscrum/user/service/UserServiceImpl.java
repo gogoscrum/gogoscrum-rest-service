@@ -86,7 +86,7 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserFilter> implement
             this.verifyPassword(user.getPassword());
             user.setPassword(new BCryptPasswordEncoder().encode(user.getPassword()));
         } else {
-            user.setUsername(RandomToolkit.getRandomString(16));
+            user.setUsername(RandomToolkit.getRandomString(10));
             user.setPassword(null);
         }
     }
@@ -210,7 +210,8 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserFilter> implement
         }
 
         User user = this.get(userId);
-        if (!BCrypt.checkpw(oldPassword, user.getPassword())) {
+
+        if (StringUtils.hasText(user.getPassword()) && !BCrypt.checkpw(oldPassword, user.getPassword())) {
             throw new BaseServiceException(ErrorCode.WRONG_PASSWORD, "Incorrect old password", HttpStatus.PRECONDITION_FAILED);
         }
 

@@ -23,6 +23,7 @@ public class UserDto extends BaseDto implements com.shimi.gsf.core.dto.UserDto {
     private String username;
     @JsonProperty(access = Access.WRITE_ONLY)
     private String password;
+    private Boolean hasPassword;
     private String phone;
     private String email;
     private FileDto avatar;
@@ -82,6 +83,14 @@ public class UserDto extends BaseDto implements com.shimi.gsf.core.dto.UserDto {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Boolean getHasPassword() {
+        return hasPassword;
+    }
+
+    public void setHasPassword(Boolean hasPassword) {
+        this.hasPassword = hasPassword;
     }
 
     public String getPhone() {
