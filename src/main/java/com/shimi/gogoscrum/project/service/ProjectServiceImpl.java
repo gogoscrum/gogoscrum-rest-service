@@ -164,20 +164,19 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, ProjectFilter> 
     }
 
     @Override
-    public String generateNextIssueCode(Long projectId) {
+    public Long generateNextIssueCode(Long projectId) {
         Project project = get(projectId);
 
         Long nextIssueSeq = project.getLastIssueSeq() + 1;
-        String nextIssueCode = String.valueOf(nextIssueSeq);
 
         project.setLastIssueSeq(nextIssueSeq);
         repository.save(project);
 
         if (log.isDebugEnabled()) {
-            log.debug("New issue seq {} generated for project {}", nextIssueCode, projectId);
+            log.debug("New issue seq {} generated for project {}", nextIssueSeq, projectId);
         }
 
-        return nextIssueCode;
+        return nextIssueSeq;
     }
 
     @Override

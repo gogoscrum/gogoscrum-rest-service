@@ -101,7 +101,7 @@ public class IssueServiceImpl extends BaseServiceImpl<Issue, IssueFilter> implem
         }
     }
 
-    private synchronized String generateIssueCode(Long projectId) {
+    private synchronized Long generateIssueCode(Long projectId) {
         return projectService.generateNextIssueCode(projectId);
     }
 
@@ -485,7 +485,10 @@ public class IssueServiceImpl extends BaseServiceImpl<Issue, IssueFilter> implem
         // Guest users are not allowed to export test cases
         ProjectMemberUtils.checkDeveloper(projectService.get(projectId), getCurrentUser());
 
-        filter.getOrders().add(new Filter.Order("id", Filter.Direction.ASC));
+        if (CollectionUtils.isEmpty(filter.getOrders())) {
+            filter.getOrders().add(new Filter.Order("id", Filter.Direction.DESC));
+        }
+
         List<Issue> issues = this.searchAll(filter);
         List<String> enHeaders = Arrays.asList("Key", "Title", "Type", "Priority", "Status", "Story point", "Component", "Estimated hours", "Actual hours",
                 "Sprint", "Reporter", "Created time", "Updated time", "Due date", "Assignee", "Test case", "Test plan", "Tags", "Description", "Comments");

@@ -1,0 +1,1 @@
+ALTER TABLE `issue` CHANGE `code` `code` INT NOT NULL COMMENT 'Unique issue code within a project';

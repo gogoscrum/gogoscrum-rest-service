@@ -1,5 +1,6 @@
 package com.shimi.gogoscrum.issue.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.shimi.gogoscrum.common.dto.BaseDto;
 import com.shimi.gogoscrum.component.model.Component;
 import com.shimi.gogoscrum.file.dto.FileDto;
@@ -28,7 +29,8 @@ public class IssueDto extends BaseDto {
     private static final long serialVersionUID = 6375428419379918110L;
 
     private String name;
-    private String code;
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private Long code;
     private String description;
     private IssueType type;
     private Priority priority = Priority.NORMAL;
@@ -133,11 +135,11 @@ public class IssueDto extends BaseDto {
         return this.projectCode + "-" + code;
     }
 
-    public String getShortCode() {
+    public Long getShortCode() {
         return code;
     }
 
-    public void setCode(String code) {
+    public void setCode(Long code) {
         this.code = code;
     }
 

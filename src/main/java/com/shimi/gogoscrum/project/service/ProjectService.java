@@ -12,7 +12,7 @@ import com.shimi.gsf.core.service.GeneralService;
 import java.util.List;
 
 public interface ProjectService extends GeneralService<Project, ProjectFilter> {
-    String generateNextIssueCode(Long projectId);
+    Long generateNextIssueCode(Long projectId);
     Project joinProject(String invitationCode);
     void quitProject(Long projectId);
     Project archive(Long id);

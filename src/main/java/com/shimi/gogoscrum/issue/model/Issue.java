@@ -33,7 +33,7 @@ public class Issue extends BaseEntity implements Historical {
     private static final long serialVersionUID = 2633981347091498557L;
 
     private String name;
-    private String code;
+    private Long code;
     private String description;
     @Enumerated(EnumType.STRING)
     private IssueType type;
@@ -216,11 +216,11 @@ public class Issue extends BaseEntity implements Historical {
         this.name = name;
     }
 
-    public String getCode() {
+    public Long getCode() {
         return code;
     }
 
-    public void setCode(String code) {
+    public void setCode(Long code) {
         this.code = code;
     }
 
