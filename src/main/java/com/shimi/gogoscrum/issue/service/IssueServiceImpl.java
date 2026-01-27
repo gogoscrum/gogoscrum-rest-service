@@ -541,20 +541,14 @@ public class IssueServiceImpl extends BaseServiceImpl<Issue, IssueFilter> implem
     }
 
     /**
-     * Move issues to parent component after deleting a component.
-     * @param event the entity change event
+     * Move issues into parent component before deleting the specified component.
+     * @param componentId The ID of the deleted component.
      */
-    @EventListener
-    public void moveIssuesToParentComponent(EntityChangeEvent event) {
-        Entity entity = Objects.requireNonNullElse(event.getPreviousEntity(), event.getUpdatedEntity());
-
-        if (!(entity instanceof Component) || !EntityChangeEvent.ActionType.DELETE.equals(event.getActionType())) {
-            return;
-        }
-
-        Component component = (Component)event.getPreviousEntity();
+    public void moveIssuesToParentComponent(Long componentId) {
+        Component component = componentService.get(componentId);
 
         IssueFilter filter = new IssueFilter();
+        filter.setProjectId(component.getProjectId());
         filter.setPageSize(Integer.MAX_VALUE);
         filter.setComponentIds(Collections.singletonList(component.getId()));
         List<Issue> issues = this.search(filter).getResults();

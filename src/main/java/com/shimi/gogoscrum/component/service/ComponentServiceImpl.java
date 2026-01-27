@@ -5,6 +5,7 @@ import com.shimi.gogoscrum.common.service.BaseServiceImpl;
 import com.shimi.gogoscrum.component.model.Component;
 import com.shimi.gogoscrum.component.model.ComponentFilter;
 import com.shimi.gogoscrum.component.repository.ComponentRepository;
+import com.shimi.gogoscrum.issue.service.IssueService;
 import com.shimi.gsf.core.exception.BaseServiceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +24,8 @@ public class ComponentServiceImpl extends BaseServiceImpl<Component, ComponentFi
     private static final Logger log = LoggerFactory.getLogger(ComponentServiceImpl.class);
     @Autowired
     private ComponentRepository repository;
+    @Autowired
+    private IssueService issueService;
 
     @Override
     protected ComponentRepository getRepository() {
@@ -72,6 +75,8 @@ public class ComponentServiceImpl extends BaseServiceImpl<Component, ComponentFi
             throw new BaseServiceException(ErrorCode.HAS_CHILDREN, "Component has children and cannot be deleted",
                     HttpStatus.PRECONDITION_FAILED);
         }
+
+        issueService.moveIssuesToParentComponent(component.getId());
     }
 
     @Override

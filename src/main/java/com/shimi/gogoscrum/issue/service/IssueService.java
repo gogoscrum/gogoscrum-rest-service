@@ -34,4 +34,6 @@ public interface IssueService extends GeneralService<Issue, IssueFilter> {
     File addFile(Long issueId, File file);
 
     void deleteFile(Long issueId, Long fileId);
+
+    void moveIssuesToParentComponent(Long componentId);
 }
