@@ -16,4 +16,9 @@ public class DocSpecs {
         return (doc, criteriaQuery, criteriaBuilder)
                 -> criteriaBuilder.like(doc.get("name"), "%" + keyword + "%");
     }
+
+    public static Specification<Doc> publicAccessEqual(Boolean publicAccess) {
+        return (doc, criteriaQuery, criteriaBuilder)
+                -> criteriaBuilder.equal(doc.get("publicAccess"), publicAccess);
+    }
 }

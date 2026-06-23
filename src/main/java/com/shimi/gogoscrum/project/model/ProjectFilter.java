@@ -10,6 +10,7 @@ public class ProjectFilter extends BaseFilter {
     private String keyword;
     private Boolean deleted = Boolean.FALSE;
     private Boolean archived;
+    private Boolean global;
 
     public String getKeyword() {
         return keyword;
@@ -33,5 +34,13 @@ public class ProjectFilter extends BaseFilter {
 
     public void setArchived(Boolean archived) {
         this.archived = archived;
+    }
+
+    public Boolean getGlobal() {
+        return global;
+    }
+
+    public void setGlobal(Boolean global) {
+        this.global = global;
     }
 }

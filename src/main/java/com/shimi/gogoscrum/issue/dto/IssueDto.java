@@ -36,6 +36,7 @@ public class IssueDto extends BaseDto {
     private Priority priority = Priority.NORMAL;
     private Integer seq = 0;
     private Float storyPoints;
+    private String projectName;
     private String projectCode;
     private Long projectId;
     private Long componentId;
@@ -181,6 +182,14 @@ public class IssueDto extends BaseDto {
 
     public void setStoryPoints(Float storyPoints) {
         this.storyPoints = storyPoints;
+    }
+
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
     }
 
     public String getProjectCode() {

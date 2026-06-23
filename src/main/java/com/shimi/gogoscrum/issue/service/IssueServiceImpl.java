@@ -301,21 +301,22 @@ public class IssueServiceImpl extends BaseServiceImpl<Issue, IssueFilter> implem
     public EntityQueryResult<Issue> search(IssueFilter filter) {
         Long projectId = filter.getProjectId();
 
-        if (projectId == null) {
-            throw new BadRequestException("Project ID is required for issue search.");
+        if (projectId != null) {
+            ProjectMemberUtils.checkMember(projectService.get(projectId), getCurrentUser());
         }
 
-        ProjectMemberUtils.checkMember(projectService.get(projectId), getCurrentUser());
         return super.search(filter);
     }
 
     @Override
     protected Specification<Issue> toSpec(IssueFilter filter) {
         Specification<Issue> querySpec = null;
+        User currentUser = getCurrentUser();
 
         if (filter.getProjectId() != null) {
             querySpec = IssueSpecs.projectIdEquals(filter.getProjectId());
-        } else {
+        } else if (!currentUser.isAdmin()) {
+            // Non-admin user must have project ID specified
             throw new BadRequestException("Project ID is required for issue search.");
         }
 

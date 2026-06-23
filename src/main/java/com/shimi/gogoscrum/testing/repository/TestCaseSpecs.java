@@ -12,6 +12,11 @@ public class TestCaseSpecs {
     private TestCaseSpecs() {
     }
 
+    public static Specification<TestCase> idEquals(Long id) {
+        return (testCase, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(testCase.get("id"),
+                id);
+    }
+
     public static Specification<TestCase> nameLike(String keyword) {
         return (testCase, criteriaQuery, criteriaBuilder) -> criteriaBuilder.like(testCase.get("details").get("name"),
                 "%" + keyword + "%");

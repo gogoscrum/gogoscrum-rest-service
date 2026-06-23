@@ -64,6 +64,8 @@ public class TestCase extends BaseEntity {
             }
         }
 
+        dto.setFilesCount(this.files.size());
+
         return dto;
     }
 

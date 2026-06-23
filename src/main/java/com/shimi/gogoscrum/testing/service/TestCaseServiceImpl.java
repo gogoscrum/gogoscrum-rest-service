@@ -240,61 +240,63 @@ public class TestCaseServiceImpl extends BaseServiceImpl<TestCase, TestCaseFilte
     @Override
     protected Specification<TestCase> toSpec(TestCaseFilter filter) {
         Specification<TestCase> querySpec = null;
+        User currentUser = getCurrentUser();
 
         if (filter.getProjectId() != null) {
             querySpec = TestCaseSpecs.projectIdEquals(filter.getProjectId());
-        } else {
+        } else if (!currentUser.isAdmin()) {
+            // Non-admin user must have project ID specified
             throw new BadRequestException("Project ID is required to query test cases");
         }
 
         if (!CollectionUtils.isEmpty(filter.getComponentIds())) {
             Specification<TestCase> componentIdIn = TestCaseSpecs.componentIdIn(filter.getComponentIds());
-            querySpec = querySpec.and(componentIdIn);
+            querySpec = Objects.isNull(querySpec) ? componentIdIn : querySpec.and(componentIdIn);
         }
 
         if (!CollectionUtils.isEmpty(filter.getTypes())) {
             Specification<TestCase> typeIn = TestCaseSpecs.typeIn(filter.getTypes());
-            querySpec = querySpec.and(typeIn);
+            querySpec = Objects.isNull(querySpec) ? typeIn : querySpec.and(typeIn);
         }
 
         if (!CollectionUtils.isEmpty(filter.getPriorities())) {
             Specification<TestCase> priorityIn = TestCaseSpecs.priorityIn(filter.getPriorities());
-            querySpec = querySpec.and(priorityIn);
+            querySpec = Objects.isNull(querySpec) ? priorityIn : querySpec.and(priorityIn);
         }
 
         if (!CollectionUtils.isEmpty(filter.getRunStatuses())) {
             Specification<TestCase> runStatusIn = TestCaseSpecs.runStatusIn(filter.getRunStatuses());
-            querySpec = querySpec.and(runStatusIn);
+            querySpec = Objects.isNull(querySpec) ? runStatusIn : querySpec.and(runStatusIn);
         }
 
         if (!CollectionUtils.isEmpty(filter.getOwners())) {
             Specification<TestCase> ownerIdIn = TestCaseSpecs.ownerIdIn(filter.getOwners());
-            querySpec = querySpec.and(ownerIdIn);
+            querySpec = Objects.isNull(querySpec) ? ownerIdIn : querySpec.and(ownerIdIn);
         }
 
         if (!CollectionUtils.isEmpty(filter.getCreators())) {
             Specification<TestCase> creatorIdIn = TestCaseSpecs.creatorIdIn(filter.getCreators());
-            querySpec = querySpec.and(creatorIdIn);
+            querySpec = Objects.isNull(querySpec) ? creatorIdIn : querySpec.and(creatorIdIn);
         }
 
         if (StringUtils.hasText(filter.getKeyword())) {
             String keyword = filter.getKeyword();
-            Specification<TestCase> codeOrNameLike = TestCaseSpecs.nameLike(keyword);
+            Specification<TestCase> codeOrIdOrNameLike = TestCaseSpecs.nameLike(keyword);
 
             try {
-                // Try to parse the keyword as a Long to match it as a code
-                Long code = Long.valueOf(keyword);
-                codeOrNameLike = TestCaseSpecs.codeEquals(code).or(codeOrNameLike);
+                // Try to parse the keyword as a Long to match with code or ID
+                Long idOrCode = Long.valueOf(keyword);
+                codeOrIdOrNameLike = TestCaseSpecs.codeEquals(idOrCode).or(TestCaseSpecs.idEquals(idOrCode)).or(codeOrIdOrNameLike);
             } catch (NumberFormatException e) {
                 // If it is not a number, we will not try to match it as a code
             }
 
-            querySpec = querySpec.and(codeOrNameLike);
+            querySpec = Objects.isNull(querySpec) ? codeOrIdOrNameLike : querySpec.and(codeOrIdOrNameLike);
         }
 
         if (filter.getDeleted() != null) {
             Specification<TestCase> deletedEquals = TestCaseSpecs.deletedEquals(filter.getDeleted());
-            querySpec = querySpec.and(deletedEquals);
+            querySpec = Objects.isNull(querySpec) ? deletedEquals : querySpec.and(deletedEquals);
         }
 
         return querySpec;

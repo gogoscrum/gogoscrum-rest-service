@@ -61,6 +61,8 @@ public class UserController extends BaseController {
      * Search users with the given filter. If the platform is running in SaaS mode, when inviting users to join a project,
      * you should not use this API. Instead, use the "findProjectMates" API to search users who have joined at least one
      * common project with the current user. This is to avoid exposing all users in the system to each other.
+     *
+     * WARNING: DON'T CALL THIS API FROM THE CLIENT SIDE IF YOU ARE RUNNING IN SAAS MODE!
      */
     @Operation(summary = "Search Users")
     @Parameters({
@@ -68,6 +70,15 @@ public class UserController extends BaseController {
     @GetMapping
     public DtoQueryResult<Dto> search(UserFilter filter) {
         filter.setEnabled(Boolean.TRUE);
+        EntityQueryResult<User> queryResult = userService.search(filter);
+        return queryResult.toDto();
+    }
+
+    @Operation(summary = "Search users, support sorting")
+    @Parameters({@Parameter(name = "filter", description = "The search filter")})
+    @PostMapping("/search")
+    @RolesAllowed({User.ROLE_ADMIN})
+    public DtoQueryResult<Dto> searchByPost(@RequestBody UserFilter filter) {
         EntityQueryResult<User> queryResult = userService.search(filter);
         return queryResult.toDto();
     }
@@ -209,6 +220,42 @@ public class UserController extends BaseController {
     @DeleteMapping("/oauth/bindings/{bindingId}")
     public void unbindOauth(@PathVariable Long bindingId) {
         userService.unbindOauth(bindingId);
+    }
+
+    @Operation(summary = "Update the user enabled flag to TRUE.")
+    @Parameters({@Parameter(name = "userId", description = "The id of the user")})
+    @PostMapping("/{userId}/enabled")
+    @RolesAllowed({User.ROLE_ADMIN})
+    public UserDto enableUser(@PathVariable long userId) {
+        User user = userService.enableUser(userId);
+        return user.toDto(true);
+    }
+
+    @Operation(summary = "Update the user enabled flag to FALSE.")
+    @Parameters({@Parameter(name = "userId", description = "The id of the user")})
+    @DeleteMapping("/{userId}/enabled")
+    @RolesAllowed({User.ROLE_ADMIN})
+    public UserDto disableUser(@PathVariable long userId) {
+        User user = userService.disableUser(userId);
+        return user.toDto(true);
+    }
+
+    @Operation(summary = "Update the user Admin flag to TRUE.")
+    @Parameters({@Parameter(name = "userId", description = "The id of the user")})
+    @PostMapping("/{userId}/admin")
+    @RolesAllowed({User.ROLE_ADMIN})
+    public UserDto enableAdmin(@PathVariable long userId) {
+        User user = userService.enableAdmin(userId);
+        return user.toDto(true);
+    }
+
+    @Operation(summary = "Update the user Admin flag to FALSE.")
+    @Parameters({@Parameter(name = "userId", description = "The id of the user")})
+    @DeleteMapping("/{userId}/admin")
+    @RolesAllowed({User.ROLE_ADMIN})
+    public UserDto disableAdmin(@PathVariable long userId) {
+        User user = userService.disableAdmin(userId);
+        return user.toDto(true);
     }
 
     /**

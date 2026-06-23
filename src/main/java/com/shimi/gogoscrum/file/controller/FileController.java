@@ -93,8 +93,16 @@ public class FileController extends BaseController {
     @Operation(summary = "Search files")
     @Parameters({@Parameter(name = "filter", description = "The search filter")})
     @GetMapping
-    public DtoQueryResult<Dto> search(FileFilter filter) {
+    public DtoQueryResult<Dto> query(FileFilter filter) {
         EntityQueryResult<File> queryResult = fileService.search(Objects.requireNonNullElse(filter, new FileFilter()));
+        return queryResult.toDto();
+    }
+
+    @Operation(summary = "Search files")
+    @Parameters({@Parameter(name = "filter", description = "The search filter")})
+    @PostMapping("/search")
+    public DtoQueryResult<Dto> search(@RequestBody FileFilter filter) {
+        EntityQueryResult<File> queryResult = fileService.search(filter);
         return queryResult.toDto();
     }
 }
