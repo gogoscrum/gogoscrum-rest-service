@@ -128,6 +128,7 @@ public class Issue extends BaseEntity implements Historical {
         BeanUtils.copyProperties(this, dto, "comments", "owner", "sprint", "files", "linkToIssues", "linkedByIssues", "tags");
 
         if (this.project != null) {
+            dto.setProjectName(this.project.getName());
             dto.setProjectCode(this.project.getCode());
             dto.setProjectId(this.project.getId());
         }
@@ -137,8 +138,12 @@ public class Issue extends BaseEntity implements Historical {
             dto.setComponentId(this.component.getId());
         }
 
+        if (this.createdBy != null) {
+            dto.setCreatedBy(this.createdBy.toDto().normalize());
+        }
+
         if (this.owner != null) {
-            dto.setOwner(this.owner.toDto());
+            dto.setOwner(this.owner.toDto().normalize());
         }
 
         if (this.sprint != null) {
@@ -167,10 +172,6 @@ public class Issue extends BaseEntity implements Historical {
         IssueDto dto = this.toDtoForList();
 
         if (detailed) {
-            if (this.createdBy != null) {
-                dto.setCreatedBy(this.createdBy.toDto());
-            }
-
             if (this.testCase != null) {
                 dto.setTestCase(this.testCase.toDto());
             }

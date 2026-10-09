@@ -9,6 +9,7 @@ public class UserFilter extends BaseFilter {
     private static final long serialVersionUID = -3588494790037745918L;
     private String keyword;
     private Boolean isEnabled;
+    private Boolean isAdmin;
 
     public String getKeyword() {
         return keyword;
@@ -24,5 +25,13 @@ public class UserFilter extends BaseFilter {
 
     public void setEnabled(Boolean enabled) {
         isEnabled = enabled;
+    }
+
+    public Boolean getAdmin() {
+        return isAdmin;
+    }
+
+    public void setAdmin(Boolean admin) {
+        isAdmin = admin;
     }
 }

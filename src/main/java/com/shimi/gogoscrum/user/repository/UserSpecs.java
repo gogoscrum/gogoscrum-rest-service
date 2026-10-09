@@ -21,4 +21,8 @@ public class UserSpecs {
     public static Specification<User> enabledEquals(Boolean enabled) {
         return (userRoot, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(userRoot.get("enabled"), enabled);
     }
+
+    public static Specification<User> adminEquals(Boolean admin) {
+        return (userRoot, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(userRoot.get("admin"), admin);
+    }
 }

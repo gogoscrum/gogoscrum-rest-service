@@ -11,6 +11,7 @@ public class TestCaseFilter extends BaseFilter {
     private static final long serialVersionUID = 4576831627489574138L;
     private Long projectId;
     private String keyword;
+    private Long caseId;
     private List<Long> componentIds;
     private List<TestType> types;
     private List<Priority> priorities;
@@ -27,6 +28,14 @@ public class TestCaseFilter extends BaseFilter {
 
     public void setProjectId(Long projectId) {
         this.projectId = projectId;
+    }
+
+    public Long getCaseId() {
+        return caseId;
+    }
+
+    public void setCaseId(Long caseId) {
+        this.caseId = caseId;
     }
 
     public String getKeyword() {

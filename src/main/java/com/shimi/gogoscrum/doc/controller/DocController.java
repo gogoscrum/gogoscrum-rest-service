@@ -88,8 +88,16 @@ public class DocController extends BaseController {
     @Operation(summary = "Search docs")
     @Parameters({@Parameter(name = "filter", description = "The search filter")})
     @GetMapping
-    public DtoQueryResult<Dto> search(DocFilter filter) {
+    public DtoQueryResult<Dto> query(DocFilter filter) {
         EntityQueryResult<Doc> queryResult = docService.search(Objects.requireNonNullElse(filter, new DocFilter()));
+        return queryResult.toDto();
+    }
+
+    @Operation(summary = "Search docs")
+    @Parameters({@Parameter(name = "filter", description = "The search filter")})
+    @PostMapping("/search")
+    public DtoQueryResult<Dto> search(@RequestBody DocFilter filter) {
+        EntityQueryResult<Doc> queryResult = docService.search(filter);
         return queryResult.toDto();
     }
 }

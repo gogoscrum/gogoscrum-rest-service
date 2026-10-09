@@ -10,6 +10,8 @@ import com.shimi.gogoscrum.file.model.FileUploadToken;
 import com.shimi.gogoscrum.file.model.TargetType;
 import com.shimi.gogoscrum.file.repository.FileRepository;
 import com.shimi.gogoscrum.file.repository.FileSpecs;
+import com.shimi.gogoscrum.issue.model.Issue;
+import com.shimi.gogoscrum.issue.repository.IssueSpecs;
 import com.shimi.gogoscrum.project.model.Project;
 import com.shimi.gogoscrum.project.service.ProjectService;
 import com.shimi.gogoscrum.project.utils.ProjectMemberUtils;
@@ -23,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -183,9 +186,23 @@ public class FileServiceImpl extends BaseServiceImpl<File, FileFilter> implement
             querySpec = Objects.isNull(querySpec) ? nameLike : querySpec.and(nameLike);
         }
 
-        if (filter.getTargetType() != null) {
+        // TargetTypes has a higher priority over TargetType
+        if (!CollectionUtils.isEmpty(filter.getTargetTypes())) {
+            Specification<File> targetTypeIn = FileSpecs.targetTypeIn(filter.getTargetTypes());
+            querySpec = Objects.isNull(querySpec) ? targetTypeIn : querySpec.and(targetTypeIn);
+        } else if (filter.getTargetType() != null) {
             Specification<File> targetTypeEqual = FileSpecs.targetTypeEqual(filter.getTargetType());
             querySpec = Objects.isNull(querySpec) ? targetTypeEqual : querySpec.and(targetTypeEqual);
+        }
+
+        if (!CollectionUtils.isEmpty(filter.getFileTypes())) {
+            Specification<File> fileTypeIn = FileSpecs.fileTypeIn(filter.getFileTypes());
+            querySpec = Objects.isNull(querySpec) ? fileTypeIn : querySpec.and(fileTypeIn);
+        }
+
+        if (filter.getFolder() != null) {
+            Specification<File> isFolder = FileSpecs.isFolder(filter.getFolder());
+            querySpec = Objects.isNull(querySpec) ? isFolder : querySpec.and(isFolder);
         }
 
         return querySpec;

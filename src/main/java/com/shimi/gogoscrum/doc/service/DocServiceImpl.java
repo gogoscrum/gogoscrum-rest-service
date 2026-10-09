@@ -36,11 +36,15 @@ public class DocServiceImpl extends BaseServiceImpl<Doc, DocFilter> implements D
         Doc doc = super.get(id);
 
         if (doc.getPublicAccess()) {
+            // Anyone can access a public doc
             return doc;
         } else {
+            // Project member or Admin can access a private doc
             User currentUser = getCurrentUser();
             if (currentUser != null) {
-                ProjectMemberUtils.checkMember(projectService.get(doc.getProjectId()), currentUser);
+                if (!currentUser.isAdmin()) {
+                    ProjectMemberUtils.checkMember(projectService.get(doc.getProjectId()), currentUser);
+                }
                 return doc;
             } else {
                 throw new BaseServiceException(ErrorCode.USER_UNAUTHORIZED,
@@ -68,6 +72,11 @@ public class DocServiceImpl extends BaseServiceImpl<Doc, DocFilter> implements D
         if (StringUtils.hasText(filter.getKeyword())) {
             Specification<Doc> nameLike = DocSpecs.nameLike(filter.getKeyword());
             querySpec = Objects.isNull(querySpec) ? nameLike : querySpec.and(nameLike);
+        }
+
+        if (filter.getPublicAccess() != null) {
+            Specification<Doc> publicAccessEqual = DocSpecs.publicAccessEqual(filter.getPublicAccess());
+            querySpec = querySpec == null ? publicAccessEqual : querySpec.and(publicAccessEqual);
         }
 
         return querySpec;

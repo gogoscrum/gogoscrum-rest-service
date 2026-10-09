@@ -89,6 +89,9 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserFilter> implement
             user.setUsername(RandomToolkit.getRandomString(10));
             user.setPassword(null);
         }
+
+        // Ensure no admin can be created directly for security reason
+        user.setAdmin(false);
     }
 
     private void verifyUsername(User user) {
@@ -198,7 +201,7 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserFilter> implement
 
     @Override
     public User update(Long id, User user) {
-        throw new BaseServiceException("notAllowed", "User update method is not allowed. Use updateUserBasics instead.", HttpStatus.BAD_REQUEST);
+        throw new BaseServiceException("notAllowed", "User update method is not allowed. Use fine-grained methods instead.", HttpStatus.BAD_REQUEST);
     }
 
     @Override
@@ -448,6 +451,80 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserFilter> implement
         log.info("Unbound OAuth binding {} from user {}", bindingId, binding.getUser().getId());
     }
 
+    @Override
+    public User enableUser(Long userId) {
+        return this.updateEnabled(userId, Boolean.TRUE);
+    }
+
+    @Override
+    public User disableUser(Long userId) {
+        return this.updateEnabled(userId, Boolean.FALSE);
+    }
+
+    private User updateEnabled(Long userId, Boolean enabled) {
+        User currentUser = getCurrentUser();
+
+        if (!currentUser.isAdmin()) {
+            throw new NoPermissionException("Only admin can update user enabled flag");
+        }
+
+        if (Objects.equals(userId, currentUser.getId())) {
+            throw new NoPermissionException("Admin cannot update their own enabled flag");
+        }
+
+        User existingUser = get(userId);
+
+        if (!Objects.equals(enabled, existingUser.isEnabled())) {
+            existingUser.setEnabled(enabled);
+            existingUser.setUpdateTraceInfo(currentUser);
+            existingUser = repository.save(existingUser);
+            log.info("Updated user enabled flag to {}: {}", enabled, existingUser);
+        } else {
+            if (log.isDebugEnabled()) {
+                log.debug("User enabled flag is already {} and not changed: {}", enabled, existingUser);
+            }
+        }
+
+        return existingUser;
+    }
+
+    @Override
+    public User enableAdmin(Long userId) {
+        return this.updateAdmin(userId, Boolean.TRUE);
+    }
+
+    @Override
+    public User disableAdmin(Long userId) {
+        return this.updateAdmin(userId, Boolean.FALSE);
+    }
+
+    private User updateAdmin(Long userId, Boolean admin) {
+        User currentUser = getCurrentUser();
+
+        if (!currentUser.isAdmin()) {
+            throw new NoPermissionException("Only admin can update user Admin flag");
+        }
+
+        if (Objects.equals(userId, currentUser.getId())) {
+            throw new NoPermissionException("Admin cannot update their own Admin flag");
+        }
+
+        User existingUser = get(userId);
+
+        if (!Objects.equals(admin, existingUser.isAdmin())) {
+            existingUser.setAdmin(admin);
+            existingUser.setUpdateTraceInfo(currentUser);
+            existingUser = repository.save(existingUser);
+            log.info("Updated user Admin flag to {}: {}", admin, existingUser);
+        } else {
+            if (log.isDebugEnabled()) {
+                log.debug("User Admin flag is already {} and not changed: {}", admin, existingUser);
+            }
+        }
+
+        return existingUser;
+    }
+
     private void verifyBinding(UserBinding binding) {
         if (!StringUtils.hasText(binding.getProvider())) {
             throw new BadRequestException("Bad binding info, OAuth provider is missing");
@@ -486,8 +563,12 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserFilter> implement
 
         if (filter.getEnabled() != null) {
             Specification<User> isEnabled = UserSpecs.enabledEquals(filter.getEnabled());
-
             querySpec = querySpec == null ? isEnabled : querySpec.and(isEnabled);
+        }
+
+        if (filter.getAdmin() != null) {
+            Specification<User> isAdmin = UserSpecs.adminEquals(filter.getAdmin());
+            querySpec = querySpec == null ? isAdmin : querySpec.and(isAdmin);
         }
 
         return querySpec;

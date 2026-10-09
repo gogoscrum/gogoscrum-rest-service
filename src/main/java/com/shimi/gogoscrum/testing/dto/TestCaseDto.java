@@ -21,6 +21,7 @@ public class TestCaseDto extends BaseDto {
     private TestCaseDetailsDto details;
     private Integer latestVersion;
     private List<FileDto> files = new ArrayList<>();
+    private Integer filesCount;
     private TestRunDto latestRun;
 
     @Override
@@ -87,6 +88,14 @@ public class TestCaseDto extends BaseDto {
 
     public void setFiles(List<FileDto> files) {
         this.files = files;
+    }
+
+    public Integer getFilesCount() {
+        return filesCount;
+    }
+
+    public void setFilesCount(Integer filesCount) {
+        this.filesCount = filesCount;
     }
 
     public TestRunDto getLatestRun() {

@@ -9,6 +9,7 @@ import com.shimi.gogoscrum.testing.model.TestRun;
 import com.shimi.gogoscrum.testing.repository.TestPlanItemRepository;
 import com.shimi.gogoscrum.testing.repository.TestPlanRepository;
 import com.shimi.gogoscrum.testing.repository.TestPlanSpecs;
+import com.shimi.gogoscrum.user.model.User;
 import com.shimi.gsf.core.exception.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -129,38 +131,40 @@ public class TestPlanServiceImpl extends BaseServiceImpl<TestPlan, TestPlanFilte
 
     @Override
     protected Specification<TestPlan> toSpec(TestPlanFilter filter) {
+        User currentUser = getCurrentUser();
         Specification<TestPlan> querySpec = null;
 
         if (filter.getProjectId() != null) {
             querySpec = TestPlanSpecs.projectIdEquals(filter.getProjectId());
-        } else {
+        } else if (!currentUser.isAdmin()) {
+            // Non-admin user must have project ID specified
             throw new BadRequestException("Project ID is required to query test plans");
         }
 
         if (StringUtils.hasText(filter.getKeyword())) {
             String keyword = filter.getKeyword();
             Specification<TestPlan> nameLike = TestPlanSpecs.nameLike(keyword);
-            querySpec = querySpec.and(nameLike);
+            querySpec = Objects.isNull(querySpec) ? nameLike : querySpec.and(nameLike);
         }
 
         if (filter.getDeleted() != null) {
             Specification<TestPlan> deletedEquals = TestPlanSpecs.deletedEquals(filter.getDeleted());
-            querySpec = querySpec.and(deletedEquals);
+            querySpec = Objects.isNull(querySpec) ? deletedEquals : querySpec.and(deletedEquals);
         }
 
         if (!CollectionUtils.isEmpty(filter.getTypes())) {
             Specification<TestPlan> typeIn = TestPlanSpecs.typeIn(filter.getTypes());
-            querySpec = querySpec.and(typeIn);
+            querySpec = Objects.isNull(querySpec) ? typeIn : querySpec.and(typeIn);
         }
 
         if (!CollectionUtils.isEmpty(filter.getOwners())) {
             Specification<TestPlan> ownerIdIn = TestPlanSpecs.ownerIdIn(filter.getOwners());
-            querySpec = querySpec.and(ownerIdIn);
+            querySpec = Objects.isNull(querySpec) ? ownerIdIn : querySpec.and(ownerIdIn);
         }
 
         if (!CollectionUtils.isEmpty(filter.getCreators())) {
             Specification<TestPlan> creatorIdIn = TestPlanSpecs.creatorIdIn(filter.getCreators());
-            querySpec = querySpec.and(creatorIdIn);
+            querySpec = Objects.isNull(querySpec) ? creatorIdIn : querySpec.and(creatorIdIn);
         }
 
         return querySpec;

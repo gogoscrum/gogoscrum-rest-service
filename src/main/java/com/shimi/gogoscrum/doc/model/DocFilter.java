@@ -9,6 +9,7 @@ public class DocFilter extends BaseFilter {
     private static final long serialVersionUID = 261537799353622749L;
     private Long projectId;
     private String keyword;
+    private Boolean publicAccess;
 
     public Long getProjectId() {
         return projectId;
@@ -24,5 +25,13 @@ public class DocFilter extends BaseFilter {
 
     public void setKeyword(String keyword) {
         this.keyword = keyword;
+    }
+
+    public Boolean getPublicAccess() {
+        return publicAccess;
+    }
+
+    public void setPublicAccess(Boolean publicAccess) {
+        this.publicAccess = publicAccess;
     }
 }

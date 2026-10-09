@@ -72,7 +72,11 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, ProjectFilter> 
     @Override
     public Project get(Long id) {
         Project project = super.get(id);
-        ProjectMemberUtils.checkMember(project, getCurrentUser());
+        User currentUser = getCurrentUser();
+        // Only project member or Admin can access the project
+        if (!currentUser.isAdmin()) {
+            ProjectMemberUtils.checkMember(project, currentUser);
+        }
         return project;
     }
 
@@ -182,26 +186,30 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, ProjectFilter> 
     @Override
     protected Specification<Project> toSpec(ProjectFilter filter) {
         User currentUser = getCurrentUser();
+        Specification<Project> querySpec = null;
 
-        // A user can only see projects they are a member of
-        Specification<Project> querySpec = ProjectSpecs.isProjectMember(currentUser);
+        if (currentUser.isAdmin() && Boolean.TRUE.equals(filter.getGlobal())) {
+            // Admin user with global flag set can see all projects, so no project member
+            // filtering needed
+        } else {
+            // Otherwise, user can only see projects they are a member of
+            querySpec = ProjectSpecs.isProjectMember(currentUser);
+        }
 
         if (StringUtils.hasText(filter.getKeyword())) {
             String keyword = filter.getKeyword();
             Specification<Project> nameLike = ProjectSpecs.codeLike(keyword).or(ProjectSpecs.nameLike(keyword));
-            querySpec = querySpec.and(nameLike);
+            querySpec = querySpec == null ? nameLike : querySpec.and(nameLike);
         }
 
         if (filter.getDeleted() != null) {
             Specification<Project> deletedSpec = ProjectSpecs.deletedEquals(filter.getDeleted());
-
-            querySpec = querySpec.and(deletedSpec);
+            querySpec = querySpec == null ? deletedSpec : querySpec.and(deletedSpec);
         }
 
         if (filter.getArchived() != null) {
             Specification<Project> archivedSpec = ProjectSpecs.archivedEquals(filter.getArchived());
-
-            querySpec = querySpec.and(archivedSpec);
+            querySpec = querySpec == null ? archivedSpec : querySpec.and(archivedSpec);
         }
 
         return querySpec;
@@ -210,9 +218,12 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, ProjectFilter> 
     @Override
     public void delete(Long id) {
         Project project = get(id);
-        ProjectMemberUtils.checkOwner(project, getCurrentUser());
+        User user = getCurrentUser();
+        if (!user.isAdmin()) {
+            ProjectMemberUtils.checkOwner(project, user);
+        }
         project.setDeleted(true);
-        project.setUpdateTraceInfo(getCurrentUser());
+        project.setUpdateTraceInfo(user);
         repository.save(project);
         log.info("Soft deleted Project: {}", project);
     }
@@ -232,8 +243,8 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, ProjectFilter> 
     public Project unarchive(Long id) {
         Project project = get(id);
         ProjectMemberUtils.checkOwner(project, getCurrentUser());
-
         project.setArchived(false);
+        project.setUpdateTraceInfo(getCurrentUser());
         Project updatedProject = repository.save(project);
         log.info("Unarchived Project: {}", project);
         return updatedProject;
@@ -317,7 +328,8 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, ProjectFilter> 
         Long oldOwnerUserId = oldOwnerMember.getUser().getId();
         User currentUser = getCurrentUser();
 
-        if (currentUser.getId().equals(oldOwnerUserId)) {
+        // Only Admin or current owner can transfer the project
+        if (currentUser.isAdmin() || currentUser.getId().equals(oldOwnerUserId)) {
             ProjectMember newOwnerMember = project.getMemberByUserId(newOwnerUserId);
 
             if (newOwnerMember != null) {

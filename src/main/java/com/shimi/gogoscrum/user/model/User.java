@@ -21,6 +21,7 @@ public class User extends BaseEntity implements com.shimi.gsf.core.model.User {
     private static final long serialVersionUID = -2322205969864150058L;
 
     public static final String ROLE_USER = "ROLE_USER";
+    public static final String ROLE_ADMIN = "ROLE_ADMIN";
 
     private String username;
     private String nickname;
@@ -31,6 +32,7 @@ public class User extends BaseEntity implements com.shimi.gsf.core.model.User {
     @JoinColumn(name = "avatar_file_id")
     private File avatar;
     private boolean enabled = true;
+    private boolean admin = false;
     private Date lastLoginTime;
     private String lastLoginIp;
     @Convert(converter = UserPreferenceConverter.class)
@@ -99,7 +101,11 @@ public class User extends BaseEntity implements com.shimi.gsf.core.model.User {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Set<GrantedAuthority> authorities = new HashSet<>();
 
-        authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+        authorities.add(new SimpleGrantedAuthority(ROLE_USER));
+
+        if (this.admin) {
+            authorities.add(new SimpleGrantedAuthority(ROLE_ADMIN));
+        }
 
         return authorities;
     }
@@ -156,6 +162,14 @@ public class User extends BaseEntity implements com.shimi.gsf.core.model.User {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public boolean isAdmin() {
+        return admin;
+    }
+
+    public void setAdmin(boolean admin) {
+        this.admin = admin;
     }
 
     public Date getLastLoginTime() {

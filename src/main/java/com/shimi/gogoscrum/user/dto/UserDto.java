@@ -28,6 +28,7 @@ public class UserDto extends BaseDto implements com.shimi.gsf.core.dto.UserDto {
     private String email;
     private FileDto avatar;
     private boolean enabled = true;
+    private boolean admin = false;
     private Date lastLoginTime;
     private String lastLoginIp;
     private Preference preference;
@@ -120,6 +121,14 @@ public class UserDto extends BaseDto implements com.shimi.gsf.core.dto.UserDto {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public boolean isAdmin() {
+        return admin;
+    }
+
+    public void setAdmin(boolean admin) {
+        this.admin = admin;
     }
 
     public Date getLastLoginTime() {

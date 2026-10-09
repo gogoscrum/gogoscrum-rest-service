@@ -10,9 +10,12 @@ public class FileFilter extends BaseFilter {
     private static final long serialVersionUID = -7042839464032343595L;
     private Long projectId;
     private TargetType targetType;
+    private List<TargetType> targetTypes;
+    private List<FileType> fileTypes;
     private Long parentId;
     private boolean rootLevel;
     private String keyword;
+    private Boolean folder;
 
     public FileFilter() {
         this.setOrders(List.of(new Order("folder", Direction.DESC), new Order("id", Direction.DESC)));
@@ -56,5 +59,29 @@ public class FileFilter extends BaseFilter {
 
     public void setTargetType(TargetType targetType) {
         this.targetType = targetType;
+    }
+
+    public List<TargetType> getTargetTypes() {
+        return targetTypes;
+    }
+
+    public void setTargetTypes(List<TargetType> targetTypes) {
+        this.targetTypes = targetTypes;
+    }
+
+    public List<FileType> getFileTypes() {
+        return fileTypes;
+    }
+
+    public void setFileTypes(List<FileType> fileTypes) {
+        this.fileTypes = fileTypes;
+    }
+
+    public Boolean getFolder() {
+        return folder;
+    }
+
+    public void setFolder(Boolean folder) {
+        this.folder = folder;
     }
 }

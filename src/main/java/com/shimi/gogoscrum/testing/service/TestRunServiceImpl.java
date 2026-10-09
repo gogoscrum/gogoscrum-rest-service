@@ -7,6 +7,7 @@ import com.shimi.gogoscrum.testing.model.TestRun;
 import com.shimi.gogoscrum.testing.model.TestRunFilter;
 import com.shimi.gogoscrum.testing.repository.TestRunRepository;
 import com.shimi.gogoscrum.testing.repository.TestRunSpecs;
+import com.shimi.gogoscrum.user.model.User;
 import com.shimi.gsf.core.exception.BadRequestException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,11 +59,13 @@ public class TestRunServiceImpl extends BaseServiceImpl<TestRun, TestRunFilter> 
 
     @Override
     protected Specification<TestRun> toSpec(TestRunFilter filter) {
+        User currentUser = getCurrentUser();
         Specification<TestRun> querySpec = TestRunSpecs.caseDeletedEquals(Boolean.FALSE);
 
         if (filter.getProjectId() != null) {
             querySpec = querySpec.and(TestRunSpecs.projectIdEquals(filter.getProjectId()));
-        } else {
+        } else if (!currentUser.isAdmin()) {
+            // Non-admin user must have project ID specified
             throw new BadRequestException("Project ID is required to query test runs");
         }
 

@@ -75,4 +75,32 @@ public interface UserService extends GeneralService<User, UserFilter>, UserDetai
      * @param bindingId the ID of the UserBinding to unbind
      */
     void unbindOauth(Long bindingId);
+
+    /**
+     * Update the user enabled flag to TRUE.
+     * @param userId user ID
+     * @return the updated User object
+     */
+    User enableUser(Long userId);
+
+    /**
+     * Update the user enabled flag to FALSE.
+     * @param userId user ID
+     * @return the updated User object
+     */
+    User disableUser(Long userId);
+
+    /**
+     * Update the user Admin flag to TRUE.
+     * @param userId user ID
+     * @return the updated User object
+     */
+    User enableAdmin(Long userId);
+
+    /**
+     * Update the user Admin flag to FALSE.
+     * @param userId user ID
+     * @return the updated User object
+     */
+    User disableAdmin(Long userId);
 }

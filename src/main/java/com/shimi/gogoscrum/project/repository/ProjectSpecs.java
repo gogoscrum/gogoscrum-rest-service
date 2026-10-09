@@ -31,9 +31,9 @@ public class ProjectSpecs {
     }
 
     public static Specification<Project> isProjectMember(User user) {
-        return (project, criteriaQuery, criteriaBuilder) ->{
-                Join<Project, ProjectMember> join = project.join("projectMembers", JoinType.INNER);
-                return criteriaBuilder.equal(join.get("user").get("id"), user.getId());
+        return (project, criteriaQuery, criteriaBuilder) -> {
+            Join<Project, ProjectMember> join = project.join("projectMembers", JoinType.INNER);
+            return criteriaBuilder.equal(join.get("user").get("id"), user.getId());
         };
     }
 }

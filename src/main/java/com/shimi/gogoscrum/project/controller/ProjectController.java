@@ -51,6 +51,14 @@ public class ProjectController extends BaseController {
         return queryResult.toDto();
     }
 
+    @Operation(summary = "Search projects, support sorting")
+    @Parameters({@Parameter(name = "filter", description = "Project search filter")})
+    @PostMapping("/search")
+    public DtoQueryResult<Dto> searchByPost(@RequestBody ProjectFilter filter) {
+        EntityQueryResult<Project> queryResult = projectService.search(Objects.requireNonNullElse(filter, new ProjectFilter()));
+        return queryResult.toDto();
+    }
+
     @Operation(summary = "Get a project")
     @Parameters({@Parameter(name = "id", description = "The project ID")})
     @GetMapping("/{id}")
