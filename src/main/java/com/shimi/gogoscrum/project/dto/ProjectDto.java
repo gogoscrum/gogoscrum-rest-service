@@ -19,6 +19,7 @@ public class ProjectDto extends BaseDto {
 
     private String name;
     private String code;
+    private Long lastIssueSeq;
     private Date startDate;
     private Date endDate;
     private List<SprintDto> sprints = new ArrayList<>();
@@ -60,6 +61,14 @@ public class ProjectDto extends BaseDto {
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    public Long getLastIssueSeq() {
+        return lastIssueSeq;
+    }
+
+    public void setLastIssueSeq(Long lastIssueSeq) {
+        this.lastIssueSeq = lastIssueSeq;
     }
 
     public Date getStartDate() {
