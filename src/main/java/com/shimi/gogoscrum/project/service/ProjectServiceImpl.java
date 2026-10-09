@@ -218,8 +218,12 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, ProjectFilter> 
     @Override
     public void delete(Long id) {
         Project project = get(id);
+        User user = getCurrentUser();
+        if (!user.isAdmin()) {
+            ProjectMemberUtils.checkOwner(project, user);
+        }
         project.setDeleted(true);
-        project.setUpdateTraceInfo(getCurrentUser());
+        project.setUpdateTraceInfo(user);
         repository.save(project);
         log.info("Soft deleted Project: {}", project);
     }
@@ -239,8 +243,8 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, ProjectFilter> 
     public Project unarchive(Long id) {
         Project project = get(id);
         ProjectMemberUtils.checkOwner(project, getCurrentUser());
-
         project.setArchived(false);
+        project.setUpdateTraceInfo(getCurrentUser());
         Project updatedProject = repository.save(project);
         log.info("Unarchived Project: {}", project);
         return updatedProject;
