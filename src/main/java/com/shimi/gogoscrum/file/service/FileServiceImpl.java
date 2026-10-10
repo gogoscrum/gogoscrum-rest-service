@@ -10,13 +10,14 @@ import com.shimi.gogoscrum.file.model.FileUploadToken;
 import com.shimi.gogoscrum.file.model.TargetType;
 import com.shimi.gogoscrum.file.repository.FileRepository;
 import com.shimi.gogoscrum.file.repository.FileSpecs;
-import com.shimi.gogoscrum.issue.model.Issue;
-import com.shimi.gogoscrum.issue.repository.IssueSpecs;
 import com.shimi.gogoscrum.project.model.Project;
 import com.shimi.gogoscrum.project.service.ProjectService;
 import com.shimi.gogoscrum.project.utils.ProjectMemberUtils;
+import com.shimi.gogoscrum.user.model.User;
+import com.shimi.gsf.core.exception.BadRequestException;
 import com.shimi.gsf.core.exception.BaseServiceException;
 import com.shimi.gsf.core.exception.EntityNotFoundException;
+import com.shimi.gsf.core.model.EntityQueryResult;
 import org.pf4j.PluginManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -149,8 +150,9 @@ public class FileServiceImpl extends BaseServiceImpl<File, FileFilter> implement
     @Override
     public File get(Long id) {
         File file = super.get(id);
-        if (file.getProjectId() != null) {
-            ProjectMemberUtils.checkMember(projectService.get(file.getProjectId()), getCurrentUser());
+        User currentUser = getCurrentUser();
+        if (!currentUser.isAdmin() && file.getProjectId() != null) {
+            ProjectMemberUtils.checkMember(projectService.get(file.getProjectId()), currentUser);
         }
         return file;
     }
@@ -163,6 +165,22 @@ public class FileServiceImpl extends BaseServiceImpl<File, FileFilter> implement
         }
 
         super.delete(file.getId());
+    }
+
+    @Override
+    public EntityQueryResult<File> search(FileFilter filter) {
+        Long projectId = filter.getProjectId();
+        User currentUser = getCurrentUser();
+
+        if (!currentUser.isAdmin()) {
+            if (projectId != null) {
+                ProjectMemberUtils.checkMember(projectService.get(projectId), currentUser);
+            } else {
+                throw new BadRequestException("Project ID is required for file search.");
+            }
+        }
+
+        return super.search(filter);
     }
 
     @Override

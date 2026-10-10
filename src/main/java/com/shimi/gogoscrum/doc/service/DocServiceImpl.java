@@ -8,8 +8,10 @@ import com.shimi.gogoscrum.doc.repository.DocSpecs;
 import com.shimi.gogoscrum.project.service.ProjectService;
 import com.shimi.gogoscrum.project.utils.ProjectMemberUtils;
 import com.shimi.gogoscrum.user.model.User;
+import com.shimi.gsf.core.exception.BadRequestException;
 import com.shimi.gsf.core.exception.BaseServiceException;
 import com.shimi.gsf.core.exception.ErrorCode;
+import com.shimi.gsf.core.model.EntityQueryResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -35,23 +37,25 @@ public class DocServiceImpl extends BaseServiceImpl<Doc, DocFilter> implements D
     public Doc get(Long id) {
         Doc doc = super.get(id);
 
+        // Anyone (including unauthenticated users) can access a public doc
         if (doc.getPublicAccess()) {
-            // Anyone can access a public doc
             return doc;
-        } else {
-            // Project member or Admin can access a private doc
-            User currentUser = getCurrentUser();
-            if (currentUser != null) {
-                if (!currentUser.isAdmin()) {
-                    ProjectMemberUtils.checkMember(projectService.get(doc.getProjectId()), currentUser);
-                }
-                return doc;
-            } else {
-                throw new BaseServiceException(ErrorCode.USER_UNAUTHORIZED,
-                        "Unauthorized cannot access private document"
-                        , HttpStatus.UNAUTHORIZED);
-            }
         }
+
+        // Only admin and project member can access a private doc
+        User currentUser = getCurrentUser();
+
+        if (currentUser == null) {
+            throw new BaseServiceException(ErrorCode.USER_UNAUTHORIZED,
+                    "Unauthorized user cannot access private document"
+                    , HttpStatus.UNAUTHORIZED);
+        }
+
+        if (!currentUser.isAdmin() && doc.getProjectId() != null) {
+            ProjectMemberUtils.checkMember(projectService.get(doc.getProjectId()), currentUser);
+        }
+
+        return doc;
     }
 
     @Override
@@ -59,6 +63,22 @@ public class DocServiceImpl extends BaseServiceImpl<Doc, DocFilter> implements D
         Doc existingDoc = this.get(id);
         existingDoc.setPublicAccess(publicAccess);
         return this.update(id, existingDoc);
+    }
+
+    @Override
+    public EntityQueryResult<Doc> search(DocFilter filter) {
+        Long projectId = filter.getProjectId();
+        User currentUser = getCurrentUser();
+
+        if (!currentUser.isAdmin()) {
+            if (projectId != null) {
+                ProjectMemberUtils.checkMember(projectService.get(projectId), currentUser);
+            } else {
+                throw new BadRequestException("Project ID is required for doc search.");
+            }
+        }
+
+        return super.search(filter);
     }
 
     @Override

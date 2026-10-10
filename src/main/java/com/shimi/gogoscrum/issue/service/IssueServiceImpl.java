@@ -20,16 +20,13 @@ import com.shimi.gogoscrum.sprint.service.SprintService;
 import com.shimi.gogoscrum.tag.model.Tag;
 import com.shimi.gogoscrum.user.model.User;
 import com.shimi.gogoscrum.user.service.UserService;
-import com.shimi.gsf.core.event.EntityChangeEvent;
 import com.shimi.gsf.core.exception.BadRequestException;
-import com.shimi.gsf.core.model.Entity;
 import com.shimi.gsf.core.model.EntityQueryResult;
 import com.shimi.gsf.core.model.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.event.EventListener;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -65,7 +62,10 @@ public class IssueServiceImpl extends BaseServiceImpl<Issue, IssueFilter> implem
     @Override
     public Issue get(Long id) {
         Issue issue = super.get(id);
-        ProjectMemberUtils.checkMember(projectService.get(issue.getProject().getId()), getCurrentUser());
+        User currentUser = getCurrentUser();
+        if (!currentUser.isAdmin()) {
+            ProjectMemberUtils.checkMember(projectService.get(issue.getProject().getId()), currentUser);
+        }
         return issue;
     }
 
@@ -300,9 +300,14 @@ public class IssueServiceImpl extends BaseServiceImpl<Issue, IssueFilter> implem
     @Override
     public EntityQueryResult<Issue> search(IssueFilter filter) {
         Long projectId = filter.getProjectId();
+        User currentUser = getCurrentUser();
 
-        if (projectId != null) {
-            ProjectMemberUtils.checkMember(projectService.get(projectId), getCurrentUser());
+        if (!currentUser.isAdmin()) {
+            if (projectId != null) {
+                ProjectMemberUtils.checkMember(projectService.get(projectId), currentUser);
+            } else {
+                throw new BadRequestException("Project ID is required for issue search.");
+            }
         }
 
         return super.search(filter);
@@ -311,13 +316,9 @@ public class IssueServiceImpl extends BaseServiceImpl<Issue, IssueFilter> implem
     @Override
     protected Specification<Issue> toSpec(IssueFilter filter) {
         Specification<Issue> querySpec = null;
-        User currentUser = getCurrentUser();
 
         if (filter.getProjectId() != null) {
             querySpec = IssueSpecs.projectIdEquals(filter.getProjectId());
-        } else if (!currentUser.isAdmin()) {
-            // Non-admin user must have project ID specified
-            throw new BadRequestException("Project ID is required for issue search.");
         }
 
         if (!CollectionUtils.isEmpty(filter.getTypes())) {
