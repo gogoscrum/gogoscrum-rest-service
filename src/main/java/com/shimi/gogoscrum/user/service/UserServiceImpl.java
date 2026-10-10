@@ -221,7 +221,24 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserFilter> implement
         String encodePassword = new BCryptPasswordEncoder().encode(newPassword);
         user.setPassword(encodePassword);
         this.repository.save(user);
-        log.info("Password updated for user {}", userId);
+        log.info("Password updated for user {}", user);
+    }
+
+    @Override
+    public void resetPassword(Long id, String newPassword) {
+        this.verifyPassword(newPassword);
+
+        User currentUser = getCurrentUser();
+
+        if (!currentUser.isAdmin()) {
+            throw new NoPermissionException("Only admin can reset user password");
+        }
+
+        User user = this.get(id);
+        String encodePassword = new BCryptPasswordEncoder().encode(newPassword);
+        user.setPassword(encodePassword);
+        this.repository.save(user);
+        log.info("Password reset for user {}", user);
     }
 
     @Override

@@ -107,6 +107,14 @@ public class UserController extends BaseController {
         return user.toDto(true);
     }
 
+    @Operation(summary = "Reset user's password")
+    @PutMapping("/{id}/pwd")
+    @RolesAllowed({User.ROLE_ADMIN})
+    public void resetPassword(@PathVariable Long id, @RequestBody Map<String, String> params) {
+        String newPassword = params.get("newPassword");
+        userService.resetPassword(id, newPassword);
+    }
+
     @Operation(summary = "Update current user's basic info")
     @Parameters({@Parameter(name = "id", description = "The ID of the user")})
     @PutMapping("/my/basics")

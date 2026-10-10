@@ -21,6 +21,14 @@ public interface UserService extends GeneralService<User, UserFilter>, UserDetai
 
     void updatePassword(Long id, String oldPassword, String newPassword);
 
+    /**
+     * Reset the password of a user with the given ID to a new password.
+     * This method is typically used by administrators to reset a user's password without requiring the old password.
+     * @param id the ID of the user
+     * @param newPassword the new password to set
+     */
+    void resetPassword(Long id, String newPassword);
+
     void updateLastLoginInfo(User user);
 
     User updatePreference(Long userId, Preference preference);
