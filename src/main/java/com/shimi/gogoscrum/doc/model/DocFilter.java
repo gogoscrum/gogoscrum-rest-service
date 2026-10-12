@@ -8,6 +8,7 @@ public class DocFilter extends BaseFilter {
     @Serial
     private static final long serialVersionUID = 261537799353622749L;
     private Long projectId;
+    private Long creatorId;
     private String keyword;
     private Boolean publicAccess;
 
@@ -33,5 +34,13 @@ public class DocFilter extends BaseFilter {
 
     public void setPublicAccess(Boolean publicAccess) {
         this.publicAccess = publicAccess;
+    }
+
+    public Long getCreatorId() {
+        return creatorId;
+    }
+
+    public void setCreatorId(Long creatorId) {
+        this.creatorId = creatorId;
     }
 }

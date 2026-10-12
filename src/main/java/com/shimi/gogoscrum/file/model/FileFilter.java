@@ -9,6 +9,7 @@ public class FileFilter extends BaseFilter {
     @Serial
     private static final long serialVersionUID = -7042839464032343595L;
     private Long projectId;
+    private Long creatorId;
     private TargetType targetType;
     private List<TargetType> targetTypes;
     private List<FileType> fileTypes;
@@ -83,5 +84,13 @@ public class FileFilter extends BaseFilter {
 
     public void setFolder(Boolean folder) {
         this.folder = folder;
+    }
+
+    public Long getCreatorId() {
+        return creatorId;
+    }
+
+    public void setCreatorId(Long creatorId) {
+        this.creatorId = creatorId;
     }
 }

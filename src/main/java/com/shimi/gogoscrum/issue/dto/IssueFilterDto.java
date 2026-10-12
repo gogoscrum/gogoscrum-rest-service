@@ -31,6 +31,7 @@ public class IssueFilterDto extends BaseDto {
     private String language;
     private Long testCaseId;
     private Long testPlanId;
+    private Long creatorId;
 
     @Override
     public IssueFilter toEntity() {
@@ -174,5 +175,13 @@ public class IssueFilterDto extends BaseDto {
 
     public void setTestPlanId(Long testPlanId) {
         this.testPlanId = testPlanId;
+    }
+
+    public Long getCreatorId() {
+        return creatorId;
+    }
+
+    public void setCreatorId(Long creatorId) {
+        this.creatorId = creatorId;
     }
 }

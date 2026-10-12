@@ -74,6 +74,10 @@ public class Project extends BaseEntity implements Historical {
             dto.setOwner(this.getOwner().toDto().normalize());
         }
 
+        if (this.getCreatedBy() != null) {
+            dto.setCreatedBy(this.getCreatedBy().toDto().normalize());
+        }
+
         if (this.avatar != null) {
             dto.setAvatar(this.avatar.toDto().normalize());
         }

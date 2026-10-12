@@ -89,4 +89,10 @@ public class IssueSpecs {
             return criteriaBuilder.equal(issue.get("testPlan").get("id"), testPlanId);
         };
     }
+
+    public static Specification<Issue> creatorIdEquals(Long userId) {
+        return (issue, criteriaQuery, criteriaBuilder) -> {
+            return criteriaBuilder.equal(issue.get("createdBy").get("id"), userId);
+        };
+    }
 }

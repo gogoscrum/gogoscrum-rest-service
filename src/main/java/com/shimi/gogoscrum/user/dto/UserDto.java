@@ -191,6 +191,7 @@ public class UserDto extends BaseDto implements com.shimi.gsf.core.dto.UserDto {
         normalized.setNickname(this.nickname);
         normalized.setUsername(this.username);
         normalized.setAvatar(this.avatar);
+        normalized.setEnabled(this.enabled);
 
         return normalized;
     }

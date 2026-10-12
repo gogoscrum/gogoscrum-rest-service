@@ -89,6 +89,11 @@ public class DocServiceImpl extends BaseServiceImpl<Doc, DocFilter> implements D
             querySpec = DocSpecs.projectIdEqual(filter.getProjectId());
         }
 
+        if (filter.getCreatorId() != null) {
+            Specification<Doc> creatorIdEqual = DocSpecs.creatorIdEquals(filter.getCreatorId());
+            querySpec = Objects.isNull(querySpec) ? creatorIdEqual : querySpec.and(creatorIdEqual);
+        }
+
         if (StringUtils.hasText(filter.getKeyword())) {
             Specification<Doc> nameLike = DocSpecs.nameLike(filter.getKeyword());
             querySpec = Objects.isNull(querySpec) ? nameLike : querySpec.and(nameLike);

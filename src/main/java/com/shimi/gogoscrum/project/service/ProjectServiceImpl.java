@@ -212,6 +212,11 @@ public class ProjectServiceImpl extends BaseServiceImpl<Project, ProjectFilter> 
             querySpec = querySpec == null ? archivedSpec : querySpec.and(archivedSpec);
         }
 
+        if (filter.getCreatorId() != null) {
+            Specification<Project> creatorSpec = ProjectSpecs.creatorIdEquals(filter.getCreatorId());
+            querySpec = querySpec == null ? creatorSpec : querySpec.and(creatorSpec);
+        }
+
         return querySpec;
     }
 

@@ -48,11 +48,19 @@ public class UserController extends BaseController {
     @Autowired
     private RememberMeServices rememberMeServices;
 
-    @Operation(summary = "Create a new user")
+    @Operation(summary = "Create a new user from registration form")
     @PostMapping("/register")
     @PermitAll
     public UserDto register(@RequestBody UserDto userDto, HttpServletRequest request) {
         userDto.setLastLoginIp(IpUtil.getIpAddr(request));
+        User user = userDto.toEntity();
+        return userService.create(user).toDto();
+    }
+
+    @Operation(summary = "Create a new user from admin console")
+    @PostMapping("/create")
+    @RolesAllowed({User.ROLE_ADMIN})
+    public UserDto create(@RequestBody UserDto userDto) {
         User user = userDto.toEntity();
         return userService.create(user).toDto();
     }
@@ -66,7 +74,7 @@ public class UserController extends BaseController {
      */
     @Operation(summary = "Search Users")
     @Parameters({
-            @Parameter(name = "filter", description = "The search filer")})
+            @Parameter(name = "filter", description = "The search filter")})
     @GetMapping
     public DtoQueryResult<Dto> search(UserFilter filter) {
         filter.setEnabled(Boolean.TRUE);

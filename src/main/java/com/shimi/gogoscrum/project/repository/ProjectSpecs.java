@@ -3,10 +3,9 @@ package com.shimi.gogoscrum.project.repository;
 import com.shimi.gogoscrum.project.model.Project;
 import com.shimi.gogoscrum.project.model.ProjectMember;
 import com.shimi.gogoscrum.user.model.User;
-import org.springframework.data.jpa.domain.Specification;
-
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
+import org.springframework.data.jpa.domain.Specification;
 
 public class ProjectSpecs {
     private ProjectSpecs() {
@@ -34,6 +33,12 @@ public class ProjectSpecs {
         return (project, criteriaQuery, criteriaBuilder) -> {
             Join<Project, ProjectMember> join = project.join("projectMembers", JoinType.INNER);
             return criteriaBuilder.equal(join.get("user").get("id"), user.getId());
+        };
+    }
+
+    public static Specification<Project> creatorIdEquals(Long userId) {
+        return (project, criteriaQuery, criteriaBuilder) -> {
+            return criteriaBuilder.equal(project.get("createdBy").get("id"), userId);
         };
     }
 }

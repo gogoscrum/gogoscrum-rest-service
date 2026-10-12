@@ -21,4 +21,10 @@ public class DocSpecs {
         return (doc, criteriaQuery, criteriaBuilder)
                 -> criteriaBuilder.equal(doc.get("publicAccess"), publicAccess);
     }
+
+    public static Specification<Doc> creatorIdEquals(Long userId) {
+        return (doc, criteriaQuery, criteriaBuilder) -> {
+            return criteriaBuilder.equal(doc.get("createdBy").get("id"), userId);
+        };
+    }
 }

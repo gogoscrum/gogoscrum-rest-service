@@ -11,6 +11,7 @@ public class ProjectFilter extends BaseFilter {
     private Boolean deleted = Boolean.FALSE;
     private Boolean archived;
     private Boolean global;
+    private Long creatorId;
 
     public String getKeyword() {
         return keyword;
@@ -42,5 +43,13 @@ public class ProjectFilter extends BaseFilter {
 
     public void setGlobal(Boolean global) {
         this.global = global;
+    }
+
+    public Long getCreatorId() {
+        return creatorId;
+    }
+
+    public void setCreatorId(Long creatorId) {
+        this.creatorId = creatorId;
     }
 }

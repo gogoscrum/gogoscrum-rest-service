@@ -58,7 +58,7 @@ public class User extends BaseEntity implements com.shimi.gsf.core.model.User {
     @Override
     public UserDto toDto(boolean detailed) {
         UserDto dto = new UserDto();
-        BeanUtils.copyProperties(this, dto, "password", "password", "bindings");
+        BeanUtils.copyProperties(this, dto, "password", "bindings");
 
         if (this.avatar != null) {
             // to avoid circular reference, we only set the URL in the DTO

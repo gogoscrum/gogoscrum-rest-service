@@ -191,6 +191,11 @@ public class FileServiceImpl extends BaseServiceImpl<File, FileFilter> implement
             querySpec = FileSpecs.projectIdEqual(filter.getProjectId());
         }
 
+        if (filter.getCreatorId() != null) {
+            Specification<File> creatorIdEqual = FileSpecs.creatorIdEquals(filter.getCreatorId());
+            querySpec = Objects.isNull(querySpec) ? creatorIdEqual : querySpec.and(creatorIdEqual);
+        }
+
         if (filter.getParentId() != null) {
             Specification<File> parentIdEqual = FileSpecs.parentIdEqual(filter.getParentId());
             querySpec = Objects.isNull(querySpec) ? parentIdEqual : querySpec.and(parentIdEqual);

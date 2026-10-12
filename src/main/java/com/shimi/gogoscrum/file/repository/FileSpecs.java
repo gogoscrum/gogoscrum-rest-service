@@ -43,4 +43,10 @@ public class FileSpecs {
     public static Specification<File> isFolder(Boolean isFolder) {
         return (file, criteriaQuery, criteriaBuilder) -> criteriaBuilder.equal(file.get("folder"), isFolder);
     }
+
+    public static Specification<File> creatorIdEquals(Long userId) {
+        return (file, criteriaQuery, criteriaBuilder) -> {
+            return criteriaBuilder.equal(file.get("createdBy").get("id"), userId);
+        };
+    }
 }
