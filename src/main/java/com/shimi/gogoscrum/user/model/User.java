@@ -20,8 +20,8 @@ public class User extends BaseEntity implements com.shimi.gsf.core.model.User {
     @Serial
     private static final long serialVersionUID = -2322205969864150058L;
 
-    public static final String ROLE_USER = "ROLE_USER";
-    public static final String ROLE_ADMIN = "ROLE_ADMIN";
+    public static final String ROLE_USER = "USER";
+    public static final String ROLE_ADMIN = "ADMIN";
 
     private String username;
     private String nickname;
@@ -101,10 +101,10 @@ public class User extends BaseEntity implements com.shimi.gsf.core.model.User {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Set<GrantedAuthority> authorities = new HashSet<>();
 
-        authorities.add(new SimpleGrantedAuthority(ROLE_USER));
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + ROLE_USER));
 
         if (this.admin) {
-            authorities.add(new SimpleGrantedAuthority(ROLE_ADMIN));
+            authorities.add(new SimpleGrantedAuthority("ROLE_" + ROLE_ADMIN));
         }
 
         return authorities;
