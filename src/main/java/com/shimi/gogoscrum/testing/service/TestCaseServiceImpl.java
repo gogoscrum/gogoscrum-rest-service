@@ -223,7 +223,6 @@ public class TestCaseServiceImpl extends BaseServiceImpl<TestCase, TestCaseFilte
             log.warn("Test case with ID {} not found for refreshing latest run", caseId);
             return;
         }
-
         TestRun latestRun = testRunRepository.findTopByTestCaseIdOrderByIdDesc(caseId);
 
         if (latestRun != null) {

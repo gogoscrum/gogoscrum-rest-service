@@ -7,6 +7,7 @@ import com.shimi.gogoscrum.file.model.File;
 import com.shimi.gogoscrum.file.model.FileType;
 import com.shimi.gogoscrum.file.model.TargetType;
 import com.shimi.gogoscrum.file.service.FileService;
+import com.shimi.gogoscrum.setting.service.SettingService;
 import com.shimi.gogoscrum.user.model.Preference;
 import com.shimi.gogoscrum.user.model.User;
 import com.shimi.gogoscrum.user.model.UserBinding;
@@ -52,6 +53,8 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserFilter> implement
     private FileService fileService;
     @Autowired
     private UserBindingRepository bindRepository;
+    @Autowired
+    private SettingService settingService;
     @Autowired
     private PluginManager pluginManager;
     private final Map<String, OauthProvider> oauthProvidersMap = new HashMap<>();
@@ -413,6 +416,8 @@ public class UserServiceImpl extends BaseServiceImpl<User, UserFilter> implement
             }
         } else {
             // User want to create a new user account
+            settingService.checkSignupAllowed();
+
             // Create new user at first
             targetUser = this.create(user);
             log.info("Created new user from {} OAuth: {}", binding.getProvider(), targetUser);

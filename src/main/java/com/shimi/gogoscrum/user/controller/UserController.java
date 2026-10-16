@@ -4,6 +4,7 @@ import com.shimi.gogoscrum.common.controller.BaseController;
 import com.shimi.gogoscrum.common.util.IpUtil;
 import com.shimi.gogoscrum.file.dto.FileDto;
 import com.shimi.gogoscrum.file.model.File;
+import com.shimi.gogoscrum.setting.service.SettingService;
 import com.shimi.gogoscrum.user.dto.UserDto;
 import com.shimi.gogoscrum.user.model.Preference;
 import com.shimi.gogoscrum.user.model.User;
@@ -47,11 +48,14 @@ public class UserController extends BaseController {
     private UserService userService;
     @Autowired
     private RememberMeServices rememberMeServices;
+    @Autowired
+    private SettingService settingService;
 
     @Operation(summary = "Create a new user from registration form")
     @PostMapping("/register")
     @PermitAll
     public UserDto register(@RequestBody UserDto userDto, HttpServletRequest request) {
+        settingService.checkSignupAllowed();
         userDto.setLastLoginIp(IpUtil.getIpAddr(request));
         User user = userDto.toEntity();
         return userService.create(user).toDto();
@@ -156,7 +160,7 @@ public class UserController extends BaseController {
     @Operation(summary = "Update current user's password")
     @PutMapping("/my/pwd")
     public void updatePassword(@RequestBody Map<String, String> params) {
-        User user = (User) getCurrentUser();
+        User user = getCurrentUser();
 
         String oldPassword = params.get("oldPassword");
         String newPassword = params.get("newPassword");

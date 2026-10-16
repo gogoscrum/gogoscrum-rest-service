@@ -56,7 +56,7 @@ public class WebSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         String[] csrfIgnores = {"/files/upload"};
         String[] publicApis = {"/swagger-ui/**", "/v3/api-docs/**", "/health", "/csrf", "/users/register", "/users/login",
-                "/users/oauth/**", "/docs/view/**"};
+                "/users/oauth/**", "/docs/view/**", "/settings/signup"};
         http
                 .cors(cors -> cors
                         .configurationSource(corsConfigurationSource())

@@ -17,4 +17,5 @@ public class ErrorCode extends com.shimi.gsf.core.exception.ErrorCode {
     public static final String DUPLICATED_GROUP = "duplicatedGroup";
     public static final String DUPLICATED_TAG = "duplicatedTag";
     public static final String HAS_CHILDREN = "hasChildren";
+    public static final String SIGNUP_DISABLED = "signupDisabled";
 }
