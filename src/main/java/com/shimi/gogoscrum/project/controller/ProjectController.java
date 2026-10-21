@@ -124,8 +124,8 @@ public class ProjectController extends BaseController {
 
     @Operation(summary = "Search project invitations")
     @Parameters({@Parameter(name = "id", description = "The project ID")})
-    @GetMapping("/{id}/invitations")
-    public DtoQueryResult<Dto> searchInvitations(@PathVariable Long id, InvitationFilter filter) {
+    @PostMapping("/{id}/invitations/search")
+    public DtoQueryResult<Dto> searchInvitations(@PathVariable Long id, @RequestBody InvitationFilter filter) {
         filter.setProjectId(id);
         EntityQueryResult<Invitation> queryResult = invitationService.search(filter);
         return queryResult.toDto();

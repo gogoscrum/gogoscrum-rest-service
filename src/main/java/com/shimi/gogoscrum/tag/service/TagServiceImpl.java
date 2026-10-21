@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 @Service
@@ -79,6 +80,11 @@ public class TagServiceImpl extends BaseServiceImpl<Tag, TagFilter> implements T
         if (StringUtils.hasText(filter.getKeyword())) {
             Specification<Tag> nameLike = TagSpecs.nameLike(filter.getKeyword());
             querySpec = querySpec.and(nameLike);
+        }
+
+        if (!CollectionUtils.isEmpty(filter.getCreators())) {
+            Specification<Tag> creatorIdIn = TagSpecs.creatorIdIn(filter.getCreators());
+            querySpec = querySpec.and(creatorIdIn);
         }
 
         return querySpec;

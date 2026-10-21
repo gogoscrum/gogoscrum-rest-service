@@ -35,10 +35,23 @@ public class TagController extends BaseController {
         return savedTag.toDto(true);
     }
 
-    @Operation(summary = "Search tags")
+    /**
+     * @deprecated Use POST /tags/search instead
+     */
+    @Operation(summary = "Search tags by GET. Deprecated, use POST /tags/search instead")
     @Parameters({@Parameter(name = "filter", description = "The search filter")})
     @GetMapping
-    public DtoQueryResult<Dto> search(TagFilter filter) {
+    @Deprecated
+    public DtoQueryResult<Dto> query(TagFilter filter) {
+        filter = Objects.requireNonNullElse(filter, new TagFilter());
+        EntityQueryResult<Tag> queryResult = tagService.search(filter);
+        return queryResult.toDto(true);
+    }
+
+    @Operation(summary = "Search tags by POST. Supports complex filters and sorts and is the recommended way to search tags.")
+    @Parameters({@Parameter(name = "filter", description = "The search filter")})
+    @PostMapping("/search")
+    public DtoQueryResult<Dto> search(@RequestBody TagFilter filter) {
         filter = Objects.requireNonNullElse(filter, new TagFilter());
         EntityQueryResult<Tag> queryResult = tagService.search(filter);
         return queryResult.toDto(true);

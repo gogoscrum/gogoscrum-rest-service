@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.Optional;
@@ -124,6 +125,16 @@ public class InvitationServiceImpl extends BaseServiceImpl<Invitation, Invitatio
             }
 
             querySpec = querySpec.and(statusSpec);
+        }
+
+        if (!CollectionUtils.isEmpty(filter.getCreators())) {
+            Specification<Invitation> creatorIdIn = InvitationSpecs.creatorIdIn(filter.getCreators());
+            querySpec = querySpec.and(creatorIdIn);
+        }
+
+        if (!CollectionUtils.isEmpty(filter.getInvitationTypes())) {
+            Specification<Invitation> invitationTypeIn = InvitationSpecs.invitationTypeIn(filter.getInvitationTypes());
+            querySpec = querySpec.and(invitationTypeIn);
         }
 
         return querySpec;

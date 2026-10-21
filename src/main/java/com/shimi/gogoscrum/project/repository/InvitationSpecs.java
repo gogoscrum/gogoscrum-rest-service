@@ -1,9 +1,11 @@
 package com.shimi.gogoscrum.project.repository;
 
 import com.shimi.gogoscrum.project.model.Invitation;
+import com.shimi.gogoscrum.project.model.InvitationType;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.util.Date;
+import java.util.List;
 
 public class InvitationSpecs {
     private InvitationSpecs() {
@@ -40,5 +42,15 @@ public class InvitationSpecs {
                 (invitation, criteriaQuery, criteriaBuilder) -> criteriaBuilder.greaterThan(invitation.get("expireTime"), new Date());
 
         return expireTimeNull.or(expireTimeInFuture);
+    }
+
+    public static Specification<Invitation> creatorIdIn(List<Long> creatorIds) {
+        return (invitation, criteriaQuery, criteriaBuilder) ->
+                criteriaBuilder.in(invitation.get("createdBy").get("id")).value(creatorIds);
+    }
+
+    public static Specification<Invitation> invitationTypeIn(List<InvitationType> invitationTypes) {
+        return (invitation, criteriaQuery, criteriaBuilder) ->
+                criteriaBuilder.in(invitation.get("invitationType")).value(invitationTypes);
     }
 }
