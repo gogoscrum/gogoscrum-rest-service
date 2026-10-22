@@ -148,6 +148,19 @@ VITE_FILE_PATH = 'Path to the lfs directory configured in the backend Java servi
 - Visit [http://localhost:8081] to start using gogoscrum
 - On your first visit, please register a new user account. You can log in after registration
 
+#### Start Admin Console
+
+- Clone `gogoscrum-web-admin` and import it into your IDE
+- Create `.env.local` file in the root of the project and add the following content:
+```
+NODE_ENV=development
+VITE_FILE_PATH = 'Path to the lfs directory configured in the backend Java service (the value of file.local.dir.base in application-dev.properties)'
+```
+- Run `npm i` to install dependencies
+- Run `npm run dev` to start the frontend project
+- Visit [http://localhost:8081/admin/] to show admin console login page
+- On your first visit, please modify the admin flag of user table in database, then you can login as an admin
+
 ## Report bugs
 
 Join “gogoscrum community version” project to submit bugs: [https://www.gogoscrum.com/invitations/n6DDaxwqMndM]

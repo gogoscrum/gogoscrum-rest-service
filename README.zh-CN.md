@@ -150,6 +150,19 @@ VITE_FILE_PATH = '指向到后端Java服务中所配置的lfs目录的完整路�
 - 访问 [http://localhost:8081] 开始使用gogoscrum
 - 首次访问请先注册新用户，注册后即可登录使用
 
+#### 启动管理后台
+
+- 克隆 `gogoscrum-web-admin` 仓库至本地目录，并导入至IDE开发工具
+- 在项目根目录下新建文件 `.env.local` 并添加以下内容：
+```
+NODE_ENV=development
+VITE_FILE_PATH = '指向到后端Java服务中所配置的lfs目录的完整路径（application-dev.properties文件中所设定的file.local.dir.base的值）'
+```
+- 运行命令 `npm install` 安装依赖
+- 运行命令 `npm run dev` 启动前端项目
+- 访问 [http://localhost:8081/admin/] 打开后台登录页面
+- 首次访问管理后台时，请先手动修改数据库user表中的admin标记位，赋予用户管理员权限，然后即可登录管理后台
+
 ## Bug提交
 
 加入“gogoscrum社区版”项目，提交bug：[https://www.gogoscrum.com/invitations/n6DDaxwqMndM]
