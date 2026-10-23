@@ -12,6 +12,7 @@ import com.shimi.gogoscrum.sprint.dto.SprintDto;
 import com.shimi.gogoscrum.sprint.model.Sprint;
 import com.shimi.gogoscrum.user.model.User;
 import jakarta.persistence.*;
+import org.hibernate.annotations.JoinFormula;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.CollectionUtils;
 
@@ -51,6 +52,10 @@ public class Project extends BaseEntity implements Historical {
 
     @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "project", fetch = FetchType.LAZY)
     private List<ProjectMember> projectMembers = new ArrayList<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinFormula("(select pm.user_id from project_member pm where pm.project_id = id and pm.role = 'OWNER' limit 1)")
+    private User owner;
 
     public Project(Long projectId) {
         this.id = projectId;
@@ -102,6 +107,10 @@ public class Project extends BaseEntity implements Historical {
     }
 
     public User getOwner() {
+        if (this.owner != null) {
+            return this.owner;
+        }
+
         Optional<ProjectMember> owner = this.getProjectMembers().stream()
                 .filter(participator -> ProjectMemberRole.OWNER.equals(participator.getRole())).findFirst();
 

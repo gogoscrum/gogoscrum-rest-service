@@ -43,10 +43,14 @@ public class ProjectController extends BaseController {
         return savedProject.toDto(true);
     }
 
+    /**
+     * @deprecated Use POST /projects/search instead
+     */
     @Operation(summary = "Search projects")
     @Parameters({@Parameter(name = "filter", description = "Project search filter")})
     @GetMapping
-    public DtoQueryResult<Dto> search(ProjectFilter filter) {
+    @Deprecated
+    public DtoQueryResult<Dto> query(ProjectFilter filter) {
         EntityQueryResult<Project> queryResult = projectService.search(Objects.requireNonNullElse(filter, new ProjectFilter()));
         return queryResult.toDto();
     }
@@ -55,7 +59,7 @@ public class ProjectController extends BaseController {
     @Parameters({@Parameter(name = "filter", description = "Project search filter")})
     @PostMapping("/search")
     @RolesAllowed({User.ROLE_ADMIN})
-    public DtoQueryResult<Dto> searchByPost(@RequestBody ProjectFilter filter) {
+    public DtoQueryResult<Dto> search(@RequestBody ProjectFilter filter) {
         EntityQueryResult<Project> queryResult = projectService.search(Objects.requireNonNullElse(filter, new ProjectFilter()));
         return queryResult.toDto();
     }
