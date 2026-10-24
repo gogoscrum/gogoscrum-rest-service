@@ -12,6 +12,7 @@ public class DocDto extends BaseDto {
     private Long projectId;
     private String name;
     private String content;
+    private Long size = 0L;
     private Boolean publicAccess = Boolean.FALSE;
 
     @Override
@@ -43,6 +44,14 @@ public class DocDto extends BaseDto {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public Long getSize() {
+        return size;
+    }
+
+    public void setSize(Long size) {
+        this.size = size;
     }
 
     public Boolean getPublicAccess() {

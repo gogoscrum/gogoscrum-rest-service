@@ -95,4 +95,9 @@ public class IssueSpecs {
             return criteriaBuilder.equal(issue.get("createdBy").get("id"), userId);
         };
     }
+
+    public static Specification<Issue> creatorIdIn(List<Long> creatorIds) {
+        return (issue, criteriaQuery, criteriaBuilder) ->
+                criteriaBuilder.in(issue.get("createdBy").get("id")).value(creatorIds);
+    }
 }

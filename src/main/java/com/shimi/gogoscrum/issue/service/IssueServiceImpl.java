@@ -385,7 +385,11 @@ public class IssueServiceImpl extends BaseServiceImpl<Issue, IssueFilter> implem
             querySpec = Objects.isNull(querySpec) ? testPlanIdEquals : querySpec.and(testPlanIdEquals);
         }
 
-        if (filter.getCreatorId() != null) {
+        // Creator IDs has a higher priority over Creator ID
+        if (!CollectionUtils.isEmpty(filter.getCreators())) {
+            Specification<Issue> creatorIdIn = IssueSpecs.creatorIdIn(filter.getCreators());
+            querySpec = Objects.isNull(querySpec) ? creatorIdIn : querySpec.and(creatorIdIn);
+        } else if (filter.getCreatorId() != null) {
             Specification<Issue> creatorIdEquals = IssueSpecs.creatorIdEquals(filter.getCreatorId());
             querySpec = Objects.isNull(querySpec) ? creatorIdEquals : querySpec.and(creatorIdEquals);
         }

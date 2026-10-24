@@ -14,6 +14,7 @@ public class Doc extends BaseEntity {
     private Long projectId;
     private String name;
     private String content;
+    private Long size = 0L;
     private Boolean publicAccess = Boolean.FALSE;
 
     @Override
@@ -58,6 +59,14 @@ public class Doc extends BaseEntity {
         this.content = content;
     }
 
+    public Long getSize() {
+        return size;
+    }
+
+    public void setSize(Long size) {
+        this.size = size;
+    }
+
     public Boolean getPublicAccess() {
         return publicAccess;
     }
@@ -72,6 +81,7 @@ public class Doc extends BaseEntity {
         sb.append("id=").append(id);
         sb.append(", name='").append(name).append('\'');
         sb.append(", projectId=").append(projectId);
+        sb.append(", size=").append(size);
         sb.append(", publicAccess=").append(publicAccess);
         sb.append('}');
         return sb.toString();

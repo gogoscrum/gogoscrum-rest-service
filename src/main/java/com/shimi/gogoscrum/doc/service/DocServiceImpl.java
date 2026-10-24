@@ -16,8 +16,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 @Service
@@ -89,7 +91,11 @@ public class DocServiceImpl extends BaseServiceImpl<Doc, DocFilter> implements D
             querySpec = DocSpecs.projectIdEqual(filter.getProjectId());
         }
 
-        if (filter.getCreatorId() != null) {
+        // Creator IDs has a higher priority over Creator ID
+        if (!CollectionUtils.isEmpty(filter.getCreators())) {
+            Specification<Doc> creatorIdIn = DocSpecs.creatorIdIn(filter.getCreators());
+            querySpec = Objects.isNull(querySpec) ? creatorIdIn : querySpec.and(creatorIdIn);
+        } else if (filter.getCreatorId() != null) {
             Specification<Doc> creatorIdEqual = DocSpecs.creatorIdEquals(filter.getCreatorId());
             querySpec = Objects.isNull(querySpec) ? creatorIdEqual : querySpec.and(creatorIdEqual);
         }
@@ -109,12 +115,18 @@ public class DocServiceImpl extends BaseServiceImpl<Doc, DocFilter> implements D
 
     @Override
     protected void beforeCreate(Doc doc) {
+        doc.setSize(calculateContentSize(doc.getContent()));
         ProjectMemberUtils.checkDeveloper(projectService.get(doc.getProjectId()), getCurrentUser());
     }
 
     @Override
     protected void beforeUpdate(Long id, Doc existingEntity, Doc newEntity) {
+        newEntity.setSize(calculateContentSize(newEntity.getContent()));
         ProjectMemberUtils.checkDeveloper(projectService.get(existingEntity.getProjectId()), getCurrentUser());
+    }
+
+    private long calculateContentSize(String content) {
+        return content == null ? 0L : content.getBytes(StandardCharsets.UTF_8).length;
     }
 
     @Override

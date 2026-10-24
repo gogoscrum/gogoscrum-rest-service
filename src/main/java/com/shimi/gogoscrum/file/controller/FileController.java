@@ -101,7 +101,6 @@ public class FileController extends BaseController {
     @Operation(summary = "Search files")
     @Parameters({@Parameter(name = "filter", description = "The search filter")})
     @PostMapping("/search")
-    @RolesAllowed({User.ROLE_ADMIN})
     public DtoQueryResult<Dto> search(@RequestBody FileFilter filter) {
         EntityQueryResult<File> queryResult = fileService.search(filter);
         return queryResult.toDto();

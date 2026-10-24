@@ -3,12 +3,14 @@ package com.shimi.gogoscrum.doc.model;
 import com.shimi.gsf.core.model.BaseFilter;
 
 import java.io.Serial;
+import java.util.List;
 
 public class DocFilter extends BaseFilter {
     @Serial
     private static final long serialVersionUID = 261537799353622749L;
     private Long projectId;
     private Long creatorId;
+    private List<Long> creators;
     private String keyword;
     private Boolean publicAccess;
 
@@ -42,5 +44,13 @@ public class DocFilter extends BaseFilter {
 
     public void setCreatorId(Long creatorId) {
         this.creatorId = creatorId;
+    }
+
+    public List<Long> getCreators() {
+        return creators;
+    }
+
+    public void setCreators(List<Long> creators) {
+        this.creators = creators;
     }
 }

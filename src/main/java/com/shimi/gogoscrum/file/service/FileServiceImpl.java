@@ -18,6 +18,7 @@ import com.shimi.gsf.core.exception.BadRequestException;
 import com.shimi.gsf.core.exception.BaseServiceException;
 import com.shimi.gsf.core.exception.EntityNotFoundException;
 import com.shimi.gsf.core.model.EntityQueryResult;
+import com.shimi.gsf.core.model.Filter;
 import org.pf4j.PluginManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -180,6 +181,11 @@ public class FileServiceImpl extends BaseServiceImpl<File, FileFilter> implement
             }
         }
 
+        // If no order is specified, default to ordering by folder first, then by ID in descending order
+        if (CollectionUtils.isEmpty(filter.getOrders())) {
+            filter.setOrders(List.of(new Filter.Order("folder", Filter.Direction.DESC), new Filter.Order("id", Filter.Direction.DESC)));
+        }
+
         return super.search(filter);
     }
 
@@ -189,11 +195,6 @@ public class FileServiceImpl extends BaseServiceImpl<File, FileFilter> implement
 
         if (filter.getProjectId() != null) {
             querySpec = FileSpecs.projectIdEqual(filter.getProjectId());
-        }
-
-        if (filter.getCreatorId() != null) {
-            Specification<File> creatorIdEqual = FileSpecs.creatorIdEquals(filter.getCreatorId());
-            querySpec = Objects.isNull(querySpec) ? creatorIdEqual : querySpec.and(creatorIdEqual);
         }
 
         if (filter.getParentId() != null) {
@@ -216,6 +217,15 @@ public class FileServiceImpl extends BaseServiceImpl<File, FileFilter> implement
         } else if (filter.getTargetType() != null) {
             Specification<File> targetTypeEqual = FileSpecs.targetTypeEqual(filter.getTargetType());
             querySpec = Objects.isNull(querySpec) ? targetTypeEqual : querySpec.and(targetTypeEqual);
+        }
+
+        // Creator IDs has a higher priority over Creator ID
+        if (!CollectionUtils.isEmpty(filter.getCreators())) {
+            Specification<File> creatorIdIn = FileSpecs.creatorIdIn(filter.getCreators());
+            querySpec = Objects.isNull(querySpec) ? creatorIdIn : querySpec.and(creatorIdIn);
+        } else if (filter.getCreatorId() != null) {
+            Specification<File> creatorIdEqual = FileSpecs.creatorIdEquals(filter.getCreatorId());
+            querySpec = Objects.isNull(querySpec) ? creatorIdEqual : querySpec.and(creatorIdEqual);
         }
 
         if (!CollectionUtils.isEmpty(filter.getFileTypes())) {

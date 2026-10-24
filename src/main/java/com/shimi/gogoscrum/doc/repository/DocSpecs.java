@@ -3,6 +3,8 @@ package com.shimi.gogoscrum.doc.repository;
 import com.shimi.gogoscrum.doc.model.Doc;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.util.List;
+
 public class DocSpecs {
     private DocSpecs() {
     }
@@ -25,6 +27,12 @@ public class DocSpecs {
     public static Specification<Doc> creatorIdEquals(Long userId) {
         return (doc, criteriaQuery, criteriaBuilder) -> {
             return criteriaBuilder.equal(doc.get("createdBy").get("id"), userId);
+        };
+    }
+
+    public static Specification<Doc> creatorIdIn(List<Long> userIds) {
+        return (doc, criteriaQuery, criteriaBuilder) -> {
+            return criteriaBuilder.in(doc.get("createdBy").get("id")).value(userIds);
         };
     }
 }

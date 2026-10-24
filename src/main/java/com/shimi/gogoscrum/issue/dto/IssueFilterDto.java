@@ -32,6 +32,7 @@ public class IssueFilterDto extends BaseDto {
     private Long testCaseId;
     private Long testPlanId;
     private Long creatorId;
+    private List<Long> creators;
 
     @Override
     public IssueFilter toEntity() {
@@ -183,5 +184,13 @@ public class IssueFilterDto extends BaseDto {
 
     public void setCreatorId(Long creatorId) {
         this.creatorId = creatorId;
+    }
+
+    public List<Long> getCreators() {
+        return creators;
+    }
+
+    public void setCreators(List<Long> creators) {
+        this.creators = creators;
     }
 }

@@ -58,6 +58,8 @@ public class IssueFilter extends BaseEntity implements Filter {
     private Long testPlanId;
     @Transient
     private Long creatorId;
+    @Transient
+    private List<Long> creators;
 
     @Override
     public IssueFilterDto toDto() {
@@ -224,6 +226,14 @@ public class IssueFilter extends BaseEntity implements Filter {
 
     public void setCreatorId(Long creatorId) {
         this.creatorId = creatorId;
+    }
+
+    public List<Long> getCreators() {
+        return creators;
+    }
+
+    public void setCreators(List<Long> creators) {
+        this.creators = creators;
     }
 
     @Override

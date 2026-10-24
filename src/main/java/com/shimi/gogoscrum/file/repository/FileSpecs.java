@@ -49,4 +49,10 @@ public class FileSpecs {
             return criteriaBuilder.equal(file.get("createdBy").get("id"), userId);
         };
     }
+
+    public static Specification<File> creatorIdIn(List<Long> userIds) {
+        return (file, criteriaQuery, criteriaBuilder) -> {
+            return criteriaBuilder.in(file.get("createdBy").get("id")).value(userIds);
+        };
+    }
 }

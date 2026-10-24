@@ -85,9 +85,13 @@ public class DocController extends BaseController {
         docService.delete(id);
     }
 
+    /**
+     * @deprecated Use POST /docs/search instead
+     */
     @Operation(summary = "Search docs")
     @Parameters({@Parameter(name = "filter", description = "The search filter")})
     @GetMapping
+    @Deprecated
     public DtoQueryResult<Dto> query(DocFilter filter) {
         EntityQueryResult<Doc> queryResult = docService.search(Objects.requireNonNullElse(filter, new DocFilter()));
         return queryResult.toDto();
@@ -96,7 +100,6 @@ public class DocController extends BaseController {
     @Operation(summary = "Search docs")
     @Parameters({@Parameter(name = "filter", description = "The search filter")})
     @PostMapping("/search")
-    @RolesAllowed({User.ROLE_ADMIN})
     public DtoQueryResult<Dto> search(@RequestBody DocFilter filter) {
         EntityQueryResult<Doc> queryResult = docService.search(filter);
         return queryResult.toDto();
